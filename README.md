@@ -7,7 +7,7 @@
 
 1. Koristimo [Linear](https://linear.app/glense/team/GLE/active) za tracking. Pogledajte [backlog](https://linear.app/glense/team/GLE/backlog) npr. setupujte github s linear-om vrv. olaksava posao.
 2. Kada hocete da napravite granu, <b> prvo napravite issue </b> na Linear-u. 
-![alt text](tutorial_pic.png)
+![alt text](image.png)
 Kopirajte ime grane i ukucajte u terminalu: <br>
 `git checkout -b ime_grane`
 3. Kada napravite commit-ove itd. preporuka je da to rebase-ujete u jedan commit. [Link do tutoriala](https://stackoverflow.com/questions/5189560/how-do-i-squash-my-last-n-commits-together)
