@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:50653",
+"RedirectUrl": "",
+"LaunchCommand": "npm run dev",
+"WorkingDirectory": "C:\\Users\\brank\\source\\repos\\Glense\\Glense.Server\\..\\glense.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}
