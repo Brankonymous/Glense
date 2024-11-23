@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Stack } from "@mui/material";
-import { Sidebar } from "./";
+import { Sidebar, Videos } from "./";
 
 import "../css/Feed.css";
+import { videos } from "../utils/constants";
 
 function Feed() {
-    const [selectedCategory, setSelectedCategory] = useState("New Videos");
+    const [selectedCategory, setSelectedCategory] = useState("Category changed");
 
     return (
         <Stack className="feed-container">
@@ -16,8 +17,10 @@ function Feed() {
                 />
             </Box>
 
-            <Box className="feed-content" />
-            </Stack>
+            <Box className="feed-content" >
+                <Videos videos={videos} />
+            </Box>
+        </Stack>
     );
 }
 

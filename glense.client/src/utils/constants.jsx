@@ -27,3 +27,23 @@ export const categories = [
     { name: "Gym", icon: <FitnessCenterIcon /> },
     { name: "Crypto", icon: <DeveloperModeIcon /> },
 ];
+
+export const videos = [];
+for (let i = 0; i < 100; i++) {
+    videos.push({
+        id: { videoId: "haDjmBT9tu4" },
+        title: "An Honest Review of Apple Intelligence\... So Far",
+        url: "https://www.youtube.com/watch?v=haDjmBT9tu4"
+    });
+}
+
+export const demoThumbnailUrl = "https://i.ibb.co/G2L2Gwp/API-Course.png";
+export const demoChannelUrl = "/channel/UCmXmlB4-HJytD7wek0Uo97A";
+export const demoVideoUrl = "/video/GDa8kZLNhJ4";
+export const demoChannelTitle = "JavaScript Mastery";
+export const demoVideoTitle =
+    "Build and Deploy 5 JavaScript & React API Projects in 10 Hours - Full Course | RapidAPI";
+export const demoProfilePicture =
+    "http://dergipark.org.tr/assets/app/images/buddy_sample.png";
+
+

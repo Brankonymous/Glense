@@ -1,6 +1,6 @@
 .feed-container {
     flex-direction: row !important;
-    height: 90vh !important;
+    height: 100vh !important;
     overflow: hidden !important;
 }
 
@@ -10,6 +10,13 @@
     overflow-y: auto !important;
     box-sizing: border-box !important;
     padding: 10px !important;
+}
+
+.feed-content {
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    padding: 10px !important;
+    margin-top: 20px !important;
 }
 
 .feed-sidebar::-webkit-scrollbar {

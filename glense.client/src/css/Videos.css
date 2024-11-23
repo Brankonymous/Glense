@@ -1,0 +1,16 @@
+.videos-container {
+    margin-top: 3rem !important;
+    height: 95% !important;
+    overflow: auto !important;
+}
+
+.videos-stack {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 2rem !important;
+}
+
+.video-box {
+    display: block !important;
+}
