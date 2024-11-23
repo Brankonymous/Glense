@@ -12,6 +12,12 @@
     padding: 10px !important;
 }
 
+.feed-content {
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    padding: 10px !important;
+}
+
 .feed-sidebar::-webkit-scrollbar {
     width: 5px;
 }
