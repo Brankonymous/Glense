@@ -2,13 +2,12 @@ import { Stack, Box } from "@mui/material";
 import { VideoCard } from "./";
 import CardSkeleton from "./CardSkeleton";
 
-function Videos({ videos }) {
-    if (!videos?.length) return <CardSkeleton />;
+function Videos({ videos, direction }) {
+    if (!videos?.length) return <CardSkeleton direction={direction} />;
 
-    console.log("VIDEO ID " + videos);
     return (
         <Stack
-            direction={"row"}
+            direction={direction || "row"}
             flexWrap='wrap'
             justifyContent='center'
             alignItems='center'

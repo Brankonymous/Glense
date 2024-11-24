@@ -7,14 +7,16 @@ import {
     demoChannelTitle,
     demoVideoTitle,
     demoVideoUrl,
+    demoThumbnailUrl,
 } from "../utils/constants";
 
 function VideoCard({
     video: {
-        id: { videoId }
+        id: { videoId },
+        title,
+        url
     },
 }) {
-    console.log("VIDEO ID " + videoId);
     return (
         <Card
             sx={{
@@ -25,6 +27,7 @@ function VideoCard({
         >
             <Link to={videoId ? `/video/${videoId}` : demoVideoUrl}>
                 <CardMedia
+                    image={demoThumbnailUrl}
                     sx={{
                         width: "100%",
                         height: 150,
