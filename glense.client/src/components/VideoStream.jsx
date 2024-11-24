@@ -11,8 +11,6 @@ import {
 import { Videos } from ".";
 import { videos } from "../utils/constants";
 
-import VideoStreamSkeleton from "./VideoStreamSkeleton";
-
 function VideoStream() {
   const [videoStream, setvideoStream] = useState(null);
 
@@ -22,12 +20,10 @@ function VideoStream() {
   // const { id } = useParams();
   const id = 'haDjmBT9tu4';
 
-  if (!id) return <VideoStreamSkeleton />;
-
   const publishedAt = 'Nov 22, 2024';
   const channelId = 'mkbhd';
   const title = 'An Honest Review of Apple Intelligence... So Far';
-  const description = 'Reviewing every Apple Intelligence feature that\'s come out so far...';
+  const description = 'Reviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\nReviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\nReviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\nReviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\n';
   const channelTitle = 'Marques Brownlee';
   const tags = ['Apple'];
   const viewCount = 2364175;
@@ -168,8 +164,6 @@ function VideoStream() {
                 <Typography
                   sx={{
                     color: "#fff",
-
-                    overflow: "auto",
                   }}
                 >
                   {showMoreDesc
@@ -199,13 +193,10 @@ function VideoStream() {
         </Box>
 
         <Box
-          marginTop='2rem'
           sx={{
             width: '50%',
             display: 'flex',
             marginLeft: '3%',
-            overflowY: 'auto',
-            height: '100%',
           }}
         >
           <Videos videos={videos} direction={'column'} />

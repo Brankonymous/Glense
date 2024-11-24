@@ -30,7 +30,7 @@ function VideoCard({
                     image={demoThumbnailUrl}
                     sx={{
                         width: "100%",
-                        height: 150,
+                        height: 180,
                     }}
                 />
             </Link>
