@@ -8,8 +8,8 @@ import {
   ThumbUpOutlined,
 } from "@mui/icons-material";
 
-import { Videos } from ".";
-import { videos } from "../utils/constants";
+import { Videos, VideoComments } from ".";
+import { videos, videoInfo } from "../utils/constants";
 
 import "../css/VideoStream.css";
 
@@ -22,15 +22,6 @@ function VideoStream() {
   // const { id } = useParams();
   const id = 'haDjmBT9tu4';
 
-  const publishedAt = 'Nov 22, 2024';
-  const channelId = 'mkbhd';
-  const title = 'An Honest Review of Apple Intelligence... So Far';
-  const description = 'Reviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\nReviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\nReviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\nReviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\n';
-  const channelTitle = 'Marques Brownlee';
-  const tags = ['Apple'];
-  const viewCount = 2364175;
-  const likeCount = 123456;
-
   return (
     <Box className="video-stream-container">
       <Stack direction="row" className="video-stream-stack">
@@ -42,32 +33,33 @@ function VideoStream() {
               width="100%"
               height="100%"
             />
-            <Typography className="video-title">{title}</Typography>
+            <Typography className="video-title">{videoInfo.title}</Typography>
 
             <Stack className="video-details">
-              <Link to={`/channel/${channelId}`}>
+              <Link to={`/channel/${videoInfo.channelId}`}>
               <Typography className="channel-title">
-                  {channelTitle}
+                  {videoInfo.channelTitle}
                   <CheckCircle className="check-circle-icon" />
                 </Typography>
               </Link>
 
               <Typography className="like-dislike">
                 <ThumbUpOutlined className="thumb-icon" />
-                {Number(likeCount).toLocaleString()} {" | "}
+                {Number(videoInfo.likeCount).toLocaleString()} {" | "}
                 <ThumbDownOutlined className="thumb-icon" />
+                {Number(videoInfo.dislikeCount).toLocaleString()}
               </Typography>
             </Stack>
 
             {/* Description */}
              <Box className="description-container">
               <Box className="description-details">
-                <Typography>{Number(viewCount).toLocaleString()} views</Typography>
-                <Typography className="publish-date">Published at {publishedAt}</Typography>
+                <Typography>{Number(videoInfo.viewCount).toLocaleString()} views</Typography>
+                <Typography className="publish-date">Published at {videoInfo.publishedAt}</Typography>
 
 
-                {tags.map((tag) =>
-                  tags.length > 10 ? (
+                {videoInfo.tags.map((tag) =>
+                  videoInfo.tags.length > 10 ? (
                     <Typography
                       key={index}
                       className="tag"
@@ -78,11 +70,11 @@ function VideoStream() {
                     <Typography
                       className="tag"
                     >
-                      #{tags}
+                      #{videoInfo.tags}
                     </Typography>
                   )
                 )}
-                {tags.length > 10 && (
+                {videoInfo.tags.length > 10 && (
                   <button
                     className="toggle-tags-button"
                     onClick={() => setShowMoreTags(!showMoreTags)}
@@ -93,8 +85,8 @@ function VideoStream() {
 
                 <Typography className="description-text">
                   {showMoreDesc
-                    ? description
-                    : `${description.substring(0, 250)}`}
+                    ? videoInfo.description
+                    : `${videoInfo.description.substring(0, 250)}`}
                   <button
                     className="toggle-description-button"
                     onClick={() => setShowMoreDesc(!showMoreDesc)}
@@ -107,6 +99,7 @@ function VideoStream() {
 
             {/* Comments section */}
             <Typography className="comments-section-title">Comments</Typography>
+            <VideoComments id={id} />
           </Box>
         </Box>
 

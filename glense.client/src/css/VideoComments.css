@@ -1,0 +1,44 @@
+.loading-text {
+    color: white !important;
+    margin-left: 1rem !important;
+}
+  
+.video-comments-container {
+    gap: 1rem !important;
+    border-radius: 30px !important;
+    padding: 5px !important;
+    margin-top: 10px !important;
+}
+  
+.comment-item {
+    gap: 1rem !important;
+    align-items: center !important;
+    border-radius: 30px !important;
+    padding-top: 15px !important;
+}
+
+.comment-avatar {
+    border-radius: 50% !important;
+    height: 50px !important;
+    width: 50px !important;
+}
+  
+.comment-name {
+    color: gray !important;
+    font-size: 15px !important;
+}
+  
+.comment-text {
+    color: white !important;
+    font-size: 1.05rem !important;
+}
+  
+.comment-likes {
+    color: gray !important;
+    display: flex !important;
+    padding-top: 0.3rem !important;
+}
+
+.comment-thumbs-up {
+    padding-right: 0.3rem !important;
+}

@@ -46,4 +46,28 @@ export const demoVideoTitle =
 export const demoProfilePicture =
     "http://dergipark.org.tr/assets/app/images/buddy_sample.png";
 
+// Comment
+export const comments = [];
+for (let i = 0; i < 50; i++) {
+    comments.push({
+        id: i,
+        name: "John Doe",
+        imageUrl: "https://i.ibb.co/G2L2Gwp/API-Course.png",
+        commentText: "This is a comment",
+        likeCount: 10,
+    });
+}
 
+
+// VideoStream
+export const videoInfo = {
+    publishedAt: 'Nov 22, 2024',
+    channelId: 'mkbhd',
+    title: 'An Honest Review of Apple Intelligence... So Far',
+    description: 'Reviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\nReviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\nReviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\nReviewing every Apple Intelligence feature that\'s come out so far... \n\n Get both the MKBHD Carry-on & Commuter backpack together at http://ridge.com/MKBHD for 30% off\n',
+    channelTitle: 'Marques Brownlee',
+    tags: ['Apple'],
+    viewCount: 2364175,
+    likeCount: 123456,
+    dislikeCount: 1234
+};
