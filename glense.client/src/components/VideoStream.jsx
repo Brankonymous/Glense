@@ -11,6 +11,8 @@ import {
 import { Videos } from ".";
 import { videos } from "../utils/constants";
 
+import "../css/VideoStream.css";
+
 function VideoStream() {
   const [videoStream, setvideoStream] = useState(null);
 
@@ -30,153 +32,71 @@ function VideoStream() {
   const likeCount = 123456;
 
   return (
-    <Box minHeight='95vh' width="100vw" height="100vh">
-      <Stack direction="row" sx={{ p: "3rem" }}>
-        <Box         
-          sx={{
-            width: '50%',
-            marginLeft: '20%',
-          }}
-        >
-          <Box
-            sx={{ width: "100%", position: "sticky", top: "86px", zIndex: "1" }}
-          >
-            <ReactPlayer
-              width='100%'
+    <Box className="video-stream-container">
+      <Stack direction="row" className="video-stream-stack">
+      <Box className="video-player-container">
+        <Box className="video-player-box">
+            <ReactPlayer 
               url={`https://www.youtube.com/watch?v=${id}`}
               controls
+              width="100%"
+              height="100%"
             />
-            <Typography
-              color='#fff'
-              variant='h5'
-              fontWeight='bold'
-              sx={{ color: "#fff" }}
-              py={2}
-              px={2}
-            >
-              {title}
-            </Typography>
-            <Stack
-              direction='row'
-              alignItems='center'
-              gap='.5rem'
-              sx={{ color: "#fff" }}
-              py={1}
-              px={2}
-            >
+            <Typography className="video-title">{title}</Typography>
+
+            <Stack className="video-details">
               <Link to={`/channel/${channelId}`}>
-                <Typography
-                  whiteSpace='nowrap'
-                  display='flex'
-                  alignItems='center'
-                  color='gray'
-                  fontWeight='bold'
-                >
+              <Typography className="channel-title">
                   {channelTitle}
-                  <CheckCircle
-                    sx={{
-                      fontSize: "12px",
-                      color: "gray",
-                      ml: "5px",
-                    }}
-                  />
+                  <CheckCircle className="check-circle-icon" />
                 </Typography>
               </Link>
 
-              <Typography
-                variant='body1'
-                fontSize={{ xs: "10px", sm: "1rem" }}
-                sx={{
-                  opacity: 0.7,
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  p: ".5rem",
-                  borderRadius: "30px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                }}
-              >
-                <ThumbUpOutlined
-                  sx={{
-                    fontSize: "20px",
-                    color: "gray",
-                  }}
-                />
-                {Number(likeCount).toLocaleString()} {""}
-                {"|"}
-                {""}
-                <ThumbDownOutlined
-                  sx={{
-                    fontSize: "20px",
-                    color: "gray",
-                  }}
-                />
+              <Typography className="like-dislike">
+                <ThumbUpOutlined className="thumb-icon" />
+                {Number(likeCount).toLocaleString()} {" | "}
+                <ThumbDownOutlined className="thumb-icon" />
               </Typography>
             </Stack>
+
             {/* Description */}
-            <Box
-              sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-                borderRadius: "30px",
-                p: "15px",
-                marginTop: "10px",
-              }}
-            >
-              <Box sx={{ color: "gray" }}>
-                <Typography>
-                  {Number(viewCount).toLocaleString()} views
-                </Typography>
-                <Typography sx={{ fontWeight: "bold" }}>
-                  Published at {publishedAt}
-                </Typography>
+             <Box className="description-container">
+              <Box className="description-details">
+                <Typography>{Number(viewCount).toLocaleString()} views</Typography>
+                <Typography className="publish-date">Published at {publishedAt}</Typography>
+
 
                 {tags.map((tag) =>
                   tags.length > 10 ? (
                     <Typography
-                      sx={{ display: "inline-block", color: "#3366CC" }}
+                      key={index}
+                      className="tag"
                     >
                       {showMoreTags ? tag : `#${tag.substring(0, 5)}`}
                     </Typography>
                   ) : (
                     <Typography
-                      sx={{ display: "inline-block", color: "#3366CC" }}
+                      className="tag"
                     >
-                      # {tags}
+                      #{tags}
                     </Typography>
                   )
                 )}
                 {tags.length > 10 && (
                   <button
-                    style={{
-                      outline: "none",
-                      border: "none",
-                      display: "inline",
-                      fontSize: "14px",
-                      backgroundColor: "transparent",
-                      color: "#3366CC",
-                    }}
+                    className="toggle-tags-button"
                     onClick={() => setShowMoreTags(!showMoreTags)}
                   >
                     {showMoreTags ? "Show less" : "..."}
                   </button>
                 )}
 
-                <Typography
-                  sx={{
-                    color: "#fff",
-                  }}
-                >
+                <Typography className="description-text">
                   {showMoreDesc
                     ? description
                     : `${description.substring(0, 250)}`}
                   <button
-                    style={{
-                      outline: "none",
-                      border: "none",
-                      fontSize: "14px",
-                      backgroundColor: "transparent",
-                      color: "rgba(255,255,255,.8)",
-                    }}
+                    className="toggle-description-button"
                     onClick={() => setShowMoreDesc(!showMoreDesc)}
                   >
                     {showMoreDesc ? "Show less" : "Show more"}
@@ -184,21 +104,13 @@ function VideoStream() {
                 </Typography>
               </Box>
             </Box>
+
             {/* Comments section */}
-            <Typography sx={{ color: "#f1f1f1", my: "1rem", mx: "1rem" }}>
-              {" "}
-              Comments
-            </Typography>
+            <Typography className="comments-section-title">Comments</Typography>
           </Box>
         </Box>
 
-        <Box
-          sx={{
-            width: '50%',
-            display: 'flex',
-            marginLeft: '3%',
-          }}
-        >
+        <Box className="related-videos-container">
           <Videos videos={videos} direction={'column'} />
         </Box>
       </Stack>

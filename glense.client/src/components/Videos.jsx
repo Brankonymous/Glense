@@ -1,21 +1,17 @@
 import { Stack, Box } from "@mui/material";
 import { VideoCard } from "./";
 
+import "../css/Videos.css"; // Importing the CSS file
+
 function Videos({ videos, direction }) {
     return (
-        <Box marginTop='3rem'
-          height='90%'
-          overflow={'auto'}
-        >
+        <Box className="videos-container">
             <Stack
+                className="videos-stack"
                 direction={direction || "row"}
-                flexWrap='wrap'
-                justifyContent='center'
-                alignItems='center'
-                gap={2}
             >
                 {videos.map((item, index) => (
-                    <Box key={index}>
+                    <Box key={index} className="video-box">
                         {item.id.videoId && <VideoCard video={item} />}
                     </Box>
                 ))}
