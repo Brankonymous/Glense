@@ -2,11 +2,13 @@
     min-height: 95vh !important;
     width: 100vw !important;
     height: 100vh !important;
+    overflow: auto !important;
 }
 
 .video-stream-stack {
     padding: 3rem !important;
     flex-direction: row !important;
+    overflow: auto !important;
 }
 
 .video-player-container {
@@ -72,7 +74,7 @@
   
 .description-container {
     background-color: rgba(255, 255, 255, 0.1) !important;
-    border-radius: 30px !important;
+    border-radius: 15px !important;
     padding: 15px !important;
     margin-top: 10px !important;
 }
@@ -124,4 +126,3 @@
     display: flex !important;
     margin-left: 3% !important;
 }
-  
