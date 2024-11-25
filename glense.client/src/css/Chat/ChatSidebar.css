@@ -1,0 +1,23 @@
+.chat-sidebar {
+    width: 25% !important;
+    color: white !important;
+    border-right: 1px solid #3b2b2b !important;
+    overflow-y: auto !important;
+    transition: all 0.3s ease-in-out !important;
+    background-color: #101717 !important;
+}
+
+.chat-sidebar-item {
+    padding: 15px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease-in-out, transform 0.1s ease-in-out !important;
+}
+
+.chat-sidebar-item:hover {
+    background-color: #452f2f !important; 
+}
+
+.chat-sidebar-item:active {
+    background-color: #613232 !important; 
+    transform: scale(0.98) !important;
+}

@@ -5,7 +5,7 @@ import { ThumbUpOutlined } from "@mui/icons-material";
 import { comments } from "../utils/constants";
 import "../css/VideoComments.css";
 
-function VideoComments({ id }) {
+function VideoComments({  }) {
   if (!comments)
     return (
       <Typography className="loading-text">

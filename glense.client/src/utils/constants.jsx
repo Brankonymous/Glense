@@ -1,6 +1,5 @@
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import HomeIcon from "@mui/icons-material/Home";
-import CodeIcon from "@mui/icons-material/Code";
 import OndemandVideoIcon from "@mui/icons-material/OndemandVideo";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import LiveTvIcon from "@mui/icons-material/LiveTv";
@@ -26,6 +25,29 @@ export const categories = [
     { name: "Comedy", icon: <TheaterComedyIcon /> },
     { name: "Gym", icon: <FitnessCenterIcon /> },
     { name: "Crypto", icon: <DeveloperModeIcon /> },
+];
+
+export const chats = [
+    { 
+        name: "Keki", 
+        profileImage: "http://dergipark.org.tr/assets/app/images/buddy_sample.png",
+        messages: [
+            {sender: "Keki", message: "Hello", time: "12:00", isMe: false},
+            {sender: "Branko", message: "Hello", time: "12:05", isMe: true},
+            {sender: "Keki", message: "How are you", time: "12:10", isMe: false},
+            {sender: "Keki", message: "Ok.", time: "12:10", isMe: false},
+        ]
+    },
+    { 
+        name: "Irena", 
+        profileImage: "http://dergipark.org.tr/assets/app/images/buddy_sample.png",
+        messages: [
+            {sender: "Irena", message: "Smorena sam nesto danas", time: "12:00", isMe: false},
+            {sender: "Branko", message: "Briga mee", time: "12:05", isMe: true},
+            {sender: "Irena", message: ":(", time: "12:10", isMe: false},
+            {sender: "Irena", message: "Sta radis", time: "13:10", isMe: false},
+        ]
+    }
 ];
 
 export const videos = [];
