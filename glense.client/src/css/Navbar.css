@@ -64,3 +64,7 @@
     color: gray !important;
     font-weight: bold !important;
 }
+
+.navbar-button {
+    text-transform: none !important;
+}

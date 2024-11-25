@@ -1,0 +1,85 @@
+/* Modal Box Styling */
+.modal-box {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 400px !important;
+    background-color: #1c1c1c !important;
+    color: #fff !important;
+    box-shadow: 0px 3px 24px rgba(18, 16, 16, 0.8) !important; 
+    padding: 16px !important;
+    border-radius: 8px !important; 
+    outline: none !important; 
+  }
+  
+  /* Close Button */
+  .modal-close-button {
+    position: absolute !important;
+    color: #fff !important; 
+    top: 8px !important;
+    right: 8px !important;
+    cursor: pointer !important;
+    z-index: 1 !important;
+  }
+  
+  .modal-close-button:hover {
+    color: #ff4c4c !important; 
+  }
+
+  .sign-in-tab {
+    color: white !important
+  }
+  
+  /* Tabs Styling */
+  .modal-tabs {
+    display: flex !important;
+    justify-content: center !important;
+    margin-bottom: 16px !important;
+    color: #fff !important;
+  }
+  
+  /* Typography (Title) Styling */
+  .modal-title {
+    text-align: center !important;
+    margin-top: 16px !important;
+    font-size: 1.25rem !important;
+    font-weight: bold !important;
+    color: #fff !important;
+  }
+  
+  /* Form Field Styling */
+  .modal-form {
+    margin-top: 16px !important;
+    color: white !important;
+  }
+  
+  .modal-input {
+    width: 100% !important;
+    margin-bottom: 16px !important;
+    background-color: transparent !important;
+    color: #fff !important;
+  }
+  
+  .modal-submit-button {
+    width: 100% !important;
+    background-color: #606eb6 !important;
+    color: #fff !important;
+    padding: 8px !important;
+    border: none !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+  }
+  
+  .modal-submit-button:hover {
+    background-color: #3c4784 !important; 
+    color: #fff !important;
+  }
+  
+  .MuiInputBase-input {
+    color: white !important;
+  }
+  
+  .MuiInputLabel-root {
+    color: rgb(177, 177, 177) !important;
+  }
