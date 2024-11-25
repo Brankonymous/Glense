@@ -5,7 +5,8 @@ import { Box } from "@mui/material";
 import {
     Navbar,
     Feed,
-    VideoStream
+    VideoStream,
+    ChannelDetail
 } from "./components";
 
 const App = () => {
@@ -18,6 +19,7 @@ const App = () => {
                         <Route path='/' element={<Feed />} />
 
                         <Route path='/video/:id' element={<VideoStream />} />
+                        <Route path='/channel/:id' element={<ChannelDetail />} />
                     </Routes>
                 </Box>
             </div>

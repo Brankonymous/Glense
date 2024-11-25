@@ -45,3 +45,22 @@
     display: flex;
     justify-content: center;
 }
+
+.auth-container {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.navbar-option-stack {
+    flex-direction: row !important;
+    gap: 20px !important;
+}
+
+.navbar-option {
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    color: gray !important;
+    font-weight: bold !important;
+}
