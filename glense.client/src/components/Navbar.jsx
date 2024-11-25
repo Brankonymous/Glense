@@ -1,11 +1,14 @@
-import { Stack } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Stack, Typography } from "@mui/material";
+import { Link, Route } from "react-router-dom";
 import logo from "../assets/logo_transparent.png";
 import SearchBar from "../components/SearchBar";
 
 import "../css/Navbar.css";
 
 function Navbar() {
+    const channelId = "mkbhd";
+    const shouldSignIn = true;
+
     return (
         <Stack>
             <div className="Navbar">
@@ -19,6 +22,29 @@ function Navbar() {
 
                     <div className="searchbar-container">
                         <SearchBar />
+                    </div>
+
+                    <div className="auth-container">
+                        {shouldSignIn ? (
+                            <Stack className="navbar-option-stack">
+                                <Link to={`/chat/${channelId}`}>
+                                    <Typography className="navbar-option">
+                                        Chat
+                                    </Typography>
+                                </Link>
+                                <Link to={`/channel/${channelId}`}>
+                                    <Typography className="navbar-option">
+                                        Profile
+                                    </Typography>
+                                </Link>
+                            </Stack>
+                        ): (
+                            <Link to={`/sign-on`}>
+                                <Typography className="navbar-option">
+                                    Sign-in
+                                </Typography>
+                            </Link>
+                        )}
                     </div>
                 </div>
             </div>
