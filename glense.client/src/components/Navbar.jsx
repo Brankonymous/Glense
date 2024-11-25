@@ -1,5 +1,5 @@
 import { Stack, Typography, Button  } from "@mui/material";
-import { Link, Route } from "react-router-dom";
+import { Link } from "react-router-dom";
 import logo from "../assets/logo_transparent.png";
 import SearchBar from "../components/SearchBar";
 import { useState } from "react";
@@ -10,7 +10,7 @@ import { SignInPopup } from ".";
 function Navbar() {
     const [open, setOpen] = useState(false);
     const channelId = "mkbhd";
-    const shouldSignIn = true;
+    const shouldSignIn = false;
 
     return (
         <Stack>

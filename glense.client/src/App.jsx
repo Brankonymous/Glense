@@ -8,6 +8,7 @@ import {
     VideoStream,
     ChannelDetail
 } from "./components";
+import Chat from "./components/Chat/Chat";
 
 const App = () => {
     return (
@@ -20,6 +21,7 @@ const App = () => {
 
                         <Route path='/video/:id' element={<VideoStream />} />
                         <Route path='/channel/:id' element={<ChannelDetail />} />
+                        <Route path='/chat/:id' element={<Chat />} />
                     </Routes>
                 </Box>
             </div>

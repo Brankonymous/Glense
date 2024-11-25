@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import ReactPlayer from "react-player";
 import { Typography, Box, Stack } from "@mui/material";
 import {
@@ -14,12 +14,9 @@ import { videos, videoInfo } from "../utils/constants";
 import "../css/VideoStream.css";
 
 function VideoStream() {
-  const [videoStream, setvideoStream] = useState(null);
-
   const [showMoreTags, setShowMoreTags] = useState(false);
   const [showMoreDesc, setShowMoreDesc] = useState(false);
 
-  // const { id } = useParams();
   const id = 'haDjmBT9tu4';
 
   return (

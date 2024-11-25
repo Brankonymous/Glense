@@ -3,7 +3,7 @@ import { categories } from "../utils/constants";
 
 import "../css/Sidebar.css";
 
-function Sidebar({ selectedCategory, setSelectedCategory }) {
+function Sidebar({ setSelectedCategory }) {
     return (
         <Stack className='sidebar-stack'>
             {categories.map((category) => (
