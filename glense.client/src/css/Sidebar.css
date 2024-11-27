@@ -1,4 +1,5 @@
 .sidebar-stack {
+    margin-top: 5vh;
     overflow-y: auto;
     height: auto;
     flex-direction: row;
