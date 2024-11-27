@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+obj/
+bin/
+
 # Editor directories and files
 .vs/*
 .vscode/*
@@ -23,3 +26,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+package-lock.json
