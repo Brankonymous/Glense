@@ -1,11 +1,5 @@
 .DS_Store
 
-# dotnet core
-bin/
-obj/
-project.lock.json
-NuGetScratch/
-
 api/wwwroot/**
 !api/wwwroot/scratch.html
 !api/wwwroot/favicon.ico
@@ -20,6 +14,9 @@ client-react/components/*.js
 client-react.test/build
 !client-react.test/build/client-react/styles/
 
+Glense.Server/bin/
+Glense.Server/obj/
+
 # ops
 ops/hosts
 ops/config.yml
@@ -31,3 +28,5 @@ ops/*.retry
 # IDE
 .idea/
 .vs/
+
+package-lock.json

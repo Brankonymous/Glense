@@ -55,7 +55,7 @@ function VideoStream() {
                 <Typography className="publish-date">Published at {videoInfo.publishedAt}</Typography>
 
 
-                {videoInfo.tags.map((tag) =>
+                {videoInfo.tags.map((tag, index) =>
                   videoInfo.tags.length > 10 ? (
                     <Typography
                       key={index}
@@ -65,6 +65,7 @@ function VideoStream() {
                     </Typography>
                   ) : (
                     <Typography
+                      key={tag}
                       className="tag"
                     >
                       #{videoInfo.tags}
