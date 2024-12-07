@@ -13,6 +13,12 @@ Kopirajte ime grane i ukucajte u terminalu: <br>
 3. Kada napravite commit-ove itd. preporuka je da to rebase-ujete u jedan commit. [Link do tutoriala](https://stackoverflow.com/questions/5189560/how-do-i-squash-my-last-n-commits-together)
 4. Kada zavrsite sa radom na feature-u <b>napravite PR</b>. To mozete odraditi sa github sajta a moze i preko terminala. Push na master je zabranjen i treba vam _jedan approve_ za merge u master.
 
+#Kako pokrenuti projekat
+
+1. Pokrenuti sql server
+2. U vs konzoli ukucati dotnet run
+3. Pogledati na kom je portu u konzoli koja iskoci
+4. U browser otici na https://localhost:<port>/api/test/test-connection
 
 # Ostalo
 Dopunite ovaj readme s jos korisnih informacije ako ih nadjete.
