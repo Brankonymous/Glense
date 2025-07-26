@@ -10,8 +10,7 @@
 ![alt text](image.png)
 Kopirajte ime grane i ukucajte u terminalu: <br>
 `git checkout -b ime_grane`
-3. Kada napravite commit-ove itd. preporuka je da to rebase-ujete u jedan commit. [Link do tutoriala](https://stackoverflow.com/questions/5189560/how-do-i-squash-my-last-n-commits-together)
-4. Kada zavrsite sa radom na feature-u <b>napravite PR</b>. To mozete odraditi sa github sajta a moze i preko terminala. Push na master je zabranjen i treba vam _jedan approve_ za merge u master.
+3. Kada zavrsite sa radom na feature-u <b>napravite PR</b>. To mozete odraditi sa github sajta a moze i preko terminala. Push na master granu je zabranjen sam po sebi, tj. treba vam _jedan approve_ za merge u master.
 
 # Kako pokrenuti bazu
 
