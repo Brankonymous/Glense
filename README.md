@@ -66,6 +66,6 @@ Kopirajte ime grane i ukucajte u terminalu: <br>
 1. Pokrenuti sql server
 2. U vs konzoli ukucati dotnet run
 3. Pogledati na kom je portu u konzoli koja iskoci
-4. U browser otici na https://localhost:<port>/api/test/test-connection
+4. U browser otici na `https://localhost:<port>/api/test/test-connection`
 
 Dopunite ovaj readme s jos korisnih informacije ako ih nadjete.
