@@ -14,6 +14,8 @@ namespace InitDatabase
     // TODO: Insert test data from the SQL script.
     public static class DatabaseInitializer
     {
+        static string SQL_SCRIPT_PATH = Path.Combine(Directory.GetCurrentDirectory(), "..", "glense.sql");
+        
         // Get the connection string based on the environment, which is used to connect to the SQL Server instance.
         public static Task<string> getConnectionString()
         {
@@ -41,7 +43,7 @@ namespace InitDatabase
             else
             {
                 // MS SQL Server on Linux and MacOS is accessed through a docker container. This should be a default way of connecting to the SQL Server instance.
-                connectionString = $"Server={linuxServer};Database={databaseName};User Id={linuxUser};Password={linuxPassword};Trusted_Connection=True;TrustServerCertificate=True;";
+                connectionString = $"Server={linuxServer};Database={databaseName};User Id={linuxUser};Password={linuxPassword};TrustServerCertificate=True;";
             }
 
             return Task.FromResult(connectionString);
@@ -62,10 +64,9 @@ namespace InitDatabase
                 }
 
                 // Read and execute the SQL script
-                var sqlScriptPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "glense.sql");
-                if (File.Exists(sqlScriptPath))
+                if (File.Exists(SQL_SCRIPT_PATH))
                 {
-                    var sqlScript = await File.ReadAllTextAsync(sqlScriptPath);
+                    var sqlScript = await File.ReadAllTextAsync(SQL_SCRIPT_PATH);
 
                     using var connection = new SqlConnection(connectionString);
                     await connection.OpenAsync();
@@ -97,7 +98,7 @@ namespace InitDatabase
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: SQL script not found at {sqlScriptPath}");
+                    Console.WriteLine($"Warning: SQL script not found at {SQL_SCRIPT_PATH}");
                 }
             }
             catch (Exception ex)
@@ -114,11 +115,11 @@ namespace InitDatabase
             var batches = new List<string>();
             var lines = script.Split('\n');
             var currentBatch = new System.Text.StringBuilder();
-            
+
             foreach (var line in lines)
             {
                 var trimmedLine = line.Trim();
-                
+
                 // Check if this line is a GO statement
                 if (trimmedLine.Equals("GO", StringComparison.OrdinalIgnoreCase))
                 {
@@ -136,14 +137,14 @@ namespace InitDatabase
                     currentBatch.AppendLine(line);
                 }
             }
-            
+
             // Add the last batch if it has content
             var lastBatch = currentBatch.ToString().Trim();
             if (!string.IsNullOrEmpty(lastBatch))
             {
                 batches.Add(lastBatch);
             }
-            
+
             return batches;
         }
     }
