@@ -5,6 +5,7 @@ namespace Glense.Server
 {
     public class ApplicationDbContext : DbContext
     {
+        public DbSet<Category> Categories { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<CommentLikes> CommentLikes { get; set; }
         public DbSet<Conversation> Conversations { get; set; }

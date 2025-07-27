@@ -3,3 +3,6 @@ obj/
 
 
 package-lock.json
+
+# Environment variables
+.env
