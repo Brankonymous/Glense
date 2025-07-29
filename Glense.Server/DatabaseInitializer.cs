@@ -14,8 +14,14 @@ namespace InitDatabase
     // TODO: Insert test data from the SQL script.
     public static class DatabaseInitializer
     {
-        static string SQL_SCRIPT_PATH = Path.Combine(Directory.GetCurrentDirectory(), "..", "glense.sql");
-        
+        // Directory containing the SQL scripts.
+        static string SQL_SCRIPTS_DIR = Path.Combine(Directory.GetCurrentDirectory(), "utils", "sql");
+
+        // SQL scripts for the database initialization.
+        static string SQL_INITIALIZE_SCRIPT_PATH = Path.Combine(SQL_SCRIPTS_DIR, "glense.sql");
+        // SQL scripts for the database filling.
+        static string SQL_FILL_SCRIPT_PATH = Path.Combine(SQL_SCRIPTS_DIR, "ingest_data.sql");
+
         // Get the connection string based on the environment, which is used to connect to the SQL Server instance.
         public static Task<string> getConnectionString()
         {
@@ -35,6 +41,14 @@ namespace InitDatabase
                 throw new InvalidOperationException("Database connection parameters are not set in the environment variables.");
             }
 
+            // On the first run, the database does not exist. We need to connect to the master database to create our Glense database.
+            if (!string.IsNullOrEmpty(windowsServer) && !DatabaseExists(windowsServer, databaseName) &&
+                !string.IsNullOrEmpty(linuxServer) && !string.IsNullOrEmpty(linuxUser) && !string.IsNullOrEmpty(linuxPassword) && !DatabaseExists(linuxServer, databaseName, linuxUser, linuxPassword))
+            {
+                databaseName = "master";
+            }
+
+            // TODO: Add login support through user and password in Windows.
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 // Windows has it's own Authentication for SQL Server.

@@ -65,3 +65,14 @@ Postoji `Glense.Server/.env_example` kako to mozete uraditi
 # Kako pokrenuti projekat
 1. Preko konzole lociraj se na `Glense.Server/` folder
 2. **dotnet run**
+
+# Pre-commit Hook
+
+This project includes a pre-commit hook that automatically formats C# code before each commit.
+The hook will automatically run and format your C# code. If any files are modified by formatting, the commit will be blocked and you'll need to stage the formatted files and commit again.
+You can also run formatting manually:
+
+```bash
+# Format the entire solution
+dotnet format Glense
+```
