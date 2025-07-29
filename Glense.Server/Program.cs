@@ -24,6 +24,8 @@ var app = builder.Build();
 
 // Initialize database with starting SQL script.
 await DatabaseInitializer.InitializeDatabaseAsync(app.Services, connectionString);
+// Fill databse with test data
+await DatabaseInitializer.FillDatabaseAsync(app.Services, connectionString);
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
