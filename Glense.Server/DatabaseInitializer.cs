@@ -50,7 +50,7 @@ namespace InitDatabase
                 connectionString = $"Server={windowsServer};Database={databaseName};Trusted_Connection=True;TrustServerCertificate=True;";
             }
             else
-            {   
+            {
                 // MS SQL Server on Linux and MacOS is accessed through a docker container. This should be a default way of connecting to the SQL Server instance.
                 connectionString = $"Server={linuxServer};Database={databaseName};User Id={linuxUser};Password={linuxPassword};TrustServerCertificate=True;";
             }
