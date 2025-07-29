@@ -73,6 +73,6 @@ The hook will automatically run and format your C# code. If any files are modifi
 You can also run formatting manually:
 
 ```bash
-# Format the entire solution
-dotnet format .
+# Place yourself on some directory:
+dotnet format Glense
 ```
