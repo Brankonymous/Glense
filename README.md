@@ -68,8 +68,17 @@ Postoji `Glense.Server/.env_example` kako to mozete uraditi
 
 # Pre-commit Hook
 
+When you first clone the repository, run the setup script to install the pre-commit hook:
+
+```bash
+# Make sure you're in the repository root
+./scripts/setup-hooks.sh
+```
+
 This project includes a pre-commit hook that automatically formats C# code before each commit.
+
 The hook will automatically run and format your C# code. If any files are modified by formatting, the commit will be blocked and you'll need to stage the formatted files and commit again.
+
 You can also run formatting manually:
 
 ```bash
