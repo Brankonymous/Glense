@@ -1,7 +1,6 @@
 using Glense.Server;
 using Microsoft.EntityFrameworkCore;
 using InitDatabase;
-using System.Runtime.InteropServices;
 using DotNetEnv;
 
 // Load environment variables from .env file
@@ -22,10 +21,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Initialize database with starting SQL script.
+// Initialize and fill the database with starting SQL script.
 await DatabaseInitializer.InitializeDatabaseAsync(app.Services, connectionString);
-// Fill databse with test data
-await DatabaseInitializer.FillDatabaseAsync(app.Services, connectionString);
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
