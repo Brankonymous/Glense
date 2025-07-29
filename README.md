@@ -74,5 +74,5 @@ You can also run formatting manually:
 
 ```bash
 # Format the entire solution
-dotnet format Glense
+dotnet format .
 ```
