@@ -12,7 +12,7 @@ namespace InitDatabase
     {
         // Directory containing the SQL scripts.
         static string SQL_SCRIPTS_DIR = Path.Combine(Directory.GetCurrentDirectory(), "utils", "sql");
-        
+
         // SQL scripts for the database initialization.
         static string SQL_INITIALIZE_SCRIPT_PATH = Path.Combine(SQL_SCRIPTS_DIR, "glense.sql");
         // SQL scripts for the database filling.
