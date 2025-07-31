@@ -1,9 +1,5 @@
-using Glense.Server;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
-using System.IO;
 using System.Runtime.InteropServices;
-using Microsoft.Identity.Client;
 
 namespace InitDatabase
 {
@@ -11,12 +7,11 @@ namespace InitDatabase
     // 1. Drop the database if it exists.
     // 2. Create the database.
     // 3. Create the tables and relationships between them.
-    // TODO: Insert test data from the SQL script.
+    // 4. Insert test data from the SQL script.
     public static class DatabaseInitializer
     {
         // Directory containing the SQL scripts.
         static string SQL_SCRIPTS_DIR = Path.Combine(Directory.GetCurrentDirectory(), "utils", "sql");
-
         // SQL scripts for the database initialization.
         static string SQL_INITIALIZE_SCRIPT_PATH = Path.Combine(SQL_SCRIPTS_DIR, "glense.sql");
         // SQL scripts for the database filling.
@@ -34,16 +29,15 @@ namespace InitDatabase
             string? linuxUser = Environment.GetEnvironmentVariable("LINUX_USER");
             string? linuxPassword = Environment.GetEnvironmentVariable("LINUX_PASSWORD");
 
-            // Assert that variables are not null or empty
-            // Check if the windows or linux parameters are set
+            // Assert that variables for either Linux/macOS or Windows are not null or empty.
             if (string.IsNullOrEmpty(databaseName) || (string.IsNullOrEmpty(windowsServer) && (string.IsNullOrEmpty(linuxServer) || string.IsNullOrEmpty(linuxUser) || string.IsNullOrEmpty(linuxPassword))))
             {
                 throw new InvalidOperationException("Database connection parameters are not set in the environment variables.");
             }
 
             // On the first run, the database does not exist. We need to connect to the master database to create our Glense database.
-            if (!string.IsNullOrEmpty(windowsServer) && !DatabaseExists(windowsServer, databaseName) &&
-                !string.IsNullOrEmpty(linuxServer) && !string.IsNullOrEmpty(linuxUser) && !string.IsNullOrEmpty(linuxPassword) && !DatabaseExists(linuxServer, databaseName, linuxUser, linuxPassword))
+            if ((!string.IsNullOrEmpty(windowsServer) && !DatabaseExists(windowsServer, databaseName)) ||
+                (!string.IsNullOrEmpty(linuxServer) && !string.IsNullOrEmpty(linuxUser) && !string.IsNullOrEmpty(linuxPassword) && !DatabaseExists(linuxServer, databaseName, linuxUser, linuxPassword)))
             {
                 databaseName = "master";
             }
@@ -63,8 +57,62 @@ namespace InitDatabase
             return Task.FromResult(connectionString);
         }
 
+        // Check if the master database exists with trusted connection mode.
+        static bool DatabaseExists(string server, string dbName)
+        {
+            try
+            {
+                string connStr = $"Server={server};Database=master;Trusted_Connection=True;TrustServerCertificate=True;";
+                string query = $"SELECT COUNT(*) FROM sys.databases WHERE name = @dbName";
+
+                using (var conn = new SqlConnection(connStr))
+                using (var cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@dbName", dbName);
+                    conn.Open();
+                    return (int)cmd.ExecuteScalar() > 0;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        // Check if the master database exists with user and password.
+        static bool DatabaseExists(string server, string dbName, string username, string password)
+        {
+            try
+            {
+                string connStr = $"Server={server};Database=master;User Id={username};Password={password};TrustServerCertificate=True;";
+                string query = $"SELECT COUNT(*) FROM sys.databases WHERE name = @dbName";
+
+                using (var conn = new SqlConnection(connStr))
+                using (var cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@dbName", dbName);
+                    conn.Open();
+                    return (int)cmd.ExecuteScalar() > 0;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         // Initialize the database and create tables with the SQL script.
         public static async Task InitializeDatabaseAsync(IServiceProvider services, string connectionString)
+        {
+            // Execute the SQL script to initialize the database.
+            await ExecuteSqlScriptAsync(services, connectionString, SQL_INITIALIZE_SCRIPT_PATH, "Database initialized successfully with SQL script.");
+
+            // Fill the database with test data.
+            await ExecuteSqlScriptAsync(services, connectionString, SQL_FILL_SCRIPT_PATH, "Database filled successfully with SQL script.");
+        }
+
+        // Common method to execute SQL scripts.
+        private static async Task ExecuteSqlScriptAsync(IServiceProvider services, string connectionString, string scriptPath, string successMessage)
         {
             try
             {
@@ -73,14 +121,15 @@ namespace InitDatabase
 
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    Console.WriteLine("Warning: No connection string found. Database initialization skipped.");
-                    return;
+                    throw new Exception("No connection string found when executing SQL script: " + scriptPath +
+                                        ". Ensure that the connection string is provided via the appropriate environment variable " +
+                                        "(e.g., 'DB_CONNECTION_STRING') or configuration setting.");
                 }
 
                 // Read and execute the SQL script
-                if (File.Exists(SQL_SCRIPT_PATH))
+                if (File.Exists(scriptPath))
                 {
-                    var sqlScript = await File.ReadAllTextAsync(SQL_SCRIPT_PATH);
+                    var sqlScript = await File.ReadAllTextAsync(scriptPath);
 
                     using var connection = new SqlConnection(connectionString);
                     await connection.OpenAsync();
@@ -108,22 +157,20 @@ namespace InitDatabase
                         }
                     }
 
-                    Console.WriteLine("Database initialized successfully with SQL script.");
+                    Console.WriteLine(successMessage);
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: SQL script not found at {SQL_SCRIPT_PATH}");
+                    throw new Exception("SQL script not found: " + scriptPath);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error initializing database: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                // Don't throw - allow the application to continue even if DB init fails
+                throw new Exception("Error executing SQL script.", ex);
             }
         }
 
-        // Helper method to properly split SQL script by GO statements
+        // Helper method to properly split SQL script by GO statements.
         private static List<string> SplitSqlScript(string script)
         {
             var batches = new List<string>();
