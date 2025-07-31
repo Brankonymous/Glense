@@ -83,5 +83,5 @@ You can also run formatting manually:
 
 ```bash
 # Place yourself on some directory:
-dotnet format Glense
+dotnet format Glense.sln
 ```

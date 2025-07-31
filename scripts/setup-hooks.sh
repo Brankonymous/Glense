@@ -85,12 +85,16 @@ if [ -f "Glense.sln" ]; then
     FORMAT_EXIT_CODE=$?
 else
     echo "No solution file found, formatting individual projects"
-    # Format each project file
+    # Format each project file and collect exit codes
+    FORMAT_EXIT_CODE=0
     for project in $CS_PROJECTS; do
         echo "Formatting project: $project"
         dotnet format "$project" --verbosity quiet
+        PROJECT_EXIT_CODE=$?
+        if [ $PROJECT_EXIT_CODE -ne 0 ]; then
+            FORMAT_EXIT_CODE=$PROJECT_EXIT_CODE
+        fi
     done
-    FORMAT_EXIT_CODE=$?
 fi
 
 if [ $FORMAT_EXIT_CODE -eq 0 ]; then
