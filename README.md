@@ -75,6 +75,18 @@ When you first clone the repository, run the setup script to install the pre-com
 ./scripts/setup-hooks.sh
 ```
 
+# Git PP
+
+Using `git pp` you can automatically add your username as a prefix when pushing the current branch. 
+Example:
+If your branch is called `fix-bugs` and you setup username to John using `./setup-pp.sh John` - pushed branched should look like this: `John/fix-bugs`
+
+```bash
+# Make sure you're in the repository root
+./scripts/setup-pp.sh username
+```
+
+
 This project includes a pre-commit hook that automatically formats C# code before each commit.
 
 The hook will automatically run and format your C# code. If any files are modified by formatting, the commit will be blocked and you'll need to stage the formatted files and commit again.
