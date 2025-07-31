@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.EntityFrameworkCore;
 
 namespace Glense.Server
@@ -51,11 +51,11 @@ namespace Glense.Server
             modelBuilder.Entity<Conversation>()
                 .HasMany(c => c.Messages)
                 .WithOne(m => m.conversation)
-                .HasForeignKey(m =>  m.conversationId);
+                .HasForeignKey(m => m.conversationId);
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Donations)
                 .WithOne(d => d.recipient)
-                .HasForeignKey (d => d.recipientId);
+                .HasForeignKey(d => d.recipientId);
             modelBuilder.Entity<User>()
                 .HasMany(u => u.ConversationsStarted)
                 .WithOne(c => c.user1)

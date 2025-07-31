@@ -1,4 +1,4 @@
-﻿namespace Glense.Server
+namespace Glense.Server
 {
     public class Donation
     {

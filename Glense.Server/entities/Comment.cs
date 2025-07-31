@@ -1,8 +1,8 @@
-﻿namespace Glense.Server
+namespace Glense.Server
 {
     public class Comment
     {
-        public int commentId {  get; set; }
+        public int commentId { get; set; }
         public Video video { get; set; } = null!;
         public int videoId { get; set; }
         public User user { get; set; } = null!;
