@@ -78,10 +78,9 @@ ALTER TABLE Users CHECK CONSTRAINT ALL;
 
 GO
 INSERT INTO Users (username, passwordSHA256, email, profilePictureURL, account, createdAt) VALUES
-	('alice', 'hash123', 'alice@mail.com', 'http://example.com/alice.jpg', 'Premium', GETDATE()),
-	('bob', 'hash456', 'bob@mail.com', 'http://example.com/bob.jpg', 'Free', GETDATE()),
-	('charlie', 'hash789', 'charlie@mail.com', 'http://example.com/charlie.jpg', 'Premium', GETDATE());
-
+	('alice', 'ef92b778bafe771e89245b89ecbcf8a8b2406e1a7f7a7a7a7a7a7a7a7a7a7a7a', 'alice@mail.com', 'http://example.com/alice.jpg', 'Premium', GETDATE()),
+	('bob', '5e884898da28047151d0e56f8dc6292773603d0d6aabbddc8a7a7a7a7a7a7a7a', 'bob@mail.com', 'http://example.com/bob.jpg', 'Free', GETDATE()),
+	('charlie', '6b3a55e0261b0304143f805a249d6a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a', 'charlie@mail.com', 'http://example.com/charlie.jpg', 'Premium', GETDATE());
 GO
 INSERT INTO Category (categoryName) VALUES
 	('Music'),
@@ -97,7 +96,7 @@ GO
 INSERT INTO Comments (videoID, userID, commentText, createdAt, parentCommentID, commentLikeCount) VALUES
 	(1, 2, 'Great video!', GETDATE(), NULL, 5),
 	(1, 3, 'Thanks for the video!', GETDATE(), NULL, 2),
-	(1, 1, 'You’re welcome!', GETDATE(), 1, 1);
+	(1, 1, 'You''re welcome!', GETDATE(), 1, 1);
 
 GO
 INSERT INTO VideoLikes (videoID, userID, isLiked) VALUES

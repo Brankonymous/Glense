@@ -37,8 +37,8 @@ namespace InitDatabase
             }
 
             // On the first run, the database does not exist. We need to connect to the master database to create our Glense database.
-            if (!string.IsNullOrEmpty(windowsServer) && !DatabaseExists(windowsServer, databaseName) && 
-                !string.IsNullOrEmpty(linuxServer) && !string.IsNullOrEmpty(linuxUser) && !string.IsNullOrEmpty(linuxPassword) && !DatabaseExists(linuxServer, databaseName, linuxUser, linuxPassword)) 
+            if ((!string.IsNullOrEmpty(windowsServer) && !DatabaseExists(windowsServer, databaseName)) || 
+                (!string.IsNullOrEmpty(linuxServer) && !string.IsNullOrEmpty(linuxUser) && !string.IsNullOrEmpty(linuxPassword) && !DatabaseExists(linuxServer, databaseName, linuxUser, linuxPassword)))
             {
                 databaseName = "master";
             }
@@ -122,7 +122,9 @@ namespace InitDatabase
 
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    throw new Exception("No connection string found when executing SQL script: " + scriptPath);
+                    throw new Exception("No connection string found when executing SQL script: " + scriptPath + 
+                                        ". Ensure that the connection string is provided via the appropriate environment variable " +
+                                        "(e.g., 'DB_CONNECTION_STRING') or configuration setting.");
                 }
 
                 // Read and execute the SQL script
@@ -165,7 +167,7 @@ namespace InitDatabase
             }
             catch (Exception ex)
             {
-                throw new Exception("Error executing SQL script: " + ex.Message + "\n Stack trace: " + ex.StackTrace);
+                throw new Exception("Error executing SQL script.", ex);
             }
         }
 
