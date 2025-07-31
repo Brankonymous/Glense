@@ -1,4 +1,4 @@
-﻿using Glense.Server;
+using Glense.Server;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]

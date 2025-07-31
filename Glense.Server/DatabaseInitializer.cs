@@ -12,12 +12,11 @@ namespace InitDatabase
     {
         // Directory containing the SQL scripts.
         static string SQL_SCRIPTS_DIR = Path.Combine(Directory.GetCurrentDirectory(), "utils", "sql");
-
         // SQL scripts for the database initialization.
         static string SQL_INITIALIZE_SCRIPT_PATH = Path.Combine(SQL_SCRIPTS_DIR, "glense.sql");
         // SQL scripts for the database filling.
         static string SQL_FILL_SCRIPT_PATH = Path.Combine(SQL_SCRIPTS_DIR, "ingest_data.sql");
-        
+
         // Get the connection string based on the environment, which is used to connect to the SQL Server instance.
         public static Task<string> getConnectionString()
         {
@@ -37,7 +36,7 @@ namespace InitDatabase
             }
 
             // On the first run, the database does not exist. We need to connect to the master database to create our Glense database.
-            if ((!string.IsNullOrEmpty(windowsServer) && !DatabaseExists(windowsServer, databaseName)) || 
+            if ((!string.IsNullOrEmpty(windowsServer) && !DatabaseExists(windowsServer, databaseName)) ||
                 (!string.IsNullOrEmpty(linuxServer) && !string.IsNullOrEmpty(linuxUser) && !string.IsNullOrEmpty(linuxPassword) && !DatabaseExists(linuxServer, databaseName, linuxUser, linuxPassword)))
             {
                 databaseName = "master";
@@ -122,7 +121,7 @@ namespace InitDatabase
 
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    throw new Exception("No connection string found when executing SQL script: " + scriptPath + 
+                    throw new Exception("No connection string found when executing SQL script: " + scriptPath +
                                         ". Ensure that the connection string is provided via the appropriate environment variable " +
                                         "(e.g., 'DB_CONNECTION_STRING') or configuration setting.");
                 }
