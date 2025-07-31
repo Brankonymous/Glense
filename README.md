@@ -77,9 +77,9 @@ When you first clone the repository, run the setup script to install the pre-com
 
 # Git PP
 
-Using `git pp` you can automatically add your branch as a prefix when pushing the current branch. 
-If your branch is `fix-bugs` and you setup username to John with `./setup-pp.sh John` pushed branched should look like:
-`John/fix-bugs`
+Using `git pp` you can automatically add your username as a prefix when pushing the current branch. 
+Example:
+If your branch is called `fix-bugs` and you setup username to John using `./setup-pp.sh John` - pushed branched should look like this: `John/fix-bugs`
 
 ```bash
 # Make sure you're in the repository root
