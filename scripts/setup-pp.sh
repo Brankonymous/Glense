@@ -17,3 +17,4 @@ git config alias.pp "!f() { bname=\$(git rev-parse --abbrev-ref HEAD); git push 
 echo "Git alias 'pp' has been configured successfully!"
 echo "Usage: git pp"
 echo "This will push your current branch to origin/${BRANCH_PREFIX}/<current-branch-name>"
+# End of script
