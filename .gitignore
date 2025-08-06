@@ -30,3 +30,7 @@ ops/*.retry
 .vs/
 
 package-lock.json
+
+## Build results
+bin/
+obj/
