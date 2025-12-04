@@ -1,0 +1,37 @@
+.feed-container {
+    flex-direction: row !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+
+.feed-sidebar {
+    height: 92vh !important;
+    border-right: 1px solid hsl(0, 0%, 18.92%) !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    padding: 10px !important;
+}
+
+.feed-content {
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    padding: 10px !important;
+    margin-top: 20px !important;
+}
+
+.feed-sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.feed-sidebar::-webkit-scrollbar-thumb {
+    background: #888; 
+    border-radius: 4px;
+}
+
+.feed-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.feed-content {
+    flex: 2;
+}
