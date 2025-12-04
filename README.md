@@ -8,9 +8,9 @@
 ### Account
 Profili, mogu medjusobno da se prate, sistem notifikacije, login/registracija
 
-### Video katalozi / live streaming
+### Video katalozi
 
-Upload videa, start live streaming-a, mogucnost kreiranja plejlisti. Subscription deo gde se vide klipovi subscribe-ovanih profila
+Upload videa, mogucnost kreiranja plejlisti. Subscription deo gde se vide klipovi subscribe-ovanih profila
 
 ### Donacije
 
