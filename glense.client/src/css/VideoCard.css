@@ -1,0 +1,32 @@
+.video-card {
+    width: 100% !important;
+    max-width: 358px !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.video-card-media {
+    width: 100% !important;
+    height: 180px !important;
+}
+
+.video-card-content {
+    background-color: hsl(0, 0%, 7%) !important;
+    height: 106px !important;
+}
+
+.video-card-title {
+    font-weight: bold !important;
+    color: #f1f1f1 !important;
+}
+
+.video-card-channel {
+    font-weight: bold !important;
+    color: gray !important;
+}
+
+.video-card-icon {
+    font-size: 12px !important;
+    color: gray !important;
+    margin-left: 5px !important;
+}

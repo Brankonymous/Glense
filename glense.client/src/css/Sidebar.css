@@ -1,0 +1,20 @@
+.sidebar-stack {
+    margin-top: 5vh;
+    overflow-y: auto;
+    height: auto;
+    flex-direction: row;
+}
+
+.category-btn {
+    outline: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: transparent;
+    color: #f1f1f1;
+}
+
+.category-btn.selected {
+    background: #282828;
+}
