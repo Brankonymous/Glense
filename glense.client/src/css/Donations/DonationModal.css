@@ -1,0 +1,407 @@
+.donation-modal-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 450px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 28px;
+    outline: none;
+}
+
+.donation-modal-close {
+    position: absolute !important;
+    top: 12px;
+    right: 12px;
+    color: gray !important;
+}
+
+.donation-modal-close:hover {
+    color: #f1f1f1 !important;
+}
+
+/* Header */
+.donation-modal-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.donation-modal-title {
+    font-weight: bold !important;
+    color: #f1f1f1 !important;
+    margin-bottom: 4px !important;
+}
+
+.donation-modal-subtitle {
+    color: gray !important;
+    font-size: 0.9rem !important;
+}
+
+/* Section Labels */
+.section-label {
+    display: block;
+    font-size: 0.85rem !important;
+    font-weight: bold !important;
+    color: gray !important;
+    margin-bottom: 10px !important;
+}
+
+.optional-tag {
+    font-weight: normal;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Recent Recipients */
+.recent-recipients {
+    margin-bottom: 20px;
+}
+
+.recent-list {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.recent-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 70px;
+}
+
+.recent-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.recent-btn.selected {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: #6366f1;
+}
+
+.recent-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recent-name {
+    font-size: 0.75rem;
+    color: gray;
+    font-weight: 500;
+    white-space: nowrap;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.recent-btn.selected .recent-name {
+    color: #f1f1f1;
+}
+
+/* User Search */
+.user-search-section {
+    margin-bottom: 20px;
+}
+
+.donation-input {
+    width: 100%;
+}
+
+.donation-input .MuiOutlinedInput-root {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 8px !important;
+    color: #fff !important;
+}
+
+.donation-input .MuiOutlinedInput-notchedOutline {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.donation-input .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.donation-input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #6366f1 !important;
+    border-width: 1px !important;
+}
+
+.donation-input input::placeholder {
+    color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.donation-input textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* User Option in Autocomplete */
+.user-option {
+    display: flex !important;
+    align-items: center !important;
+    padding: 10px 14px !important;
+    background: #1a1a1a !important;
+    color: #fff !important;
+}
+
+.user-option:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.user-option-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-option-name {
+    font-weight: bold;
+    color: #f1f1f1;
+}
+
+.user-option-handle {
+    font-size: 0.8rem;
+    color: gray;
+}
+
+/* MUI Autocomplete Dropdown */
+.MuiAutocomplete-paper {
+    background: #1a1a1a !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    margin-top: 8px !important;
+}
+
+.MuiAutocomplete-listbox {
+    padding: 8px !important;
+}
+
+.MuiAutocomplete-option {
+    border-radius: 6px !important;
+    margin-bottom: 4px !important;
+}
+
+/* Amount Section */
+.amount-section {
+    margin-bottom: 20px;
+}
+
+.preset-amounts {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.preset-btn {
+    flex: 1;
+    min-width: 55px;
+    padding: 10px 12px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: gray;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.preset-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #f1f1f1;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.preset-btn.selected {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: #6366f1;
+    color: #6366f1;
+}
+
+.amount-input {
+    margin-top: 8px;
+}
+
+.currency-symbol {
+    color: gray;
+    font-size: 1rem;
+    margin-right: 4px;
+}
+
+/* Message Section */
+.message-section {
+    margin-bottom: 24px;
+    position: relative;
+}
+
+.char-count {
+    position: absolute;
+    bottom: -16px;
+    right: 0;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Submit Button */
+.donation-submit-btn {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    padding: 12px 20px !important;
+    border-radius: 30px !important;
+    font-size: 0.9rem !important;
+    font-weight: bold !important;
+    text-transform: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.donation-submit-btn:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.donation-submit-btn:disabled {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Confirmation View */
+.confirmation-view {
+    text-align: center;
+}
+
+.confirmation-details {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.confirm-recipient {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.confirm-avatar {
+    width: 50px !important;
+    height: 50px !important;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm-user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.confirm-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #f1f1f1;
+}
+
+.confirm-handle {
+    font-size: 0.85rem;
+    color: gray;
+}
+
+.confirm-amount {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.amount-label,
+.message-label {
+    font-size: 0.8rem;
+    color: gray;
+}
+
+.amount-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #6366f1;
+}
+
+.confirm-message {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.message-text {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 8px 0 0 0;
+}
+
+.confirmation-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.back-btn {
+    flex: 1;
+    padding: 10px 16px !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: gray !important;
+    border-radius: 30px !important;
+    text-transform: none !important;
+    font-weight: bold !important;
+}
+
+.back-btn:hover {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #f1f1f1 !important;
+}
+
+.confirm-btn {
+    flex: 2;
+    padding: 10px 20px !important;
+    background: #6366f1 !important;
+    color: #fff !important;
+    border-radius: 30px !important;
+    text-transform: none !important;
+    font-weight: bold !important;
+}
+
+.confirm-btn:hover {
+    background: #4f46e5 !important;
+}
+
+/* Scrollbar */
+.donation-modal-box::-webkit-scrollbar {
+    width: 5px;
+}
+
+.donation-modal-box::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.donation-modal-box::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.donation-modal-box::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
