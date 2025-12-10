@@ -1,19 +1,19 @@
 .loading-text {
-    color: white !important;
-    margin-left: 1rem !important;
+    color: var(--color-text-white) !important;
+    margin-left: var(--spacing-base) !important;
 }
 
 .video-comments-container {
-    gap: 1rem !important;
-    border-radius: 30px !important;
+    gap: var(--spacing-base) !important;
+    border-radius: var(--radius-2xl) !important;
     padding: 5px !important;
-    margin-top: 10px !important;
+    margin-top: var(--spacing-md) !important;
 }
 
 .comment-item {
-    gap: 1rem !important;
+    gap: var(--spacing-base) !important;
     align-items: flex-start !important;
-    border-radius: 30px !important;
+    border-radius: var(--radius-2xl) !important;
     padding-top: 15px !important;
     flex-wrap: nowrap;
 }
@@ -31,19 +31,19 @@
 }
 
 .comment-name {
-    color: gray !important;
+    color: var(--color-text-secondary) !important;
     font-size: 15px !important;
 }
 
 .comment-text {
-    color: white !important;
+    color: var(--color-text-white) !important;
     font-size: 1.05rem !important;
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
 
 .comment-likes {
-    color: gray !important;
+    color: var(--color-text-secondary) !important;
     display: flex !important;
     padding-top: 0.3rem !important;
 }
@@ -52,10 +52,10 @@
     padding-right: 0.3rem !important;
 }
 
-/* Mobile landscape / small tablet */
+/* Tablet / Mobile landscape (768px) */
 @media screen and (max-width: 768px) {
     .comment-item {
-        gap: 0.75rem !important;
+        gap: var(--spacing-md) !important;
         padding-top: 12px !important;
     }
 
@@ -69,20 +69,20 @@
     }
 
     .comment-text {
-        font-size: 0.95rem !important;
+        font-size: var(--font-size-md) !important;
     }
 }
 
-/* Mobile */
+/* Mobile (600px) */
 @media screen and (max-width: 600px) {
     .video-comments-container {
         padding: 3px !important;
-        border-radius: 20px !important;
+        border-radius: var(--radius-xl) !important;
     }
 
     .comment-item {
-        gap: 0.5rem !important;
-        padding-top: 10px !important;
+        gap: var(--spacing-sm) !important;
+        padding-top: var(--spacing-md) !important;
     }
 
     .comment-avatar {
@@ -95,6 +95,6 @@
     }
 
     .comment-text {
-        font-size: 0.9rem !important;
+        font-size: var(--font-size-base) !important;
     }
 }

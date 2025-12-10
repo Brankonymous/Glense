@@ -2,7 +2,7 @@
     min-height: 100vh !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    padding-top: 56px;
+    padding-top: var(--navbar-height);
     width: 100%;
 }
 
@@ -28,17 +28,17 @@
 }
 
 .recent-videos-title {
-    color: #f1f1f1 !important;
-    font-size: 1.5rem !important;
+    color: var(--color-text-primary) !important;
+    font-size: var(--font-size-3xl) !important;
     font-weight: bold !important;
     margin-bottom: 20px !important;
     text-align: center !important;
 }
 
-/* Mobile landscape / small tablet */
+/* Tablet / Mobile landscape (768px) */
 @media screen and (max-width: 768px) {
     .channel-detail-container {
-        padding-top: 50px;
+        padding-top: var(--navbar-height-tablet);
     }
 
     .channel-banner {
@@ -63,10 +63,10 @@
     }
 }
 
-/* Mobile */
+/* Mobile (600px) */
 @media screen and (max-width: 600px) {
     .channel-detail-container {
-        padding-top: 48px;
+        padding-top: var(--navbar-height-mobile);
     }
 
     .channel-banner {
@@ -79,16 +79,15 @@
 
     .channel-card-wrapper {
         margin-top: -40px !important;
-        padding: 0 10px;
+        padding: 0 var(--spacing-md);
     }
 
     .recent-videos-section {
-        padding: 10px !important;
+        padding: var(--spacing-md) !important;
     }
 
     .recent-videos-title {
-        font-size: 1.2rem !important;
+        font-size: var(--font-size-xl) !important;
         margin-bottom: 15px !important;
     }
 }
-  

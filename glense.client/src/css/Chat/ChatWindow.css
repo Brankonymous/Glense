@@ -1,4 +1,9 @@
+/* Chat window specific colors */
 .chat-window {
+    --chat-header-bg: #212d2e;
+    --chat-bg: #101717;
+    --chat-border: #3b2b2b;
+
     flex: 1 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -6,10 +11,10 @@
 }
 
 .chat-window-header {
-    color: white !important;
-    background-color: #212d2e !important;
+    color: var(--color-text-white) !important;
+    background-color: var(--chat-header-bg) !important;
     padding: 15px !important;
-    border-bottom: 1px solid #3b2b2b !important;
+    border-bottom: 1px solid var(--chat-border) !important;
     display: flex !important;
     align-items: center !important;
     flex-shrink: 0;
@@ -19,7 +24,7 @@
     width: 40px !important;
     height: 40px !important;
     border-radius: 50% !important;
-    margin-right: 10px !important;
+    margin-right: var(--spacing-md) !important;
     flex-shrink: 0;
 }
 
@@ -35,17 +40,17 @@
     flex: 1 !important;
     overflow-y: auto !important;
     padding: 20px !important;
-    background-color: #101717 !important;
+    background-color: var(--chat-bg) !important;
     min-height: 0;
 }
 
 .chat-window-input {
     display: flex !important;
     align-items: center !important;
-    padding: 10px !important;
-    border-top: 1px solid #3b2b2b !important;
+    padding: var(--spacing-md) !important;
+    border-top: 1px solid var(--chat-border) !important;
     flex-shrink: 0;
-    gap: 8px;
+    gap: var(--spacing-sm);
 }
 
 .chat-window-input .MuiTextField-root {
@@ -56,7 +61,7 @@
     border-color: transparent !important;
 }
 
-/* Tablet */
+/* Tablet (1024px) */
 @media screen and (max-width: 1024px) {
     .chat-window-header {
         padding: 12px !important;
@@ -76,16 +81,16 @@
     }
 }
 
-/* Mobile */
+/* Mobile (600px) */
 @media screen and (max-width: 600px) {
     .chat-window-header {
-        padding: 10px !important;
+        padding: var(--spacing-md) !important;
     }
 
     .chat-window-header-image {
         width: 32px !important;
         height: 32px !important;
-        margin-right: 8px !important;
+        margin-right: var(--spacing-sm) !important;
     }
 
     .chat-window-header-name {
@@ -93,10 +98,10 @@
     }
 
     .chat-window-messages {
-        padding: 10px !important;
+        padding: var(--spacing-md) !important;
     }
 
     .chat-window-input {
-        padding: 8px !important;
+        padding: var(--spacing-sm) !important;
     }
 }

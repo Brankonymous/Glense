@@ -4,14 +4,14 @@
     max-width: 100vw !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    padding-top: 56px;
+    padding-top: var(--navbar-height);
 }
 
 .video-stream-stack {
-    padding: 1.5rem !important;
+    padding: var(--spacing-lg) !important;
     flex-direction: row !important;
     overflow: visible !important;
-    gap: 1.5rem;
+    gap: var(--spacing-lg);
 }
 
 .video-player-container {
@@ -27,34 +27,34 @@
     z-index: 1 !important;
 }
 
-/* Target ReactPlayer wrapper - it creates a div with inline styles */
+/* ReactPlayer wrapper targeting */
 .video-player-box > div[style] {
     width: 100% !important;
     height: auto !important;
     aspect-ratio: 16/9 !important;
-    min-height: 450px !important;
+    min-height: var(--video-min-height) !important;
 }
 
 .video-player-box iframe,
 .video-player-box video {
     width: 100% !important;
     height: 100% !important;
-    min-height: 450px !important;
+    min-height: var(--video-min-height) !important;
 }
 
 .video-title {
-    color: white !important;
-    font-size: 1.4rem !important;
+    color: var(--color-text-white) !important;
+    font-size: var(--font-size-2xl) !important;
     font-weight: bold !important;
-    padding: 1.5rem 0 0 0.5rem !important;
+    padding: var(--spacing-lg) 0 0 var(--spacing-sm) !important;
 }
 
 .video-details {
     flex-direction: row !important;
     align-items: center !important;
-    gap: 0.5rem !important;
-    padding: 0.5rem !important;
-    color: #fff !important;
+    gap: var(--spacing-sm) !important;
+    padding: var(--spacing-sm) !important;
+    color: var(--color-text-white) !important;
     flex-wrap: wrap;
 }
 
@@ -66,21 +66,21 @@
     white-space: nowrap !important;
     display: flex !important;
     align-items: center !important;
-    color: gray !important;
+    color: var(--color-text-secondary) !important;
     font-weight: bold !important;
 }
 
 .check-circle-icon {
     font-size: 12px !important;
-    color: gray !important;
+    color: var(--color-text-secondary) !important;
     margin-left: 5px !important;
 }
 
 .like-dislike {
     opacity: 0.7 !important;
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    padding: 0.5rem !important;
-    border-radius: 30px !important;
+    background-color: var(--color-bg-overlay) !important;
+    padding: var(--spacing-sm) !important;
+    border-radius: var(--radius-2xl) !important;
     display: flex !important;
     align-items: center !important;
     gap: 5px !important;
@@ -88,18 +88,18 @@
 
 .thumb-icon {
     font-size: 20px !important;
-    color: gray !important;
+    color: var(--color-text-secondary) !important;
 }
 
 .description-container {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-radius: 15px !important;
+    background-color: var(--color-bg-overlay) !important;
+    border-radius: var(--radius-lg) !important;
     padding: 15px !important;
-    margin-top: 10px !important;
+    margin-top: var(--spacing-md) !important;
 }
 
 .description-details {
-    color: gray !important;
+    color: var(--color-text-secondary) !important;
 }
 
 .publish-date {
@@ -108,7 +108,7 @@
 
 .tag {
     display: inline-block !important;
-    color: #3366cc !important;
+    color: var(--color-accent-blue) !important;
 }
 
 .toggle-tags-button {
@@ -116,12 +116,12 @@
     border: none !important;
     font-size: 14px !important;
     background-color: transparent !important;
-    color: #3366cc !important;
+    color: var(--color-accent-blue) !important;
     cursor: pointer !important;
 }
 
 .description-text {
-    color: #fff !important;
+    color: var(--color-text-white) !important;
 }
 
 .toggle-description-button {
@@ -129,15 +129,15 @@
     border: none !important;
     font-size: 14px !important;
     background-color: transparent !important;
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: var(--color-text-muted) !important;
     cursor: pointer !important;
 }
 
 .comments-section-title {
-    color: #f1f1f1 !important;
-    margin: 1rem !important;
+    color: var(--color-text-primary) !important;
+    margin: var(--spacing-base) !important;
     font-weight: bold !important;
-    font-size: 1.5rem !important;
+    font-size: var(--font-size-3xl) !important;
 }
 
 .related-videos-container {
@@ -148,7 +148,9 @@
     max-width: 400px;
 }
 
-/* Large tablet / small desktop */
+/* ==================== RESPONSIVE ==================== */
+
+/* Large tablet / small desktop (1400px) */
 @media screen and (max-width: 1400px) {
     .video-player-container {
         width: 65% !important;
@@ -161,15 +163,15 @@
     .video-player-box > div[style],
     .video-player-box iframe,
     .video-player-box video {
-        min-height: 380px !important;
+        min-height: var(--video-min-height-lg) !important;
     }
 }
 
-/* Tablet - keep side by side */
+/* Tablet (1024px) */
 @media screen and (max-width: 1024px) {
     .video-stream-stack {
-        padding: 1rem !important;
-        gap: 1rem;
+        padding: var(--spacing-base) !important;
+        gap: var(--spacing-base);
     }
 
     .video-player-container {
@@ -184,12 +186,12 @@
     .video-player-box > div[style],
     .video-player-box iframe,
     .video-player-box video {
-        min-height: 320px !important;
+        min-height: var(--video-min-height-md) !important;
     }
 
     .video-title {
-        font-size: 1.2rem !important;
-        padding: 1rem 0 0 0.5rem !important;
+        font-size: var(--font-size-xl) !important;
+        padding: var(--spacing-base) 0 0 var(--spacing-sm) !important;
     }
 
     .comments-section-title {
@@ -197,15 +199,15 @@
     }
 }
 
-/* Mobile landscape / small tablet - keep side by side */
+/* Tablet / Mobile landscape (768px) */
 @media screen and (max-width: 768px) {
     .video-stream-container {
-        padding-top: 50px;
+        padding-top: var(--navbar-height-tablet);
     }
 
     .video-stream-stack {
-        padding: 0.5rem !important;
-        gap: 0.5rem;
+        padding: var(--spacing-sm) !important;
+        gap: var(--spacing-sm);
     }
 
     .video-player-container {
@@ -219,33 +221,33 @@
     .video-player-box > div[style],
     .video-player-box iframe,
     .video-player-box video {
-        min-height: 250px !important;
+        min-height: var(--video-min-height-sm) !important;
     }
 
     .video-title {
-        font-size: 1rem !important;
+        font-size: var(--font-size-lg) !important;
     }
 
     .video-details {
         flex-wrap: wrap;
-        gap: 0.5rem !important;
+        gap: var(--spacing-sm) !important;
     }
 
     .description-container {
-        padding: 10px !important;
+        padding: var(--spacing-md) !important;
     }
 }
 
-/* Mobile portrait - stack vertically */
+/* Mobile (600px) - stack vertically */
 @media screen and (max-width: 600px) {
     .video-stream-container {
-        padding-top: 48px;
+        padding-top: var(--navbar-height-mobile);
     }
 
     .video-stream-stack {
         flex-direction: column !important;
-        padding: 0.5rem !important;
-        gap: 1rem;
+        padding: var(--spacing-sm) !important;
+        gap: var(--spacing-base);
     }
 
     .video-player-container {
@@ -259,16 +261,16 @@
     .video-player-box > div[style],
     .video-player-box iframe,
     .video-player-box video {
-        min-height: 220px !important;
+        min-height: var(--video-min-height-xs) !important;
     }
 
     .video-title {
-        font-size: 1rem !important;
-        padding: 0.75rem 0 0 0.25rem !important;
+        font-size: var(--font-size-lg) !important;
+        padding: var(--spacing-md) 0 0 var(--spacing-xs) !important;
     }
 
     .video-details {
-        padding: 0.5rem 0.25rem !important;
+        padding: var(--spacing-sm) var(--spacing-xs) !important;
     }
 
     .like-dislike {
@@ -280,25 +282,25 @@
     }
 
     .description-container {
-        padding: 10px !important;
-        border-radius: 10px !important;
+        padding: var(--spacing-md) !important;
+        border-radius: var(--radius-md) !important;
     }
 
     .comments-section-title {
-        font-size: 1.2rem !important;
-        margin: 0.75rem !important;
+        font-size: var(--font-size-xl) !important;
+        margin: var(--spacing-md) !important;
     }
 }
 
-/* Small mobile */
+/* Small mobile (400px) */
 @media screen and (max-width: 400px) {
     .video-player-box > div[style],
     .video-player-box iframe,
     .video-player-box video {
-        min-height: 180px !important;
+        min-height: var(--video-min-height-xxs) !important;
     }
 
     .video-title {
-        font-size: 0.95rem !important;
+        font-size: var(--font-size-md) !important;
     }
 }

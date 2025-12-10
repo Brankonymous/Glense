@@ -1,7 +1,7 @@
 .search-bar-container {
-    border: 1px solid hsl(0, 0%, 18.82%);
-    border-radius: 20px !important;
-    background-color: hsl(0, 0%, 7%) !important;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl) !important;
+    background-color: var(--color-bg-primary) !important;
     display: flex !important;
     align-items: center;
     width: 400px !important;
@@ -14,8 +14,8 @@
 .search-bar {
     background-color: transparent;
     padding: 0;
-    font-size: 0.9rem;
-    color: hsla(0, 100%, 100%, 0.88);
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
     box-shadow: none;
     flex: 1;
     min-width: 0;
@@ -24,12 +24,12 @@
 }
 
 .search-icon {
-    color: hsla(0, 100%, 100%, 0.48);
+    color: var(--color-text-subtle);
     flex-shrink: 0;
     font-size: 1.2rem !important;
 }
 
-/* Tablet */
+/* Tablet (1024px) */
 @media screen and (max-width: 1024px) {
     .search-bar-container {
         width: 350px !important;
@@ -38,7 +38,7 @@
     }
 }
 
-/* Mobile landscape */
+/* Tablet / Mobile landscape (768px) */
 @media screen and (max-width: 768px) {
     .search-bar-container {
         width: 250px !important;
@@ -48,20 +48,20 @@
     }
 
     .search-bar {
-        font-size: 0.85rem;
+        font-size: var(--font-size-sm);
         height: 26px;
         line-height: 26px;
     }
 }
 
-/* Mobile */
+/* Mobile (600px) */
 @media screen and (max-width: 600px) {
     .search-bar-container {
         width: 180px !important;
         max-width: 180px !important;
         height: 30px !important;
         padding: 2px 2px 2px 10px !important;
-        border-radius: 15px !important;
+        border-radius: var(--radius-lg) !important;
     }
 
     .search-bar {
@@ -75,7 +75,7 @@
     }
 }
 
-/* Small mobile */
+/* Small mobile (400px) */
 @media screen and (max-width: 400px) {
     .search-bar-container {
         width: 140px !important;
@@ -84,6 +84,6 @@
     }
 
     .search-bar {
-        font-size: 0.75rem;
+        font-size: var(--font-size-xs);
     }
 }
