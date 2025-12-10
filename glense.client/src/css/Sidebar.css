@@ -1,8 +1,8 @@
 .sidebar-stack {
-    margin-top: 5vh;
+    margin-top: 56px;
     overflow-y: auto;
     height: auto;
-    flex-direction: row;
+    flex-direction: column !important;
 }
 
 .category-btn {
@@ -13,8 +13,39 @@
     gap: 5px;
     background: transparent;
     color: #f1f1f1;
+    white-space: nowrap;
 }
 
 .category-btn.selected {
     background: #282828;
+}
+
+/* Mobile landscape / small tablet */
+@media screen and (max-width: 768px) {
+    .sidebar-stack {
+        margin-top: 0;
+        flex-direction: row !important;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 10px 5px;
+        gap: 5px;
+    }
+
+    .category-btn {
+        flex-shrink: 0;
+        padding: 8px 14px;
+    }
+}
+
+/* Mobile */
+@media screen and (max-width: 600px) {
+    .sidebar-stack {
+        margin-top: 0;
+        padding: 8px 5px;
+    }
+
+    .category-btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
 }

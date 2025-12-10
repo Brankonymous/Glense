@@ -2,21 +2,28 @@
     flex-direction: row !important;
     height: 100vh !important;
     overflow: hidden !important;
+    width: 100%;
 }
 
 .feed-sidebar {
-    height: 92vh !important;
+    height: calc(100vh - 56px) !important;
     border-right: 1px solid hsl(0, 0%, 18.92%) !important;
     overflow-y: auto !important;
     box-sizing: border-box !important;
     padding: 10px !important;
+    flex-shrink: 0;
+    width: 180px;
+    min-width: 140px;
 }
 
 .feed-content {
     overflow-y: auto !important;
     box-sizing: border-box !important;
     padding: 10px !important;
-    margin-top: 20px !important;
+    margin-top: 56px !important;
+    flex: 1;
+    min-width: 0;
+    height: 100vh;
 }
 
 .feed-sidebar::-webkit-scrollbar {
@@ -24,7 +31,7 @@
 }
 
 .feed-sidebar::-webkit-scrollbar-thumb {
-    background: #888; 
+    background: #888;
     border-radius: 4px;
 }
 
@@ -32,6 +39,60 @@
     background: #555;
 }
 
-.feed-content {
-    flex: 2;
+/* Tablet */
+@media screen and (max-width: 1024px) {
+    .feed-sidebar {
+        width: 160px;
+        min-width: 120px;
+    }
+
+    .feed-content {
+        padding: 8px !important;
+    }
+}
+
+/* Mobile landscape / small tablet - sidebar becomes horizontal bar */
+@media screen and (max-width: 768px) {
+    .feed-container {
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 100vh;
+    }
+
+    .feed-sidebar {
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        border-right: none !important;
+        border-bottom: 1px solid hsl(0, 0%, 18.92%) !important;
+        position: fixed;
+        top: 50px;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background-color: hsl(0, 0%, 7%);
+        padding: 0 !important;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    .feed-content {
+        margin-top: 95px !important;
+        padding: 10px !important;
+        height: auto;
+        min-height: calc(100vh - 95px);
+    }
+}
+
+/* Mobile */
+@media screen and (max-width: 600px) {
+    .feed-sidebar {
+        top: 48px;
+    }
+
+    .feed-content {
+        margin-top: 90px !important;
+        padding: 8px !important;
+        min-height: calc(100vh - 90px);
+    }
 }

@@ -1,10 +1,13 @@
 .chat-sidebar {
-    width: 25% !important;
+    width: 280px !important;
+    min-width: 200px !important;
+    max-width: 320px !important;
     color: white !important;
     border-right: 1px solid #3b2b2b !important;
     overflow-y: auto !important;
     transition: all 0.3s ease-in-out !important;
     background-color: #101717 !important;
+    flex-shrink: 0;
 }
 
 .chat-sidebar-item {
@@ -14,10 +17,55 @@
 }
 
 .chat-sidebar-item:hover {
-    background-color: #452f2f !important; 
+    background-color: #452f2f !important;
 }
 
 .chat-sidebar-item:active {
-    background-color: #613232 !important; 
+    background-color: #613232 !important;
     transform: scale(0.98) !important;
+}
+
+/* Tablet */
+@media screen and (max-width: 1024px) {
+    .chat-sidebar {
+        width: 240px !important;
+        min-width: 180px !important;
+    }
+
+    .chat-sidebar-item {
+        padding: 12px !important;
+    }
+}
+
+/* Mobile landscape / small tablet */
+@media screen and (max-width: 768px) {
+    .chat-sidebar {
+        width: 80px !important;
+        min-width: 60px !important;
+        max-width: 80px !important;
+    }
+
+    .chat-sidebar-item {
+        padding: 10px !important;
+        display: flex;
+        justify-content: center;
+    }
+
+    .chat-sidebar-name,
+    .chat-sidebar-preview {
+        display: none !important;
+    }
+}
+
+/* Mobile */
+@media screen and (max-width: 600px) {
+    .chat-sidebar {
+        width: 60px !important;
+        min-width: 50px !important;
+        max-width: 60px !important;
+    }
+
+    .chat-sidebar-item {
+        padding: 8px !important;
+    }
 }

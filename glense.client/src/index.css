@@ -5,17 +5,26 @@ body {
     box-sizing: border-box;
     font-family: 'Arial';
     height: 100%;
+    overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
 #root {
     height: 100%;
-    display: flex; 
+    display: flex;
+    min-height: 100vh;
 }
 
 .App {
-    flex-grow: 1; /* Ensures it takes up all available height */
+    flex-grow: 1;
+    width: 100%;
+    overflow-x: hidden;
 }
-
 
 a {
     text-decoration: none;
@@ -42,12 +51,11 @@ a {
     color: white !important;
 }
 
-    .category-btn:hover span {
-        color: white !important;
-    }
+.category-btn:hover span {
+    color: white !important;
+}
 
 .react-player {
-    height: 77vh !important;
     width: 100% !important;
 }
 
@@ -56,7 +64,6 @@ a {
     outline: none;
     width: 350px;
 }
-
 
 .category-btn {
     font-weight: bold !important;
@@ -78,33 +85,51 @@ a {
     background-color: hsl(0, 0%, 7%);
 }
 
+/* Tablet */
+@media screen and (max-width: 1024px) {
+    .search-bar {
+        width: 280px;
+    }
+}
+
 @media screen and (max-width: 900px) {
     .category-btn {
         margin: 10px;
     }
 }
 
-@media screen and (max-width:800px) {
+@media screen and (max-width: 800px) {
     .copyright {
         display: none !important;
     }
 }
 
+/* Mobile */
 @media screen and (max-width: 600px) {
     .scroll-horizontal {
         overflow: auto !important;
     }
 
-    .react-player {
-        height: 45vh !important;
-    }
-
     .search-bar {
-        width: 200px;
+        width: 150px;
         background-color: transparent;
         padding-left: 10px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: hsla(0, 100%, 100%, 0.88);
         box-shadow: inset 0 1px 2px hsla(0, 0%, 0%, 0);
+    }
+
+    .category-btn {
+        padding: 6px 12px;
+        margin: 5px 0;
+        font-size: 0.85rem;
+    }
+}
+
+/* Small mobile */
+@media screen and (max-width: 400px) {
+    .search-bar {
+        width: 120px;
+        font-size: 0.8rem;
     }
 }

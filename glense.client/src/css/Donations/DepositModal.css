@@ -210,3 +210,46 @@
     background: #059669 !important;
 }
 
+/* Mobile */
+@media (max-width: 600px) {
+    .deposit-modal-box {
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .deposit-modal-header {
+        margin-bottom: 18px;
+    }
+
+    .deposit-modal-title {
+        font-size: 1.2rem !important;
+    }
+
+    .preset-amounts {
+        gap: 6px;
+    }
+
+    .preset-btn {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        min-width: 48px;
+    }
+
+    .amount-value {
+        font-size: 1.6rem;
+    }
+
+    .confirmation-details {
+        padding: 16px;
+    }
+
+    .confirmation-actions {
+        flex-direction: column;
+    }
+
+    .back-btn,
+    .confirm-btn.deposit {
+        flex: unset;
+        width: 100%;
+    }
+}

@@ -2,6 +2,7 @@
     flex: 1 !important;
     display: flex !important;
     flex-direction: column !important;
+    min-width: 0;
 }
 
 .chat-window-header {
@@ -11,6 +12,7 @@
     border-bottom: 1px solid #3b2b2b !important;
     display: flex !important;
     align-items: center !important;
+    flex-shrink: 0;
 }
 
 .chat-window-header-image {
@@ -18,19 +20,23 @@
     height: 40px !important;
     border-radius: 50% !important;
     margin-right: 10px !important;
+    flex-shrink: 0;
 }
 
 .chat-window-header-name {
     font-weight: bold !important;
     font-size: 18px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .chat-window-messages {
     flex: 1 !important;
     overflow-y: auto !important;
     padding: 20px !important;
-
     background-color: #101717 !important;
+    min-height: 0;
 }
 
 .chat-window-input {
@@ -38,8 +44,59 @@
     align-items: center !important;
     padding: 10px !important;
     border-top: 1px solid #3b2b2b !important;
+    flex-shrink: 0;
+    gap: 8px;
+}
+
+.chat-window-input .MuiTextField-root {
+    flex: 1;
 }
 
 .no-focus-outline .MuiOutlinedInput-notchedOutline {
     border-color: transparent !important;
+}
+
+/* Tablet */
+@media screen and (max-width: 1024px) {
+    .chat-window-header {
+        padding: 12px !important;
+    }
+
+    .chat-window-header-image {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .chat-window-header-name {
+        font-size: 16px !important;
+    }
+
+    .chat-window-messages {
+        padding: 15px !important;
+    }
+}
+
+/* Mobile */
+@media screen and (max-width: 600px) {
+    .chat-window-header {
+        padding: 10px !important;
+    }
+
+    .chat-window-header-image {
+        width: 32px !important;
+        height: 32px !important;
+        margin-right: 8px !important;
+    }
+
+    .chat-window-header-name {
+        font-size: 14px !important;
+    }
+
+    .chat-window-messages {
+        padding: 10px !important;
+    }
+
+    .chat-window-input {
+        padding: 8px !important;
+    }
 }

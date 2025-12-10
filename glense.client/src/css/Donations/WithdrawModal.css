@@ -245,3 +245,40 @@
     background: #dc2626 !important;
 }
 
+/* Mobile */
+@media (max-width: 600px) {
+    .withdraw-modal-box {
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .withdraw-modal-header {
+        margin-bottom: 18px;
+    }
+
+    .withdraw-modal-title {
+        font-size: 1.2rem !important;
+    }
+
+    .balance-info {
+        padding: 12px 14px;
+    }
+
+    .amount-value {
+        font-size: 1.6rem;
+    }
+
+    .confirmation-details {
+        padding: 16px;
+    }
+
+    .confirmation-actions {
+        flex-direction: column;
+    }
+
+    .back-btn,
+    .confirm-btn.withdraw {
+        flex: unset;
+        width: 100%;
+    }
+}

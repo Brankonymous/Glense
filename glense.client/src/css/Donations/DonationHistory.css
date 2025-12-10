@@ -179,3 +179,71 @@
     }
 }
 
+/* Mobile */
+@media (max-width: 600px) {
+    .donation-history {
+        padding-right: 4px;
+    }
+
+    .donation-history-empty {
+        padding: 40px 15px;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+    }
+
+    .empty-text {
+        font-size: 1rem;
+    }
+
+    .donation-item {
+        padding: 12px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .donation-item-left {
+        gap: 10px;
+    }
+
+    .donation-avatar {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .donation-user-name {
+        font-size: 0.9rem;
+    }
+
+    .donation-message {
+        max-width: 120px;
+        font-size: 0.8rem;
+    }
+
+    .donation-item-right {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .donation-amount {
+        font-size: 1rem;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 400px) {
+    .donation-item {
+        padding: 10px;
+    }
+
+    .donation-avatar {
+        width: 32px !important;
+        height: 32px !important;
+    }
+
+    .donation-message {
+        max-width: 90px;
+    }
+}
