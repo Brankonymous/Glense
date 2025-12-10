@@ -16,6 +16,8 @@ client-react.test/build
 
 Glense.Server/bin/
 Glense.Server/obj/
+DonationService.Tests/bin/
+DonationService.Tests/obj/
 
 # ops
 ops/hosts
