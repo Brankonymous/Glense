@@ -1,33 +1,93 @@
 .channel-detail-container {
-    min-height: 95vh !important;
-    overflow: auto !important;
-    height: 100vh !important;
-  }
-  
+    min-height: 100vh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding-top: var(--navbar-height);
+    width: 100%;
+}
+
 .channel-banner {
     height: 200px !important;
     width: 100% !important;
+    object-fit: cover;
 }
-  
+
 .channel-fallback-banner {
     background: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%) !important;
     z-index: 10 !important;
     height: 300px !important;
 }
-  
+
 .channel-card-wrapper {
     margin-top: -60px !important;
+    padding: 0 20px;
 }
-  
+
 .recent-videos-section {
     padding: 20px !important;
 }
-  
-  .recent-videos-title {
-    color: #f1f1f1 !important;
-    font-size: 1.5rem !important;
+
+.recent-videos-title {
+    color: var(--color-text-primary) !important;
+    font-size: var(--font-size-3xl) !important;
     font-weight: bold !important;
     margin-bottom: 20px !important;
     text-align: center !important;
 }
-  
+
+/* Tablet / Mobile landscape (768px) */
+@media screen and (max-width: 768px) {
+    .channel-detail-container {
+        padding-top: var(--navbar-height-tablet);
+    }
+
+    .channel-banner {
+        height: 150px !important;
+    }
+
+    .channel-fallback-banner {
+        height: 200px !important;
+    }
+
+    .channel-card-wrapper {
+        margin-top: -50px !important;
+        padding: 0 15px;
+    }
+
+    .recent-videos-section {
+        padding: 15px !important;
+    }
+
+    .recent-videos-title {
+        font-size: 1.3rem !important;
+    }
+}
+
+/* Mobile (600px) */
+@media screen and (max-width: 600px) {
+    .channel-detail-container {
+        padding-top: var(--navbar-height-mobile);
+    }
+
+    .channel-banner {
+        height: 120px !important;
+    }
+
+    .channel-fallback-banner {
+        height: 150px !important;
+    }
+
+    .channel-card-wrapper {
+        margin-top: -40px !important;
+        padding: 0 var(--spacing-md);
+    }
+
+    .recent-videos-section {
+        padding: var(--spacing-md) !important;
+    }
+
+    .recent-videos-title {
+        font-size: var(--font-size-xl) !important;
+        margin-bottom: 15px !important;
+    }
+}

@@ -1,20 +1,41 @@
+/* 
+ * Sidebar styles
+ * Note: .category-btn base styles are in index.css to avoid duplication
+ */
+
 .sidebar-stack {
-    margin-top: 5vh;
+    margin-top: var(--navbar-height);
     overflow-y: auto;
     height: auto;
-    flex-direction: row;
+    flex-direction: column !important;
 }
 
-.category-btn {
-    outline: none;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background: transparent;
-    color: #f1f1f1;
+/* Tablet / Mobile landscape (768px) */
+@media screen and (max-width: 768px) {
+    .sidebar-stack {
+        margin-top: 0;
+        flex-direction: row !important;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: var(--spacing-md) var(--spacing-xs);
+        gap: var(--spacing-xs);
+    }
+
+    .category-btn {
+        flex-shrink: 0;
+        padding: 8px 14px;
+    }
 }
 
-.category-btn.selected {
-    background: #282828;
+/* Mobile (600px) */
+@media screen and (max-width: 600px) {
+    .sidebar-stack {
+        margin-top: 0;
+        padding: var(--spacing-sm) var(--spacing-xs);
+    }
+
+    .category-btn {
+        padding: 6px 12px;
+        font-size: var(--font-size-sm);
+    }
 }
