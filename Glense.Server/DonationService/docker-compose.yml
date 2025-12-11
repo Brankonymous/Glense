@@ -1,0 +1,13 @@
+services:
+  donation-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: donation-service
+    ports:
+      - "5100:5100"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - PORT=5100
+      - DONATION_DB_CONNECTION_STRING=${DONATION_DB_CONNECTION_STRING}
+    restart: unless-stopped

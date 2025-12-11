@@ -31,7 +31,6 @@ CREATE INDEX IF NOT EXISTS idx_wallets_user_id ON wallets(user_id);
 CREATE INDEX IF NOT EXISTS idx_donations_donor ON donations(donor_user_id);
 CREATE INDEX IF NOT EXISTS idx_donations_recipient ON donations(recipient_user_id);
 CREATE INDEX IF NOT EXISTS idx_donations_created_at ON donations(created_at DESC);
-
 -- Function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
