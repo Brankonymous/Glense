@@ -8,25 +8,90 @@
 .video-card-media {
     width: 100% !important;
     height: 180px !important;
+    object-fit: cover;
 }
 
 .video-card-content {
-    background-color: hsl(0, 0%, 7%) !important;
-    height: 106px !important;
+    background-color: var(--color-bg-primary) !important;
+    height: auto !important;
+    min-height: 90px;
+    padding: 12px 8px !important;
 }
 
 .video-card-title {
     font-weight: bold !important;
-    color: #f1f1f1 !important;
+    color: var(--color-text-primary) !important;
+    font-size: var(--font-size-md) !important;
+    line-height: 1.3 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .video-card-channel {
     font-weight: bold !important;
-    color: gray !important;
+    color: var(--color-text-secondary) !important;
+    font-size: var(--font-size-sm) !important;
 }
 
 .video-card-icon {
     font-size: 12px !important;
-    color: gray !important;
+    color: var(--color-text-secondary) !important;
     margin-left: 5px !important;
+}
+
+/* Tablet (1024px) */
+@media screen and (max-width: 1024px) {
+    .video-card-media {
+        height: 160px !important;
+    }
+
+    .video-card-content {
+        min-height: 80px;
+        padding: 10px 6px !important;
+    }
+
+    .video-card-title {
+        font-size: var(--font-size-base) !important;
+    }
+
+    .video-card-channel {
+        font-size: 0.8rem !important;
+    }
+}
+
+/* Tablet / Mobile landscape (768px) */
+@media screen and (max-width: 768px) {
+    .video-card-media {
+        height: 140px !important;
+    }
+
+    .video-card-content {
+        min-height: 75px;
+    }
+}
+
+/* Mobile (600px) */
+@media screen and (max-width: 600px) {
+    .video-card {
+        max-width: 100% !important;
+    }
+
+    .video-card-media {
+        height: 200px !important;
+    }
+
+    .video-card-content {
+        min-height: 85px;
+        padding: 12px 10px !important;
+    }
+
+    .video-card-title {
+        font-size: var(--font-size-lg) !important;
+    }
+
+    .video-card-channel {
+        font-size: var(--font-size-sm) !important;
+    }
 }

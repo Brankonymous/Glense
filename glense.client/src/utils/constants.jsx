@@ -68,6 +68,110 @@ export const demoVideoTitle =
 export const demoProfilePicture =
     "http://dergipark.org.tr/assets/app/images/buddy_sample.png";
 
+// Users for donations
+export const users = [
+    { 
+        id: 1, 
+        name: "Branko Grbic", 
+        handle: "branko", 
+        profileImage: "http://dergipark.org.tr/assets/app/images/buddy_sample.png" 
+    },
+    { 
+        id: 2, 
+        name: "Keki Master", 
+        handle: "keki", 
+        profileImage: "http://dergipark.org.tr/assets/app/images/buddy_sample.png" 
+    },
+    { 
+        id: 3, 
+        name: "Irena Sweet", 
+        handle: "irena", 
+        profileImage: "http://dergipark.org.tr/assets/app/images/buddy_sample.png" 
+    },
+    { 
+        id: 4, 
+        name: "Marques Brownlee", 
+        handle: "mkbhd", 
+        profileImage: "http://dergipark.org.tr/assets/app/images/buddy_sample.png" 
+    },
+    { 
+        id: 5, 
+        name: "Linus Tech Tips", 
+        handle: "linustech", 
+        profileImage: "http://dergipark.org.tr/assets/app/images/buddy_sample.png" 
+    },
+    { 
+        id: 6, 
+        name: "Casey Neistat", 
+        handle: "casey", 
+        profileImage: "http://dergipark.org.tr/assets/app/images/buddy_sample.png" 
+    },
+];
+
+export const recentRecipients = [
+    users[1], // Keki
+    users[2], // Irena  
+    users[3], // MKBHD
+];
+
+// Donation history
+export const donationHistory = [
+    {
+        donatorId: 1,
+        recipientId: 2,
+        donator: users[0],
+        recipient: users[1],
+        amount: 25,
+        message: "Great content, keep it up!",
+        donatedAt: "2024-12-09T14:30:00Z"
+    },
+    {
+        donatorId: 3,
+        recipientId: 1,
+        donator: users[2],
+        recipient: users[0],
+        amount: 50,
+        message: "Thanks for the help!",
+        donatedAt: "2024-12-08T10:15:00Z"
+    },
+    {
+        donatorId: 1,
+        recipientId: 4,
+        donator: users[0],
+        recipient: users[3],
+        amount: 100,
+        message: "Love your tech reviews!",
+        donatedAt: "2024-12-07T18:45:00Z"
+    },
+    {
+        donatorId: 4,
+        recipientId: 1,
+        donator: users[3],
+        recipient: users[0],
+        amount: 10,
+        message: "",
+        donatedAt: "2024-12-06T09:20:00Z"
+    },
+    {
+        donatorId: 1,
+        recipientId: 2,
+        donator: users[0],
+        recipient: users[1],
+        amount: 15,
+        message: "Happy birthday!",
+        donatedAt: "2024-12-05T12:00:00Z"
+    },
+    {
+        donatorId: 5,
+        recipientId: 1,
+        donator: users[4],
+        recipient: users[0],
+        amount: 75,
+        message: "Awesome work on the project!",
+        donatedAt: "2024-12-04T16:30:00Z"
+    },
+];
+
 // Comment
 export const comments = [];
 for (let i = 0; i < 50; i++) {

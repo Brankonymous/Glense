@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glense.Server", "Glense.Ser
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "glense.client", "glense.client\glense.client.esproj", "{3D09A1AF-6325-4387-BD9B-50DB024ED5B7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Glense.Server", "Glense.Server", "{127D1C99-BC8F-468B-80A6-96FDCFC1F790}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DonationService.Tests", "Glense.Server\DonationService\Tests\DonationService.Tests.csproj", "{0FD4E6A0-9D52-4F8D-A67D-77A496568277}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DonationService", "Glense.Server\DonationService\DonationService.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,8 +29,15 @@ Global
 		{3D09A1AF-6325-4387-BD9B-50DB024ED5B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D09A1AF-6325-4387-BD9B-50DB024ED5B7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3D09A1AF-6325-4387-BD9B-50DB024ED5B7}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{0FD4E6A0-9D52-4F8D-A67D-77A496568277}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FD4E6A0-9D52-4F8D-A67D-77A496568277}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FD4E6A0-9D52-4F8D-A67D-77A496568277}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FD4E6A0-9D52-4F8D-A67D-77A496568277}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BB072B86-2933-44A9-B864-0F02A439AE08} = {127D1C99-BC8F-468B-80A6-96FDCFC1F790}
 	EndGlobalSection
 EndGlobal

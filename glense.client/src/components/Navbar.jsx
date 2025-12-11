@@ -35,6 +35,11 @@ function Navbar() {
                                         Chat
                                     </Typography>
                                 </Link>
+                                <Link to="/donations">
+                                    <Typography className="navbar-option">
+                                        Donations
+                                    </Typography>
+                                </Link>
                                 <Link to={`/channel/${channelId}`}>
                                     <Typography className="navbar-option">
                                         Profile
