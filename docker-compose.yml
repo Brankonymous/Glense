@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for Account Service
+  postgres_account:
+    image: postgres:16-alpine
+    container_name: glense_postgres_account
+    environment:
+      POSTGRES_DB: glense_account
+      POSTGRES_USER: glense
+      POSTGRES_PASSWORD: glense123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_account_data:/var/lib/postgresql/data
+      - ./services/Glense.AccountService/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - glense_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glense -d glense_account"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Account Microservice
+  account_service:
+    build:
+      context: ./services/Glense.AccountService
+      dockerfile: Dockerfile
+    container_name: glense_account_service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres_account;Port=5432;Database=glense_account;Username=glense;Password=glense123
+    ports:
+      - "5001:5000"
+    depends_on:
+      postgres_account:
+        condition: service_healthy
+    networks:
+      - glense_network
+    restart: unless-stopped
+
+  # PostgreSQL for Video Service (placeholder for your teammates)
+  postgres_video:
+    image: postgres:16-alpine
+    container_name: glense_postgres_video
+    environment:
+      POSTGRES_DB: glense_video
+      POSTGRES_USER: glense
+      POSTGRES_PASSWORD: glense123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_video_data:/var/lib/postgresql/data
+    networks:
+      - glense_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glense -d glense_video"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL for Donation Service (placeholder for your teammates)
+  postgres_donation:
+    image: postgres:16-alpine
+    container_name: glense_postgres_donation
+    environment:
+      POSTGRES_DB: glense_donation
+      POSTGRES_USER: glense
+      POSTGRES_PASSWORD: glense123
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_donation_data:/var/lib/postgresql/data
+    networks:
+      - glense_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glense -d glense_donation"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL for Chat Service (placeholder for your teammates)
+  postgres_chat:
+    image: postgres:16-alpine
+    container_name: glense_postgres_chat
+    environment:
+      POSTGRES_DB: glense_chat
+      POSTGRES_USER: glense
+      POSTGRES_PASSWORD: glense123
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_chat_data:/var/lib/postgresql/data
+    networks:
+      - glense_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glense -d glense_chat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Frontend (existing React app)
+  frontend:
+    build:
+      context: ./glense.client
+      dockerfile: Dockerfile
+    container_name: glense_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_ACCOUNT_API_URL=http://localhost:5001
+      - VITE_VIDEO_API_URL=http://localhost:5002
+      - VITE_DONATION_API_URL=http://localhost:5003
+      - VITE_CHAT_API_URL=http://localhost:5004
+    networks:
+      - glense_network
+    depends_on:
+      - account_service
+
+networks:
+  glense_network:
+    driver: bridge
+
+volumes:
+  postgres_account_data:
+  postgres_video_data:
+  postgres_donation_data:
+  postgres_chat_data:
