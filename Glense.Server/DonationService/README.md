@@ -2,7 +2,7 @@
 
 A standalone microservice for handling donations and wallet management in the Glense platform.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Local Development (In-Memory DB)
 
@@ -45,7 +45,7 @@ docker-compose logs -f donation-service
 docker-compose down
 ```
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Donations
 
@@ -70,7 +70,7 @@ docker-compose down
 | GET | `/health` | Health check endpoint |
 | GET | `/` | Swagger UI documentation |
 
-## 📋 Example Requests
+## Example Requests
 
 ### Create a Wallet
 ```bash
@@ -103,7 +103,7 @@ curl -X POST http://localhost:5100/api/donation \
 curl http://localhost:5100/api/wallet/user/1
 ```
 
-## 🔧 Configuration
+## Configuration
 
 | Variable | Description | Default |
 |----------|-------------|---------|
