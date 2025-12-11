@@ -1,6 +1,4 @@
-using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
-using DonationService.Data;
 
 // Load environment variables from .env file
 Env.Load();
@@ -11,20 +9,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register Donation Service dependencies
-var donationDbConnectionString = Environment.GetEnvironmentVariable("DONATION_DB_CONNECTION_STRING")
-    ?? builder.Configuration.GetConnectionString("DonationDb");
-
-if (!string.IsNullOrEmpty(donationDbConnectionString))
+// HTTP client for DonationService microservice (runs on port 5100)
+builder.Services.AddHttpClient("DonationService", client =>
 {
-    builder.Services.AddDbContext<DonationDbContext>(options =>
-        options.UseNpgsql(donationDbConnectionString));
-}
-else
-{
-    builder.Services.AddDbContext<DonationDbContext>(options =>
-        options.UseInMemoryDatabase("DonationDb"));
-}
+    client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DONATION_SERVICE_URL") ?? "http://localhost:5100");
+});
 
 var app = builder.Build();
 
