@@ -112,16 +112,15 @@ curl http://localhost:5100/api/wallet/user/1
 
 ## Testing
 
-Run tests from the repository root:
+Run tests from the DonationService directory:
 
 ```bash
-# go to Glense/ directory
-dotnet test DonationService.Tests
+cd Glense.Server/DonationService
+dotnet test Tests
 ```
 
-Tests use in-memory database by default. To test against Neon:
+Or from repository root:
 
 ```bash
-export DONATION_DB_CONNECTION_STRING="your-neon-connection-string"
-dotnet test DonationService.Tests
+dotnet test Glense.Server/DonationService/Tests
 ```
