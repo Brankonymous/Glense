@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Glense.Server\Glense.Server.csproj" />
+    <ProjectReference Include="..\Glense.Server\DonationService\DonationService.csproj" />
   </ItemGroup>
 
 </Project>

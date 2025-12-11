@@ -109,3 +109,19 @@ curl http://localhost:5100/api/wallet/user/1
 |----------|-------------|---------|
 | `PORT` | Service port | `5100` |
 | `DONATION_DB_CONNECTION_STRING` | Neon PostgreSQL connection string | In-memory DB |
+
+## Testing
+
+Run tests from the repository root:
+
+```bash
+# go to Glense/ directory
+dotnet test DonationService.Tests
+```
+
+Tests use in-memory database by default. To test against Neon:
+
+```bash
+export DONATION_DB_CONNECTION_STRING="your-neon-connection-string"
+dotnet test DonationService.Tests
+```
