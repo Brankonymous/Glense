@@ -1,26 +1,45 @@
+/* Import CSS variables */
+@import './css/variables.css';
+
+/* ==================== RESET & BASE ==================== */
+
 html,
 body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Arial';
+    font-family: var(--font-family);
     height: 100%;
+    overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
 #root {
     height: 100%;
-    display: flex; 
+    display: flex;
+    min-height: 100vh;
 }
-
-.App {
-    flex-grow: 1; /* Ensures it takes up all available height */
-}
-
 
 a {
     text-decoration: none;
     color: black;
 }
+
+/* ==================== APP CONTAINER ==================== */
+
+.App {
+    flex-grow: 1;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: var(--color-bg-primary);
+}
+
+/* ==================== SCROLLBAR ==================== */
 
 ::-webkit-scrollbar {
     width: 0px;
@@ -28,8 +47,8 @@ a {
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgb(114, 113, 113);
-    border-radius: 10px;
+    background-color: var(--color-scrollbar-thumb);
+    border-radius: var(--radius-md);
     height: 200px;
 }
 
@@ -37,26 +56,14 @@ a {
     background-color: transparent;
 }
 
-.category-btn:hover {
-    background-color: #282828 !important;
-    color: white !important;
-}
-
-    .category-btn:hover span {
-        color: white !important;
-    }
+/* ==================== REACT PLAYER ==================== */
 
 .react-player {
-    height: 77vh !important;
     width: 100% !important;
 }
 
-.search-bar {
-    border: none;
-    outline: none;
-    width: 350px;
-}
-
+/* ==================== CATEGORY BUTTONS ==================== */
+/* Single definition - previously duplicated in Sidebar.css */
 
 .category-btn {
     font-weight: bold !important;
@@ -64,18 +71,47 @@ a {
     display: flex;
     align-items: center;
     justify-content: start;
+    gap: 5px;
     cursor: pointer;
     background: transparent;
     outline: none;
     border: none;
     padding: 7px 15px;
-    margin: 10px 0px;
-    border-radius: 20px;
-    transition: all 0.3s ease;
+    margin: 10px 0;
+    border-radius: var(--radius-xl);
+    transition: all var(--transition-base);
+    color: var(--color-text-primary);
+    white-space: nowrap;
 }
 
-.App {
-    background-color: hsl(0, 0%, 7%);
+.category-btn:hover {
+    background-color: var(--color-bg-secondary) !important;
+    color: var(--color-text-white) !important;
+}
+
+.category-btn:hover span {
+    color: var(--color-text-white) !important;
+}
+
+.category-btn.selected {
+    background: var(--color-bg-secondary);
+}
+
+/* ==================== SEARCH BAR (base styles) ==================== */
+
+.search-bar {
+    border: none;
+    outline: none;
+    width: 350px;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+/* Tablet (1024px) */
+@media screen and (max-width: 1024px) {
+    .search-bar {
+        width: 280px;
+    }
 }
 
 @media screen and (max-width: 900px) {
@@ -84,27 +120,38 @@ a {
     }
 }
 
-@media screen and (max-width:800px) {
+@media screen and (max-width: 800px) {
     .copyright {
         display: none !important;
     }
 }
 
+/* Mobile (600px) */
 @media screen and (max-width: 600px) {
     .scroll-horizontal {
         overflow: auto !important;
     }
 
-    .react-player {
-        height: 45vh !important;
-    }
-
     .search-bar {
-        width: 200px;
+        width: 150px;
         background-color: transparent;
         padding-left: 10px;
-        font-size: 0.9rem;
-        color: hsla(0, 100%, 100%, 0.88);
-        box-shadow: inset 0 1px 2px hsla(0, 0%, 0%, 0);
+        font-size: var(--font-size-sm);
+        color: var(--color-text-muted);
+        box-shadow: none;
+    }
+
+    .category-btn {
+        padding: 6px 12px;
+        margin: 5px 0;
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* Small mobile (400px) */
+@media screen and (max-width: 400px) {
+    .search-bar {
+        width: 120px;
+        font-size: 0.8rem;
     }
 }

@@ -1,0 +1,284 @@
+.withdraw-modal-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    max-width: 95vw;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 28px;
+    outline: none;
+}
+
+.withdraw-modal-close {
+    position: absolute !important;
+    top: 12px;
+    right: 12px;
+    color: gray !important;
+}
+
+.withdraw-modal-close:hover {
+    color: #f1f1f1 !important;
+}
+
+/* Header */
+.withdraw-modal-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.withdraw-modal-title {
+    font-weight: bold !important;
+    color: #f1f1f1 !important;
+    margin-bottom: 4px !important;
+}
+
+.withdraw-modal-subtitle {
+    color: gray !important;
+    font-size: 0.9rem !important;
+}
+
+/* Balance Info */
+.balance-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.balance-info .balance-label {
+    font-size: 0.85rem;
+    color: gray;
+}
+
+.balance-info .balance-value {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #10b981;
+}
+
+/* Section Labels */
+.section-label {
+    display: block;
+    font-size: 0.85rem !important;
+    font-weight: bold !important;
+    color: gray !important;
+    margin-bottom: 10px !important;
+}
+
+/* Amount Section */
+.amount-section {
+    margin-bottom: 24px;
+}
+
+/* Input Styles */
+.withdraw-input .MuiOutlinedInput-root {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 8px !important;
+    color: #fff !important;
+}
+
+.withdraw-input .MuiOutlinedInput-notchedOutline {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.withdraw-input .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.withdraw-input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #ef4444 !important;
+    border-width: 1px !important;
+}
+
+.withdraw-input input::placeholder {
+    color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.currency-symbol {
+    color: gray;
+    font-size: 1rem;
+    margin-right: 4px;
+}
+
+.withdraw-all-btn {
+    display: block;
+    margin-top: 10px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: #3b82f6;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.withdraw-all-btn:hover {
+    color: #60a5fa;
+}
+
+.error-text {
+    color: #ef4444 !important;
+    font-size: 0.8rem !important;
+    margin-top: 8px !important;
+}
+
+/* Submit Button */
+.withdraw-submit-btn {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    padding: 12px 20px !important;
+    border-radius: 30px !important;
+    font-size: 0.9rem !important;
+    font-weight: bold !important;
+    text-transform: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.withdraw-submit-btn:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.withdraw-submit-btn:disabled {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Confirmation View */
+.confirmation-view {
+    text-align: center;
+}
+
+.confirmation-details {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.confirm-amount {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 16px;
+}
+
+.amount-label {
+    font-size: 0.8rem;
+    color: gray;
+}
+
+.amount-value {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.amount-value.withdraw {
+    color: #ef4444;
+}
+
+.remaining-balance {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.remaining-label {
+    font-size: 0.85rem;
+    color: gray;
+}
+
+.remaining-value {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #10b981;
+}
+
+.confirm-note {
+    font-size: 0.85rem !important;
+    color: gray !important;
+    margin-top: 12px !important;
+}
+
+.confirmation-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.back-btn {
+    flex: 1;
+    padding: 10px 16px !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: gray !important;
+    border-radius: 30px !important;
+    text-transform: none !important;
+    font-weight: bold !important;
+}
+
+.back-btn:hover {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #f1f1f1 !important;
+}
+
+.confirm-btn.withdraw {
+    flex: 2;
+    padding: 10px 20px !important;
+    background: #ef4444 !important;
+    color: #fff !important;
+    border-radius: 30px !important;
+    text-transform: none !important;
+    font-weight: bold !important;
+}
+
+.confirm-btn.withdraw:hover {
+    background: #dc2626 !important;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .withdraw-modal-box {
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .withdraw-modal-header {
+        margin-bottom: 18px;
+    }
+
+    .withdraw-modal-title {
+        font-size: 1.2rem !important;
+    }
+
+    .balance-info {
+        padding: 12px 14px;
+    }
+
+    .amount-value {
+        font-size: 1.6rem;
+    }
+
+    .confirmation-details {
+        padding: 16px;
+    }
+
+    .confirmation-actions {
+        flex-direction: column;
+    }
+
+    .back-btn,
+    .confirm-btn.withdraw {
+        flex: unset;
+        width: 100%;
+    }
+}

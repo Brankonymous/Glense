@@ -1,23 +1,77 @@
+/* Chat sidebar specific colors - different from main theme */
 .chat-sidebar {
-    width: 25% !important;
-    color: white !important;
-    border-right: 1px solid #3b2b2b !important;
+    --chat-bg: #101717;
+    --chat-border: #3b2b2b;
+    --chat-hover: #452f2f;
+    --chat-active: #613232;
+
+    width: 280px !important;
+    min-width: 200px !important;
+    max-width: 320px !important;
+    color: var(--color-text-white) !important;
+    border-right: 1px solid var(--chat-border) !important;
     overflow-y: auto !important;
-    transition: all 0.3s ease-in-out !important;
-    background-color: #101717 !important;
+    transition: all var(--transition-base) !important;
+    background-color: var(--chat-bg) !important;
+    flex-shrink: 0;
 }
 
 .chat-sidebar-item {
     padding: 15px !important;
     cursor: pointer !important;
-    transition: background-color 0.3s ease-in-out, transform 0.1s ease-in-out !important;
+    transition: background-color var(--transition-base), transform var(--transition-fast) !important;
 }
 
 .chat-sidebar-item:hover {
-    background-color: #452f2f !important; 
+    background-color: var(--chat-hover) !important;
 }
 
 .chat-sidebar-item:active {
-    background-color: #613232 !important; 
+    background-color: var(--chat-active) !important;
     transform: scale(0.98) !important;
+}
+
+/* Tablet (1024px) */
+@media screen and (max-width: 1024px) {
+    .chat-sidebar {
+        width: 240px !important;
+        min-width: 180px !important;
+    }
+
+    .chat-sidebar-item {
+        padding: 12px !important;
+    }
+}
+
+/* Tablet / Mobile landscape (768px) */
+@media screen and (max-width: 768px) {
+    .chat-sidebar {
+        width: 80px !important;
+        min-width: 60px !important;
+        max-width: 80px !important;
+    }
+
+    .chat-sidebar-item {
+        padding: var(--spacing-md) !important;
+        display: flex;
+        justify-content: center;
+    }
+
+    .chat-sidebar-name,
+    .chat-sidebar-preview {
+        display: none !important;
+    }
+}
+
+/* Mobile (600px) */
+@media screen and (max-width: 600px) {
+    .chat-sidebar {
+        width: 60px !important;
+        min-width: 50px !important;
+        max-width: 60px !important;
+    }
+
+    .chat-sidebar-item {
+        padding: var(--spacing-sm) !important;
+    }
 }
