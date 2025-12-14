@@ -119,6 +119,28 @@ services:
     depends_on:
       - account_service
 
+  # Chat Service
+  chat_service:
+    build:
+      context: ./services/Glense.ChatService
+      dockerfile: Dockerfile
+    container_name: glense_chat_service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres_chat;Port=5432;Database=glense_chat;Username=glense;Password=glense123
+      - JwtSettings__Issuer=GlenseAccountService
+      - JwtSettings__Audience=GlenseApp
+      - JwtSettings__SecretKey=ChangeMeToA32CharSecret
+    ports:
+      - "5004:5000"
+    depends_on:
+      postgres_chat:
+        condition: service_healthy
+    networks:
+      - glense_network
+    restart: unless-stopped
+
 networks:
   glense_network:
     driver: bridge
