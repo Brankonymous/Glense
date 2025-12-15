@@ -1,0 +1,6 @@
+@Glense.VideoCatalogue_HostAddress = http://localhost:5088
+
+GET {{Glense.VideoCatalogue_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
