@@ -32,3 +32,6 @@ ops/*.retry
 .vs/
 
 package-lock.json
+
+.env
+/tmp

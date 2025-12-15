@@ -1,4 +1,5 @@
 using System.Text;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -6,7 +7,28 @@ using Microsoft.OpenApi.Models;
 using Glense.AccountService.Data;
 using Glense.AccountService.Services;
 
+// Load environment variables from a .env file if present in this directory or any parent directory
+try {
+    var dir = Directory.GetCurrentDirectory();
+    while (!string.IsNullOrEmpty(dir))
+    {
+        var candidate = Path.Combine(dir, ".env");
+        if (File.Exists(candidate))
+        {
+            Env.Load(candidate);
+            break;
+        }
+        var parent = Directory.GetParent(dir);
+        dir = parent?.FullName;
+    }
+}
+catch { }
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Allow overriding URLs from environment: use ACCOUNT_URLS first, then ASPNETCORE_URLS
+var accountUrls = Environment.GetEnvironmentVariable("ACCOUNT_URLS") ?? Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+if (!string.IsNullOrEmpty(accountUrls)) builder.WebHost.UseUrls(accountUrls);
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -40,12 +62,21 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configure PostgreSQL Database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// Configure Database: prefer real Postgres when available, but allow an in-memory DB for local/dev testing
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var useInMemory = (Environment.GetEnvironmentVariable("ACCOUNT_USE_INMEMORY") ?? "false").ToLowerInvariant() == "true";
 
-builder.Services.AddDbContext<AccountDbContext>(options =>
-    options.UseNpgsql(connectionString));
+if (useInMemory || string.IsNullOrEmpty(connectionString) || connectionString.Contains("postgres_account"))
+{
+    // Use an in-memory database for quick local testing
+    builder.Services.AddDbContext<AccountDbContext>(options =>
+        options.UseInMemoryDatabase("GlenseAccount_InMemory"));
+}
+else
+{
+    builder.Services.AddDbContext<AccountDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
