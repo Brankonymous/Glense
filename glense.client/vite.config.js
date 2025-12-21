@@ -2,40 +2,41 @@ import { fileURLToPath, URL } from 'node:url';
 
 import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
-import fs from 'fs';
-import path from 'path';
-import child_process from 'child_process';
-import { env } from 'process';
+// import fs from 'fs';
+// import path from 'path';
+// import child_process from 'child_process';
+// import { env } from 'process';
 
-const baseFolder =
-    env.APPDATA !== undefined && env.APPDATA !== ''
-        ? `${env.APPDATA}/ASP.NET/https`
-        : `${env.HOME}/.aspnet/https`;
+// Commented out certificate generation for simpler HTTP development
+// const baseFolder =
+//     env.APPDATA !== undefined && env.APPDATA !== ''
+//         ? `${env.APPDATA}/ASP.NET/https`
+//         : `${env.HOME}/.aspnet/https`;
 
-const certificateName = "glense.client";
-const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
-const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
+// const certificateName = "glense.client";
+// const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
+// const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
 
-if (!fs.existsSync(baseFolder)) {
-    fs.mkdirSync(baseFolder, { recursive: true });
-}
+// if (!fs.existsSync(baseFolder)) {
+//     fs.mkdirSync(baseFolder, { recursive: true });
+// }
 
-if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-    if (0 !== child_process.spawnSync('dotnet', [
-        'dev-certs',
-        'https',
-        '--export-path',
-        certFilePath,
-        '--format',
-        'Pem',
-        '--no-password',
-    ], { stdio: 'inherit', }).status) {
-        throw new Error("Could not create certificate.");
-    }
-}
+// if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
+//     if (0 !== child_process.spawnSync('dotnet', [
+//         'dev-certs',
+//         'https',
+//         '--export-path',
+//         certFilePath,
+//         '--format',
+//         'Pem',
+//         '--no-password',
+//     ], { stdio: 'inherit', }).status) {
+//         throw new Error("Could not create certificate.");
+//     }
+// }
 
-const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
-    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7252';
+// const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
+//     env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7252';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -46,16 +47,18 @@ export default defineConfig({
         }
     },
     server: {
-        proxy: {
-            '^/weatherforecast': {
-                target,
-                secure: false
-            }
-        },
+        // Removed proxy for now - API calls go directly to localhost:5001
+        // proxy: {
+        //     '^/weatherforecast': {
+        //         target: 'https://localhost:7252',
+        //         secure: false
+        //     }
+        // },
         port: 50653,
-        https: {
-            key: fs.readFileSync(keyFilePath),
-            cert: fs.readFileSync(certFilePath),
-        }
+        // Disable HTTPS for simpler local development
+        // https: {
+        //     key: fs.readFileSync(keyFilePath),
+        //     cert: fs.readFileSync(certFilePath),
+        // }
     }
 })
