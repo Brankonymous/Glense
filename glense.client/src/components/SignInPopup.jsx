@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+/* eslint-disable react/prop-types */
+import { useState } from "react";
 import {
   Modal,
   Box,
@@ -7,21 +8,29 @@ import {
   Typography,
   TextField,
   Button,
-  IconButton
+  IconButton,
+  Alert,
+  CircularProgress
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import "../css/SignInPopup.css"; 
+import { useAuth } from "../context/AuthContext";
+import "../css/SignInPopup.css";
 
 const SignInPopup = ({ open, onClose }) => {
-  const [activeTab, setActiveTab] = useState(0); 
+  const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
     username: "",
+    email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { login, register } = useAuth();
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
-    setFormData({ username: "", password: "" }); 
+    setFormData({ username: "", email: "", password: "" });
+    setError("");
   };
 
   const handleInputChange = (e) => {
@@ -30,15 +39,39 @@ const SignInPopup = ({ open, onClose }) => {
       ...prevData,
       [name]: value,
     }));
+    setError("");
   };
 
-  const handleSubmit = () => {
-    if (activeTab === 0) {
-      console.log("Signing In with", formData);
-    } else {
-      console.log("Registering with", formData);
+  const handleSubmit = async () => {
+    setError("");
+    setIsLoading(true);
+
+    try {
+      let result;
+      if (activeTab === 0) {
+        // Sign In
+        result = await login(formData.username, formData.password);
+      } else {
+        // Register
+        if (!formData.email) {
+          setError("Email is required for registration");
+          setIsLoading(false);
+          return;
+        }
+        result = await register(formData.username, formData.email, formData.password);
+      }
+
+      if (result.success) {
+        onClose();
+        setFormData({ username: "", email: "", password: "" });
+      } else {
+        setError(result.error);
+      }
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-    onClose(); 
   };
 
   return (
@@ -59,6 +92,11 @@ const SignInPopup = ({ open, onClose }) => {
         <Typography variant="h6" className="modal-title">
           {activeTab === 0 ? "Sign In" : "Register"}
         </Typography>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
         <Box component="form" className="modal-form">
           <TextField
             className="modal-input"
@@ -67,7 +105,22 @@ const SignInPopup = ({ open, onClose }) => {
             name="username"
             value={formData.username}
             onChange={handleInputChange}
+            disabled={isLoading}
+            required
           />
+          {activeTab === 1 && (
+            <TextField
+              className="modal-input"
+              fullWidth
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              disabled={isLoading}
+              required
+            />
+          )}
           <TextField
             className="modal-input"
             fullWidth
@@ -76,14 +129,21 @@ const SignInPopup = ({ open, onClose }) => {
             name="password"
             value={formData.password}
             onChange={handleInputChange}
+            disabled={isLoading}
+            required
           />
           <Button
             className="modal-submit-button"
             fullWidth
             variant="contained"
             onClick={handleSubmit}
+            disabled={isLoading}
           >
-            {activeTab === 0 ? "Sign In" : "Register"}
+            {isLoading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              activeTab === 0 ? "Sign In" : "Register"
+            )}
           </Button>
         </Box>
       </Box>
