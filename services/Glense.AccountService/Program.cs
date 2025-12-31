@@ -41,15 +41,22 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Configure PostgreSQL Database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// Priority: Environment variable > appsettings.json
+var connectionString = Environment.GetEnvironmentVariable("ACCOUNT_DB_CONNECTION_STRING")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string not found. Set ACCOUNT_DB_CONNECTION_STRING env var or configure in appsettings.json");
 
 builder.Services.AddDbContext<AccountDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 // Configure JWT Authentication
+// Priority: Environment variables > appsettings.json
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
+var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? jwtSettings["SecretKey"]
+    ?? throw new InvalidOperationException("JWT SecretKey not configured. Set JWT_SECRET_KEY env var or configure in appsettings.json");
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? jwtSettings["Issuer"] ?? "GlenseAccountService";
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? jwtSettings["Audience"] ?? "GlenseApp";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -64,8 +71,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });

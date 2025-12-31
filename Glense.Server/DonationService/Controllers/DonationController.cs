@@ -75,8 +75,11 @@ public class DonationController : ControllerBase
             return BadRequest(new { message = "Cannot donate to yourself" });
         }
 
-        // Use a transaction to ensure atomicity
-        await using var transaction = await _context.Database.BeginTransactionAsync();
+        // Check if we can use transactions (not supported by in-memory database)
+        var supportsTransactions = !_context.Database.IsInMemory();
+        var transaction = supportsTransactions
+            ? await _context.Database.BeginTransactionAsync()
+            : null;
 
         try
         {
@@ -131,7 +134,11 @@ public class DonationController : ControllerBase
 
             _context.Donations.Add(donation);
             await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+
+            if (transaction != null)
+            {
+                await transaction.CommitAsync();
+            }
 
             _logger.LogInformation(
                 "Donation created: {DonationId}, from user {DonorId} to user {RecipientId}, amount: {Amount}",
@@ -145,9 +152,19 @@ public class DonationController : ControllerBase
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
+            if (transaction != null)
+            {
+                await transaction.RollbackAsync();
+            }
             _logger.LogError(ex, "Error creating donation");
             return StatusCode(500, new { message = "An error occurred while processing the donation" });
+        }
+        finally
+        {
+            if (transaction != null)
+            {
+                await transaction.DisposeAsync();
+            }
         }
     }
 }

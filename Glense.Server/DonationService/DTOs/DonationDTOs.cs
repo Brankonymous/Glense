@@ -38,6 +38,13 @@ public record TopUpWalletRequest(
 );
 
 /// <summary>
+/// Request DTO for withdrawing funds from wallet
+/// </summary>
+public record WithdrawWalletRequest(
+    decimal Amount
+);
+
+/// <summary>
 /// Response DTO for wallet data
 /// </summary>
 public record WalletResponse(

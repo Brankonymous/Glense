@@ -19,6 +19,11 @@ Glense.Server/obj/
 DonationService.Tests/bin/
 DonationService.Tests/obj/
 
+# Secrets - use .example files as templates
+.env
+.env.local
+.env.*.local
+
 # ops
 ops/hosts
 ops/config.yml
