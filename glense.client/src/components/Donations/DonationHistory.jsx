@@ -1,8 +1,7 @@
 import { Avatar } from "@mui/material";
 import "../../css/Donations/DonationHistory.css";
 
-function DonationHistory({ donations, filter }) {
-    const currentUserId = 1; // Mock current user ID
+function DonationHistory({ donations, filter, currentUserId = 1 }) {
 
     const filteredDonations = donations.filter((donation) => {
         if (filter === "sent") return donation.donatorId === currentUserId;
@@ -62,18 +61,20 @@ function DonationHistory({ donations, filter }) {
                 const otherUser = isSent ? donation.recipient : donation.donator;
                 
                 return (
-                    <div key={index} className={`donation-item ${isSent ? "sent" : "received"}`}>
+                    <div key={donation.id || index} className={`donation-item ${isSent ? "sent" : "received"}`}>
                         <div className="donation-item-left">
                             <Avatar 
-                                src={otherUser.profileImage} 
+                                src={otherUser?.profileImage} 
                                 className="donation-avatar"
-                            />
+                            >
+                                {otherUser?.name?.charAt(0) || '?'}
+                            </Avatar>
                             <div className="donation-info">
                                 <div className="donation-user-row">
                                     <span className="donation-direction">
                                         {isSent ? "Sent to" : "Received from"}
                                     </span>
-                                    <span className="donation-user-name">{otherUser.name}</span>
+                                    <span className="donation-user-name">{otherUser?.name || 'Unknown User'}</span>
                                 </div>
                                 {donation.message && (
                                     <p className="donation-message">"{donation.message}"</p>
@@ -96,4 +97,3 @@ function DonationHistory({ donations, filter }) {
 }
 
 export default DonationHistory;
-
