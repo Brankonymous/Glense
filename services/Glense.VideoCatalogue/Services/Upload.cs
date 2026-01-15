@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Glense.VideoCatalogue.Data;
 using Glense.VideoCatalogue.Models;
 
-namespace Glense.VideoCatalogue.Services
-{
+namespace Glense.VideoCatalogue.Services;
 	public class Upload
 	{
 		private readonly IVideoStorage _storage;
@@ -45,4 +44,3 @@ namespace Glense.VideoCatalogue.Services
 			return video;
 		}
 	}
-}

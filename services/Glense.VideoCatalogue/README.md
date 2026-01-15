@@ -68,12 +68,6 @@ curl -X POST "http://localhost:5102/api/videos/upload" \
   -F "title=My Video"
 ```
 
-Stream a video (supports Range header):
-
-```bash
-curl -H "Range: bytes=0-" http://localhost:5102/api/videos/<VIDEO_ID>/stream --output part.mp4
-```
-
 ## Notes & next steps
 - Consider securing upload endpoints with authentication and deriving `uploaderId` from user claims.
 - Add unit and integration tests under `services/Glense.VideoCatalogue/Tests`.

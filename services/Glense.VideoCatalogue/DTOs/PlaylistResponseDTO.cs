@@ -1,13 +1,16 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace Glense.VideoCatalogue.DTOs
+namespace Glense.VideoCatalogue.DTOs;
+
+public class PlaylistResponseDTO
 {
-    public class PlaylistResponseDTO
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
-        public string? Description { get; set; }
-        public DateTime CreationDate { get; set; }
-        public int CreatorId { get; set; }
-    }
+    [Required]
+    public Guid Id { get; set; }
+    [Required]
+    public string Name { get; set; } = null!;
+    public string? Description { get; set; }
+    public DateTime CreationDate { get; set; }
+    [Required]
+    public int CreatorId { get; set; }
 }

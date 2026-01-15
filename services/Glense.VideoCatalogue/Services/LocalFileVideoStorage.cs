@@ -5,8 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Glense.VideoCatalogue.Services
-{
+namespace Glense.VideoCatalogue.Services;
     /// <summary>
     /// Simple local-disk implementation of <see cref="IVideoStorage"/>.
     /// Stores files under a configured base path (defaults to `Videos/`).
@@ -77,4 +76,3 @@ namespace Glense.VideoCatalogue.Services
             return Task.FromResult<(Stream, long)>((fs, total));
         }
     }
-}

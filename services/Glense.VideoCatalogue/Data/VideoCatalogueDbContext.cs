@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Glense.VideoCatalogue.Models;
 
-namespace Glense.VideoCatalogue.Data
-{
+namespace Glense.VideoCatalogue.Data;
     public class VideoCatalogueDbContext : DbContext
     {
         public VideoCatalogueDbContext(DbContextOptions<VideoCatalogueDbContext> options) : base(options)
@@ -71,4 +70,3 @@ namespace Glense.VideoCatalogue.Data
             });
         }
     }
-}

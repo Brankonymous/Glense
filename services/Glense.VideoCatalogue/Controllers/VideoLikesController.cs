@@ -4,8 +4,7 @@ using Glense.VideoCatalogue.Data;
 using Glense.VideoCatalogue.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Glense.VideoCatalogue.Controllers
-{
+namespace Glense.VideoCatalogue.Controllers;
     [ApiController]
     [Route("api/[controller]")]
     public class VideoLikesController : ControllerBase
@@ -51,4 +50,3 @@ namespace Glense.VideoCatalogue.Controllers
             return Ok(resp);
         }
     }
-}

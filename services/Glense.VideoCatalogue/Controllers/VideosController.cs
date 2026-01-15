@@ -7,8 +7,7 @@ using Glense.VideoCatalogue.Data;
 using Glense.VideoCatalogue.Services;
 using Microsoft.EntityFrameworkCore;
 
-namespace Glense.VideoCatalogue.Controllers
-{
+namespace Glense.VideoCatalogue.Controllers;
     [ApiController]
     [Route("api/[controller]")]
     public class VideosController : ControllerBase
@@ -54,7 +53,7 @@ namespace Glense.VideoCatalogue.Controllers
             var video = await _db.Videos.FirstOrDefaultAsync(v => v.Id == id);
             if (video == null) return NotFound();
 
-            var resp = new DTOs.VideoResponseDTO
+            var resp = new DTOs.UploadResponseDTO
             {
                 Id = video.Id,
                 Title = video.Title,
@@ -119,4 +118,3 @@ namespace Glense.VideoCatalogue.Controllers
             return File(stream, contentType);
         }
     }
-}

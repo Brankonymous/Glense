@@ -2,8 +2,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Glense.VideoCatalogue.Services
-{
+namespace Glense.VideoCatalogue.Services;
     /// <summary>
     /// Abstraction for video file storage implementations.
     /// Implementations should return a stored identifier (filename or key)
@@ -20,4 +19,3 @@ namespace Glense.VideoCatalogue.Services
         Task<(Stream Stream, long TotalLength)> OpenReadRangeAsync(string storedName, long? start = null, long? end = null, CancellationToken cancellationToken = default);
         Task DeleteAsync(string storedName, CancellationToken cancellationToken = default);
     }
-}
