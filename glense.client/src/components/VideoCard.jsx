@@ -12,16 +12,19 @@ import {
 
 import "../css/VideoCard.css"; 
 
-function VideoCard({
-    video: {
-        id: { videoId },
-    },
-}) {
+function VideoCard({ video }) {
+    // Support both YouTube-like shape ({ id: { videoId } }) and catalogue shape ({ id: "guid", thumbnailUrl, title })
+    const nestedId = video?.id?.videoId;
+    const simpleId = video?.id && typeof video.id === 'string' ? video.id : null;
+    const videoId = nestedId || simpleId || video?.videoId;
+    const thumbnail = video?.thumbnailUrl || demoThumbnailUrl;
+    const title = video?.title || demoVideoTitle;
+
     return (
         <Card className="video-card">
             <Link to={videoId ? `/video/${videoId}` : demoVideoUrl}>
                 <CardMedia
-                    image={demoThumbnailUrl}
+                    image={thumbnail}
                     className="video-card-media"
                 />
             </Link>
@@ -29,9 +32,7 @@ function VideoCard({
             <CardContent className="video-card-content">
                 <Link to={videoId ? `/video/${videoId}` : demoVideoUrl}>
                     <Typography variant="subtitle1" className="video-card-title">
-                        {demoVideoTitle.slice(0, 80)
-                            + (demoVideoTitle.length > 80 ? "..." : "")
-                        }
+                        {title.slice(0, 80) + (title.length > 80 ? "..." : "")}
                     </Typography>
                 </Link>
                 <Link to={demoVideoUrl}>
