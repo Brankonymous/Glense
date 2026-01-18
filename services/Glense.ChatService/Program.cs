@@ -68,11 +68,28 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// DEV: permissive CORS policy for local development (adjust/remove for production)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevCors", policy => policy
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .SetIsOriginAllowed(_ => true)
+        .AllowCredentials());
+});
+
 // DbContext: allow in-memory fallback for local testing
 var chatConn = builder.Configuration.GetConnectionString("DefaultConnection")
                ?? builder.Configuration["ConnectionStrings:DefaultConnection"];
 var chatUseInMemory = (Environment.GetEnvironmentVariable("CHAT_USE_INMEMORY") ?? "false").ToLowerInvariant() == "true";
-if (chatUseInMemory || string.IsNullOrEmpty(chatConn))
+// Debug output to help diagnose env/connection issues during local dev
+try { Console.WriteLine($"CHAT_USE_INMEMORY={chatUseInMemory}, DefaultConnection={(chatConn ?? "(null)")}"); } catch {}
+
+if (chatUseInMemory)
+{
+    builder.Services.AddDbContext<ChatDbContext>(opt => opt.UseInMemoryDatabase("GlenseChat_InMemory"));
+}
+else if (string.IsNullOrEmpty(chatConn))
 {
     builder.Services.AddDbContext<ChatDbContext>(opt => opt.UseInMemoryDatabase("GlenseChat_InMemory"));
 }
@@ -139,6 +156,17 @@ app.UseExceptionHandler(a => a.Run(async context =>
 }));
 
 app.UseRouting();
+
+// Simple request logging for local development
+app.Use(async (ctx, next) =>
+{
+    try { Console.WriteLine($"[{DateTime.UtcNow:O}] Incoming {ctx.Request.Method} {ctx.Request.Path} from {ctx.Connection.RemoteIpAddress}"); } catch {}
+    await next();
+    try { Console.WriteLine($"[{DateTime.UtcNow:O}] Response {ctx.Response.StatusCode} for {ctx.Request.Method} {ctx.Request.Path}"); } catch {}
+});
+
+// Enable dev CORS policy before auth so preflight succeeds
+app.UseCors("DevCors");
 app.UseAuthentication();
 app.UseAuthorization();
 
