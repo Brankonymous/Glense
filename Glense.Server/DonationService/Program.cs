@@ -32,19 +32,22 @@ else
 // Health check endpoint for container orchestration
 builder.Services.AddHealthChecks();
 
-// CORS policy for inter-service communication
-// This microservice accepts requests from the main Glense.Server API
+// CORS policy - Allow frontend origins (both HTTP and HTTPS)
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowMicroservices", policy =>
+    options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.SetIsOriginAllowed(_ => true) // Allow any origin in development
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
 var app = builder.Build();
+
+// CORS must be first middleware after exception handling
+app.UseCors();
 
 // Swagger UI available at root path for easy API exploration
 app.UseSwagger();
@@ -54,7 +57,6 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty;
 });
 
-app.UseCors("AllowMicroservices");
 app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
