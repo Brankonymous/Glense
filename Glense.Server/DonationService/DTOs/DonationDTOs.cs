@@ -4,8 +4,8 @@ namespace DonationService.DTOs;
 /// Request DTO for creating a new donation
 /// </summary>
 public record CreateDonationRequest(
-    int DonorUserId,
-    int RecipientUserId,
+    Guid DonorUserId,
+    Guid RecipientUserId,
     decimal Amount,
     string? Message
 );
@@ -15,8 +15,8 @@ public record CreateDonationRequest(
 /// </summary>
 public record DonationResponse(
     Guid Id,
-    int DonorUserId,
-    int RecipientUserId,
+    Guid DonorUserId,
+    Guid RecipientUserId,
     decimal Amount,
     string? Message,
     DateTime CreatedAt
@@ -26,7 +26,7 @@ public record DonationResponse(
 /// Request DTO for creating/topping up a wallet
 /// </summary>
 public record CreateWalletRequest(
-    int UserId,
+    Guid UserId,
     decimal InitialBalance = 0
 );
 
@@ -49,7 +49,7 @@ public record WithdrawWalletRequest(
 /// </summary>
 public record WalletResponse(
     Guid Id,
-    int UserId,
+    Guid UserId,
     decimal Balance,
     DateTime CreatedAt,
     DateTime UpdatedAt
