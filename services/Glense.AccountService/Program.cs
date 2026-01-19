@@ -1,10 +1,14 @@
 using System.Text;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Glense.AccountService.Data;
 using Glense.AccountService.Services;
+
+// Load environment variables from .env file (for local development)
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 

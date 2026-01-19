@@ -1,9 +1,11 @@
 /**
  * Donation Service API Client
- * Connects to the DonationService microservice
+ * Routes through the Gateway server
  */
 
-const DONATION_API_BASE = import.meta.env.VITE_DONATION_API_URL || 'http://localhost:5100/api';
+import { API_BASE_URL } from '../config/api';
+
+const DONATION_API_BASE = `${API_BASE_URL}/api`;
 
 /**
  * Generic fetch wrapper with error handling

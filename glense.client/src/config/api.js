@@ -1,5 +1,5 @@
-// API Base URLs
-export const API_BASE_URL = import.meta.env.VITE_ACCOUNT_API_URL || 'http://localhost:5001';
+// API Base URL - Gateway server
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050';
 
 // API Endpoints
 export const API_ENDPOINTS = {
