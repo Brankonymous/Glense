@@ -5,14 +5,15 @@ import {
     Typography,
     TextField,
     Button,
-    IconButton
+    IconButton,
+    CircularProgress
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import "../../css/Donations/DepositModal.css";
 
 const PRESET_AMOUNTS = [10, 25, 50, 100, 250];
 
-function DepositModal({ open, onClose, onSubmit }) {
+function DepositModal({ open, onClose, onSubmit, isSubmitting = false }) {
     const [amount, setAmount] = useState("");
     const [showConfirm, setShowConfirm] = useState(false);
 
@@ -40,7 +41,7 @@ function DepositModal({ open, onClose, onSubmit }) {
             type: "deposit",
             timestamp: new Date().toISOString()
         });
-        resetForm();
+        // Don't reset form here - let parent handle it on success
     };
 
     const resetForm = () => {
@@ -49,6 +50,7 @@ function DepositModal({ open, onClose, onSubmit }) {
     };
 
     const handleClose = () => {
+        if (isSubmitting) return;
         resetForm();
         onClose();
     };
@@ -60,7 +62,11 @@ function DepositModal({ open, onClose, onSubmit }) {
     return (
         <Modal open={open} onClose={handleClose}>
             <Box className="deposit-modal-box">
-                <IconButton className="deposit-modal-close" onClick={handleClose}>
+                <IconButton 
+                    className="deposit-modal-close" 
+                    onClick={handleClose}
+                    disabled={isSubmitting}
+                >
                     <CloseIcon />
                 </IconButton>
 
@@ -134,6 +140,7 @@ function DepositModal({ open, onClose, onSubmit }) {
                                 className="back-btn"
                                 variant="outlined"
                                 onClick={handleBack}
+                                disabled={isSubmitting}
                             >
                                 Back
                             </Button>
@@ -141,8 +148,16 @@ function DepositModal({ open, onClose, onSubmit }) {
                                 className="confirm-btn deposit"
                                 variant="contained"
                                 onClick={handleSubmit}
+                                disabled={isSubmitting}
                             >
-                                Deposit ${parseFloat(amount).toFixed(2)}
+                                {isSubmitting ? (
+                                    <>
+                                        <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                                        Processing...
+                                    </>
+                                ) : (
+                                    `Deposit $${parseFloat(amount).toFixed(2)}`
+                                )}
                             </Button>
                         </div>
                     </div>
@@ -153,4 +168,3 @@ function DepositModal({ open, onClose, onSubmit }) {
 }
 
 export default DepositModal;
-

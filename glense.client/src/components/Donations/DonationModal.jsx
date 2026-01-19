@@ -7,7 +7,8 @@ import {
     Button,
     IconButton,
     Autocomplete,
-    Avatar
+    Avatar,
+    CircularProgress
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { users, recentRecipients } from "../../utils/constants";
@@ -15,7 +16,7 @@ import "../../css/Donations/DonationModal.css";
 
 const PRESET_AMOUNTS = [5, 10, 25, 50, 100];
 
-function DonationModal({ open, onClose, onSubmit }) {
+function DonationModal({ open, onClose, onSubmit, isSubmitting = false, currentBalance = 0 }) {
     const [selectedUser, setSelectedUser] = useState(null);
     const [amount, setAmount] = useState("");
     const [message, setMessage] = useState("");
@@ -35,6 +36,13 @@ function DonationModal({ open, onClose, onSubmit }) {
     const handleSubmit = () => {
         if (!selectedUser || !amount || parseInt(amount) <= 0) return;
         
+        const donationAmount = parseInt(amount);
+        
+        // Check if user has enough balance
+        if (donationAmount > currentBalance) {
+            return; // Button should be disabled anyway
+        }
+        
         if (!showConfirm) {
             setShowConfirm(true);
             return;
@@ -43,13 +51,13 @@ function DonationModal({ open, onClose, onSubmit }) {
         const donation = {
             recipientId: selectedUser.id,
             recipientName: selectedUser.name,
-            amount: parseInt(amount),
+            amount: donationAmount,
             message: message,
             donatedAt: new Date().toISOString()
         };
 
         onSubmit(donation);
-        resetForm();
+        // Don't reset form here - let parent handle it on success
     };
 
     const resetForm = () => {
@@ -60,6 +68,7 @@ function DonationModal({ open, onClose, onSubmit }) {
     };
 
     const handleClose = () => {
+        if (isSubmitting) return; // Prevent closing while submitting
         resetForm();
         onClose();
     };
@@ -68,10 +77,18 @@ function DonationModal({ open, onClose, onSubmit }) {
         setShowConfirm(false);
     };
 
+    const donationAmount = parseInt(amount) || 0;
+    const insufficientFunds = donationAmount > currentBalance;
+    const isValid = selectedUser && donationAmount > 0 && !insufficientFunds;
+
     return (
         <Modal open={open} onClose={handleClose}>
             <Box className="donation-modal-box">
-                <IconButton className="donation-modal-close" onClick={handleClose}>
+                <IconButton 
+                    className="donation-modal-close" 
+                    onClick={handleClose}
+                    disabled={isSubmitting}
+                >
                     <CloseIcon />
                 </IconButton>
 
@@ -83,6 +100,9 @@ function DonationModal({ open, onClose, onSubmit }) {
                             </Typography>
                             <Typography className="donation-modal-subtitle">
                                 Support your favorite creators
+                            </Typography>
+                            <Typography className="available-balance">
+                                Available: ${currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </Typography>
                         </div>
 
@@ -146,8 +166,9 @@ function DonationModal({ open, onClose, onSubmit }) {
                                 {PRESET_AMOUNTS.map((preset) => (
                                     <button
                                         key={preset}
-                                        className={`preset-btn ${amount === preset.toString() ? "selected" : ""}`}
+                                        className={`preset-btn ${amount === preset.toString() ? "selected" : ""} ${preset > currentBalance ? "disabled" : ""}`}
                                         onClick={() => handlePresetAmount(preset)}
+                                        disabled={preset > currentBalance}
                                     >
                                         ${preset}
                                     </button>
@@ -159,6 +180,8 @@ function DonationModal({ open, onClose, onSubmit }) {
                                 onChange={handleAmountChange}
                                 className="donation-input amount-input"
                                 variant="outlined"
+                                error={insufficientFunds}
+                                helperText={insufficientFunds ? "Insufficient funds" : ""}
                                 InputProps={{
                                     startAdornment: <span className="currency-symbol">$</span>
                                 }}
@@ -188,7 +211,7 @@ function DonationModal({ open, onClose, onSubmit }) {
                             fullWidth
                             variant="contained"
                             onClick={handleSubmit}
-                            disabled={!selectedUser || !amount || parseInt(amount) <= 0}
+                            disabled={!isValid}
                         >
                             Continue
                         </Button>
@@ -219,6 +242,13 @@ function DonationModal({ open, onClose, onSubmit }) {
                                 <span className="amount-value">${amount}</span>
                             </div>
 
+                            <div className="confirm-remaining">
+                                <span className="remaining-label">Remaining Balance</span>
+                                <span className="remaining-value">
+                                    ${(currentBalance - donationAmount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                </span>
+                            </div>
+
                             {message && (
                                 <div className="confirm-message">
                                     <span className="message-label">Message</span>
@@ -232,6 +262,7 @@ function DonationModal({ open, onClose, onSubmit }) {
                                 className="back-btn"
                                 variant="outlined"
                                 onClick={handleBack}
+                                disabled={isSubmitting}
                             >
                                 Back
                             </Button>
@@ -239,8 +270,16 @@ function DonationModal({ open, onClose, onSubmit }) {
                                 className="confirm-btn"
                                 variant="contained"
                                 onClick={handleSubmit}
+                                disabled={isSubmitting}
                             >
-                                Send ${amount}
+                                {isSubmitting ? (
+                                    <>
+                                        <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                                        Sending...
+                                    </>
+                                ) : (
+                                    `Send $${amount}`
+                                )}
                             </Button>
                         </div>
                     </div>
@@ -251,4 +290,3 @@ function DonationModal({ open, onClose, onSubmit }) {
 }
 
 export default DonationModal;
-

@@ -1,3 +1,55 @@
+# Ignore build outputs
+**/bin/
+**/obj/
+**/publish/
+**/app/publish/
+
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*copilot-instructions.md
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+
+# Logs
+*.log
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+
+# NuGet
+*.nupkg
+packages/
+.nuget/
+
+# Docker
+*.stack
+**/docker-compose*.yml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary
+*.tmp
+*.temp
+
 .DS_Store
 
 api/wwwroot/**
@@ -18,6 +70,11 @@ Glense.Server/bin/
 Glense.Server/obj/
 DonationService.Tests/bin/
 DonationService.Tests/obj/
+
+# Secrets - use .example files as templates
+.env
+.env.local
+.env.*.local
 
 # ops
 ops/hosts
