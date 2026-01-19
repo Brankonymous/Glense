@@ -4,15 +4,16 @@ import DonationModal from "./DonationModal";
 import DepositModal from "./DepositModal";
 import WithdrawModal from "./WithdrawModal";
 import DonationHistory from "./DonationHistory";
+import { useAuth } from "../../context/AuthContext";
 import { users } from "../../utils/constants";
-import { 
-    getOrCreateWallet, 
-    getAllDonations, 
-    createDonation, 
+import {
+    getOrCreateWallet,
+    getAllDonations,
+    createDonation,
     topUpWallet,
     withdrawFromWallet,
     transformDonation,
-    createUsersMap 
+    createUsersMap
 } from "../../utils/donationApi";
 import logo from "../../assets/logo_transparent.png";
 import "../../css/Donations/Donations.css";
@@ -20,10 +21,8 @@ import "../../css/Donations/Donations.css";
 // Create a map of users for quick lookup
 const usersMap = createUsersMap(users);
 
-// TODO: Get this from auth context
-const CURRENT_USER_ID = 1;
-
 function Donations() {
+    const { user, isAuthenticated, isLoading: authLoading } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDepositOpen, setIsDepositOpen] = useState(false);
     const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
@@ -42,19 +41,21 @@ function Donations() {
 
     // Fetch wallet and donations on mount
     const fetchData = useCallback(async () => {
+        if (!user?.id) return;
+
         setIsLoading(true);
         try {
             // Fetch wallet and donations in parallel
             const [walletData, donationsData] = await Promise.all([
-                getOrCreateWallet(CURRENT_USER_ID),
-                getAllDonations(CURRENT_USER_ID)
+                getOrCreateWallet(user.id),
+                getAllDonations(user.id)
             ]);
 
             setBalance(walletData.balance);
-            
+
             // Transform donations to frontend format
-            const transformedDonations = donationsData.all.map(d => 
-                transformDonation(d, usersMap, CURRENT_USER_ID)
+            const transformedDonations = donationsData.all.map(d =>
+                transformDonation(d, usersMap, user.id)
             );
             setDonations(transformedDonations);
         } catch (error) {
@@ -63,11 +64,13 @@ function Donations() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [user?.id]);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        if (isAuthenticated && user?.id) {
+            fetchData();
+        }
+    }, [fetchData, isAuthenticated, user?.id]);
 
     const showNotification = (message, severity = 'success') => {
         setNotification({ open: true, message, severity });
@@ -81,7 +84,7 @@ function Donations() {
         setIsSubmitting(true);
         try {
             const result = await createDonation({
-                donorUserId: CURRENT_USER_ID,
+                donorUserId: user.id,
                 recipientUserId: donationData.recipientId,
                 amount: donationData.amount,
                 message: donationData.message
@@ -89,11 +92,11 @@ function Donations() {
 
             // Update local state
             setBalance(prev => prev - donationData.amount);
-            
+
             // Add new donation to history
-            const newDonation = transformDonation(result, usersMap, CURRENT_USER_ID);
+            const newDonation = transformDonation(result, usersMap, user.id);
             setDonations(prev => [newDonation, ...prev]);
-            
+
             setIsModalOpen(false);
             showNotification(`Successfully sent $${donationData.amount} to ${donationData.recipientName}!`);
         } catch (error) {
@@ -107,7 +110,7 @@ function Donations() {
     const handleDepositSuccess = async (deposit) => {
         setIsSubmitting(true);
         try {
-            const result = await topUpWallet(CURRENT_USER_ID, deposit.amount);
+            const result = await topUpWallet(user.id, deposit.amount);
             setBalance(result.balance);
             setIsDepositOpen(false);
             showNotification(`Successfully deposited $${deposit.amount.toFixed(2)}!`);
@@ -122,7 +125,7 @@ function Donations() {
     const handleWithdrawSuccess = async (withdraw) => {
         setIsSubmitting(true);
         try {
-            const result = await withdrawFromWallet(CURRENT_USER_ID, withdraw.amount);
+            const result = await withdrawFromWallet(user.id, withdraw.amount);
             setBalance(result.balance);
             setIsWithdrawOpen(false);
             showNotification(`Successfully withdrew $${withdraw.amount.toFixed(2)}!`);
@@ -134,12 +137,22 @@ function Donations() {
         }
     };
 
-    if (isLoading) {
+    if (authLoading || isLoading) {
         return (
             <div className="donations-container">
                 <div className="donations-loading">
                     <CircularProgress size={48} />
                     <p>Loading your wallet...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!isAuthenticated || !user) {
+        return (
+            <div className="donations-container">
+                <div className="donations-loading">
+                    <p>Please sign in to access donations.</p>
                 </div>
             </div>
         );
@@ -207,10 +220,10 @@ function Donations() {
                 </button>
             </div>
 
-            <DonationHistory 
-                donations={donations} 
+            <DonationHistory
+                donations={donations}
                 filter={activeTab}
-                currentUserId={CURRENT_USER_ID}
+                currentUserId={user.id}
             />
 
             <DonationModal 
