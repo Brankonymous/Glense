@@ -23,10 +23,10 @@ public class WalletController : ControllerBase
     /// <summary>
     /// Get wallet by user ID
     /// </summary>
-    [HttpGet("user/{userId:int}")]
+    [HttpGet("user/{userId:guid}")]
     [ProducesResponseType(typeof(WalletResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<WalletResponse>> GetWalletByUserId(int userId)
+    public async Task<ActionResult<WalletResponse>> GetWalletByUserId(Guid userId)
     {
         var wallet = await _context.Wallets
             .FirstOrDefaultAsync(w => w.UserId == userId);
@@ -104,11 +104,11 @@ public class WalletController : ControllerBase
     /// <summary>
     /// Add funds to a wallet (top-up)
     /// </summary>
-    [HttpPost("user/{userId:int}/topup")]
+    [HttpPost("user/{userId:guid}/topup")]
     [ProducesResponseType(typeof(WalletResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<WalletResponse>> TopUpWallet(int userId, [FromBody] TopUpWalletRequest request)
+    public async Task<ActionResult<WalletResponse>> TopUpWallet(Guid userId, [FromBody] TopUpWalletRequest request)
     {
         if (request.Amount <= 0)
         {
@@ -139,11 +139,11 @@ public class WalletController : ControllerBase
     /// <summary>
     /// Withdraw funds from a wallet
     /// </summary>
-    [HttpPost("user/{userId:int}/withdraw")]
+    [HttpPost("user/{userId:guid}/withdraw")]
     [ProducesResponseType(typeof(WalletResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<WalletResponse>> WithdrawFromWallet(int userId, [FromBody] WithdrawWalletRequest request)
+    public async Task<ActionResult<WalletResponse>> WithdrawFromWallet(Guid userId, [FromBody] WithdrawWalletRequest request)
     {
         if (request.Amount <= 0)
         {

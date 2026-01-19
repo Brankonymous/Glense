@@ -23,9 +23,9 @@ public class DonationController : ControllerBase
     /// <summary>
     /// Get all donations made by a specific user
     /// </summary>
-    [HttpGet("donor/{userId:int}")]
+    [HttpGet("donor/{userId:guid}")]
     [ProducesResponseType(typeof(List<DonationResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<DonationResponse>>> GetDonationsByDonor(int userId)
+    public async Task<ActionResult<List<DonationResponse>>> GetDonationsByDonor(Guid userId)
     {
         var donations = await _context.Donations
             .Where(d => d.DonorUserId == userId)
@@ -41,9 +41,9 @@ public class DonationController : ControllerBase
     /// <summary>
     /// Get all donations received by a specific user
     /// </summary>
-    [HttpGet("recipient/{userId:int}")]
+    [HttpGet("recipient/{userId:guid}")]
     [ProducesResponseType(typeof(List<DonationResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<DonationResponse>>> GetDonationsByRecipient(int userId)
+    public async Task<ActionResult<List<DonationResponse>>> GetDonationsByRecipient(Guid userId)
     {
         var donations = await _context.Donations
             .Where(d => d.RecipientUserId == userId)
