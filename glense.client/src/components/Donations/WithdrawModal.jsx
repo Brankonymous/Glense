@@ -5,12 +5,13 @@ import {
     Typography,
     TextField,
     Button,
-    IconButton
+    IconButton,
+    CircularProgress
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import "../../css/Donations/WithdrawModal.css";
 
-function WithdrawModal({ open, onClose, onSubmit, currentBalance }) {
+function WithdrawModal({ open, onClose, onSubmit, currentBalance, isSubmitting = false }) {
     const [amount, setAmount] = useState("");
     const [showConfirm, setShowConfirm] = useState(false);
 
@@ -39,7 +40,7 @@ function WithdrawModal({ open, onClose, onSubmit, currentBalance }) {
             type: "withdraw",
             timestamp: new Date().toISOString()
         });
-        resetForm();
+        // Don't reset form here - let parent handle it on success
     };
 
     const resetForm = () => {
@@ -48,6 +49,7 @@ function WithdrawModal({ open, onClose, onSubmit, currentBalance }) {
     };
 
     const handleClose = () => {
+        if (isSubmitting) return;
         resetForm();
         onClose();
     };
@@ -61,7 +63,11 @@ function WithdrawModal({ open, onClose, onSubmit, currentBalance }) {
     return (
         <Modal open={open} onClose={handleClose}>
             <Box className="withdraw-modal-box">
-                <IconButton className="withdraw-modal-close" onClick={handleClose}>
+                <IconButton 
+                    className="withdraw-modal-close" 
+                    onClick={handleClose}
+                    disabled={isSubmitting}
+                >
                     <CloseIcon />
                 </IconButton>
 
@@ -143,6 +149,7 @@ function WithdrawModal({ open, onClose, onSubmit, currentBalance }) {
                                 className="back-btn"
                                 variant="outlined"
                                 onClick={handleBack}
+                                disabled={isSubmitting}
                             >
                                 Back
                             </Button>
@@ -150,8 +157,16 @@ function WithdrawModal({ open, onClose, onSubmit, currentBalance }) {
                                 className="confirm-btn withdraw"
                                 variant="contained"
                                 onClick={handleSubmit}
+                                disabled={isSubmitting}
                             >
-                                Withdraw ${parseFloat(amount).toFixed(2)}
+                                {isSubmitting ? (
+                                    <>
+                                        <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                                        Processing...
+                                    </>
+                                ) : (
+                                    `Withdraw $${parseFloat(amount).toFixed(2)}`
+                                )}
                             </Button>
                         </div>
                     </div>
@@ -162,4 +177,3 @@ function WithdrawModal({ open, onClose, onSubmit, currentBalance }) {
 }
 
 export default WithdrawModal;
-

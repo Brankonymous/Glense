@@ -23,10 +23,10 @@ public class WalletController : ControllerBase
     /// <summary>
     /// Get wallet by user ID
     /// </summary>
-    [HttpGet("user/{userId:int}")]
+    [HttpGet("user/{userId:guid}")]
     [ProducesResponseType(typeof(WalletResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<WalletResponse>> GetWalletByUserId(int userId)
+    public async Task<ActionResult<WalletResponse>> GetWalletByUserId(Guid userId)
     {
         var wallet = await _context.Wallets
             .FirstOrDefaultAsync(w => w.UserId == userId);
@@ -42,21 +42,24 @@ public class WalletController : ControllerBase
     }
 
     /// <summary>
-    /// Create a new wallet for a user
+    /// Create a new wallet for a user (or return existing one)
     /// </summary>
     [HttpPost]
     [ProducesResponseType(typeof(WalletResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(WalletResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<WalletResponse>> CreateWallet([FromBody] CreateWalletRequest request)
     {
-        // Check if wallet already exists for this user
+        // Check if wallet already exists for this user - return it if so
         var existingWallet = await _context.Wallets
             .FirstOrDefaultAsync(w => w.UserId == request.UserId);
 
         if (existingWallet != null)
         {
-            return Conflict(new { message = "Wallet already exists for this user" });
+            // Return existing wallet instead of error (handles race conditions)
+            return Ok(new WalletResponse(
+                existingWallet.Id, existingWallet.UserId, existingWallet.Balance,
+                existingWallet.CreatedAt, existingWallet.UpdatedAt));
         }
 
         var wallet = new Wallet
@@ -68,27 +71,44 @@ public class WalletController : ControllerBase
             UpdatedAt = DateTime.UtcNow
         };
 
-        _context.Wallets.Add(wallet);
-        await _context.SaveChangesAsync();
+        try
+        {
+            _context.Wallets.Add(wallet);
+            await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Wallet created for user {UserId} with initial balance {Balance}",
-            request.UserId, request.InitialBalance);
+            _logger.LogInformation("Wallet created for user {UserId} with initial balance {Balance}",
+                request.UserId, request.InitialBalance);
 
-        var response = new WalletResponse(
-            wallet.Id, wallet.UserId, wallet.Balance,
-            wallet.CreatedAt, wallet.UpdatedAt);
+            var response = new WalletResponse(
+                wallet.Id, wallet.UserId, wallet.Balance,
+                wallet.CreatedAt, wallet.UpdatedAt);
 
-        return Created($"/api/wallet/user/{wallet.UserId}", response);
+            return Created($"/api/wallet/user/{wallet.UserId}", response);
+        }
+        catch (DbUpdateException)
+        {
+            // Race condition: another request created the wallet, fetch and return it
+            var createdWallet = await _context.Wallets
+                .FirstOrDefaultAsync(w => w.UserId == request.UserId);
+
+            if (createdWallet != null)
+            {
+                return Ok(new WalletResponse(
+                    createdWallet.Id, createdWallet.UserId, createdWallet.Balance,
+                    createdWallet.CreatedAt, createdWallet.UpdatedAt));
+            }
+            throw;
+        }
     }
 
     /// <summary>
     /// Add funds to a wallet (top-up)
     /// </summary>
-    [HttpPost("user/{userId:int}/topup")]
+    [HttpPost("user/{userId:guid}/topup")]
     [ProducesResponseType(typeof(WalletResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<WalletResponse>> TopUpWallet(int userId, [FromBody] TopUpWalletRequest request)
+    public async Task<ActionResult<WalletResponse>> TopUpWallet(Guid userId, [FromBody] TopUpWalletRequest request)
     {
         if (request.Amount <= 0)
         {
@@ -109,6 +129,46 @@ public class WalletController : ControllerBase
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Wallet topped up for user {UserId}, amount: {Amount}, new balance: {Balance}",
+            userId, request.Amount, wallet.Balance);
+
+        return Ok(new WalletResponse(
+            wallet.Id, wallet.UserId, wallet.Balance,
+            wallet.CreatedAt, wallet.UpdatedAt));
+    }
+
+    /// <summary>
+    /// Withdraw funds from a wallet
+    /// </summary>
+    [HttpPost("user/{userId:guid}/withdraw")]
+    [ProducesResponseType(typeof(WalletResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<WalletResponse>> WithdrawFromWallet(Guid userId, [FromBody] WithdrawWalletRequest request)
+    {
+        if (request.Amount <= 0)
+        {
+            return BadRequest(new { message = "Amount must be greater than zero" });
+        }
+
+        var wallet = await _context.Wallets
+            .FirstOrDefaultAsync(w => w.UserId == userId);
+
+        if (wallet == null)
+        {
+            return NotFound(new { message = "Wallet not found" });
+        }
+
+        if (wallet.Balance < request.Amount)
+        {
+            return BadRequest(new { message = "Insufficient funds" });
+        }
+
+        wallet.Balance -= request.Amount;
+        wallet.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Wallet withdrawal for user {UserId}, amount: {Amount}, new balance: {Balance}",
             userId, request.Amount, wallet.Balance);
 
         return Ok(new WalletResponse(
