@@ -7,10 +7,28 @@ using Microsoft.OpenApi.Models;
 using Glense.AccountService.Data;
 using Glense.AccountService.Services;
 
-// Load environment variables from .env file (for local development)
-Env.Load();
+// Load environment variables from a .env file if present in this directory or any parent directory
+try {
+    var dir = Directory.GetCurrentDirectory();
+    while (!string.IsNullOrEmpty(dir))
+    {
+        var candidate = Path.Combine(dir, ".env");
+        if (File.Exists(candidate))
+        {
+            Env.Load(candidate);
+            break;
+        }
+        var parent = Directory.GetParent(dir);
+        dir = parent?.FullName;
+    }
+}
+catch { }
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Allow overriding URLs from environment: use ACCOUNT_URLS first, then ASPNETCORE_URLS
+var accountUrls = Environment.GetEnvironmentVariable("ACCOUNT_URLS") ?? Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+if (!string.IsNullOrEmpty(accountUrls)) builder.WebHost.UseUrls(accountUrls);
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -50,8 +68,17 @@ var connectionString = Environment.GetEnvironmentVariable("ACCOUNT_DB_CONNECTION
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string not found. Set ACCOUNT_DB_CONNECTION_STRING env var or configure in appsettings.json");
 
-builder.Services.AddDbContext<AccountDbContext>(options =>
-    options.UseNpgsql(connectionString));
+if (useInMemory || string.IsNullOrEmpty(connectionString) || connectionString.Contains("postgres_account"))
+{
+    // Use an in-memory database for quick local testing
+    builder.Services.AddDbContext<AccountDbContext>(options =>
+        options.UseInMemoryDatabase("GlenseAccount_InMemory"));
+}
+else
+{
+    builder.Services.AddDbContext<AccountDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
 
 // Configure JWT Authentication
 // Priority: Environment variables > appsettings.json
