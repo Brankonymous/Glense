@@ -39,4 +39,28 @@ namespace Glense.VideoCatalogue.Controllers;
             await _db.SaveChangesAsync();
             return NoContent();
         }
+
+        [HttpGet("{playlistId:guid}")]
+        public async Task<IActionResult> ListVideos(System.Guid playlistId)
+        {
+            var videos = await _db.PlaylistVideos
+                .Where(pv => pv.PlaylistId == playlistId)
+                .Include(pv => pv.Video)
+                .Select(pv => new DTOs.UploadResponseDTO
+                {
+                    Id = pv.Video.Id,
+                    Title = pv.Video.Title,
+                    Description = pv.Video.Description,
+                    VideoUrl = pv.Video.VideoUrl,
+                    ThumbnailUrl = pv.Video.ThumbnailUrl,
+                    UploadDate = pv.Video.UploadDate,
+                    UploaderId = pv.Video.UploaderId,
+                    ViewCount = pv.Video.ViewCount,
+                    LikeCount = pv.Video.LikeCount,
+                    DislikeCount = pv.Video.DislikeCount
+                })
+                .ToListAsync();
+
+            return Ok(videos);
+        }
     }

@@ -45,6 +45,24 @@ namespace Glense.VideoCatalogue.Controllers;
             return CreatedAtAction(nameof(Get), new { id = resp.Id }, resp);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> List([FromHeader(Name = "X-Creator-Id")] int creatorId = 0)
+        {
+            var q = _db.Playlists.AsQueryable();
+            if (creatorId > 0) q = q.Where(p => p.CreatorId == creatorId);
+
+            var list = await q.Select(playlist => new DTOs.PlaylistResponseDTO
+            {
+                Id = playlist.Id,
+                Name = playlist.Name,
+                Description = playlist.Description,
+                CreationDate = playlist.CreationDate,
+                CreatorId = playlist.CreatorId
+            }).ToListAsync();
+
+            return Ok(list);
+        }
+
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(System.Guid id)
         {

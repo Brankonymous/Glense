@@ -53,6 +53,20 @@ export async function addVideoToPlaylist(playlistId, videoId) {
   return handleRes(res);
 }
 
+export async function getPlaylistVideos(playlistId) {
+  const res = await fetch(`${BASE}/api/playlistvideos/${playlistId}`);
+  return handleRes(res);
+}
+
+export async function removeVideoFromPlaylist(playlistId, videoId) {
+  const res = await fetch(`${BASE}/api/playlistvideos`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playlistId, videoId }),
+  });
+  return handleRes(res);
+}
+
 export async function likeVideo(videoId, isLiked = true, userId = 0) {
   const res = await fetch(`${BASE}/api/videolikes`, {
     method: 'POST',
@@ -80,13 +94,29 @@ export async function unsubscribeFrom(subscribedToId, userId = 0) {
   return handleRes(res);
 }
 
+export async function getPlaylists(creatorId = 0) {
+  const headers = creatorId ? { 'X-Creator-Id': String(creatorId) } : {};
+  const res = await fetch(`${BASE}/api/playlists`, { headers });
+  return handleRes(res);
+}
+
+export async function getSubscriptions(userId = 0) {
+  const headers = userId ? { 'X-User-Id': String(userId) } : {};
+  const res = await fetch(`${BASE}/api/subscriptions`, { headers });
+  return handleRes(res);
+}
+
 export default {
   getVideos,
   getVideo,
   uploadVideo,
   createPlaylist,
   addVideoToPlaylist,
+  getPlaylists,
+  getPlaylistVideos,
+  removeVideoFromPlaylist,
   likeVideo,
   subscribeTo,
   unsubscribeFrom,
+  getSubscriptions,
 };

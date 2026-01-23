@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import ReactPlayer from "react-player";
-import { Typography, Box, Stack } from "@mui/material";
+import { Typography, Box, Stack, Button, FormControl, Select, MenuItem } from "@mui/material";
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import {
   CheckCircle,
   ThumbDownOutlined,
@@ -11,7 +12,8 @@ import {
 
 import { Videos, VideoComments } from ".";
 import { videoInfo as demoVideoInfo } from "../utils/constants";
-import { getVideo, getVideos } from "../utils/videoApi";
+import { getVideo, getVideos, getPlaylists, addVideoToPlaylist } from "../utils/videoApi";
+import { useAuth } from "../context/AuthContext";
 
 import "../css/VideoStream.css";
 
@@ -21,6 +23,10 @@ function VideoStream() {
   const { id } = useParams();
   const [video, setVideo] = useState(null);
   const [related, setRelated] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
+  const [addingTo, setAddingTo] = useState("");
+  const [adding, setAdding] = useState(false);
+  const { user } = useAuth();
   useEffect(() => {
     let mounted = true;
     if (!id) return;
@@ -28,6 +34,13 @@ function VideoStream() {
     getVideos().then(list => { if (mounted && Array.isArray(list)) setRelated(list.filter(v => String(v.id) !== String(id)).slice(0, 12)); }).catch(() => {});
     return () => { mounted = false; };
   }, [id]);
+
+  useEffect(() => {
+    let mounted = true;
+    const uid = user?.id || 0;
+    getPlaylists(uid).then(list => { if (mounted && Array.isArray(list)) setPlaylists(list); }).catch(() => {});
+    return () => { mounted = false; };
+  }, [user]);
 
   return (
     <Box className="video-stream-container">
@@ -50,12 +63,52 @@ function VideoStream() {
                 </Typography>
               </Link>
 
-              <Typography className="like-dislike">
-                <ThumbUpOutlined className="thumb-icon" />
-                {Number(video?.likeCount ?? demoVideoInfo.likeCount).toLocaleString()} {" | "}
-                <ThumbDownOutlined className="thumb-icon" />
-                {Number(video?.dislikeCount ?? demoVideoInfo.dislikeCount).toLocaleString()}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography className="like-dislike">
+                  <ThumbUpOutlined className="thumb-icon" />
+                  {Number(video?.likeCount ?? demoVideoInfo.likeCount).toLocaleString()} {" | "}
+                  <ThumbDownOutlined className="thumb-icon" />
+                  {Number(video?.dislikeCount ?? demoVideoInfo.dislikeCount).toLocaleString()}
+                </Typography>
+
+                <FormControl size="small" sx={{ minWidth: 160 }}>
+                  <Select
+                    displayEmpty
+                    value={addingTo}
+                    onChange={(e) => setAddingTo(e.target.value)}
+                    renderValue={(selected) => {
+                      if (!selected) return 'Add to playlist';
+                      const p = playlists.find(x => String(x.id) === String(selected));
+                      return p ? p.name : 'Add to playlist';
+                    }}
+                  >
+                    <MenuItem value="">Add to playlist</MenuItem>
+                    {playlists.map(p => (
+                      <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<PlaylistAddIcon />}
+                  disabled={adding}
+                  onClick={async () => {
+                    if (!addingTo || !video?.id) { alert('Select a playlist'); return; }
+                    setAdding(true);
+                    try {
+                      await addVideoToPlaylist(addingTo, video.id);
+                      alert('Added to playlist');
+                    } catch (e) {
+                      alert('Failed to add to playlist');
+                    }
+                    setAdding(false);
+                  }}
+                >
+                  Add
+                </Button>
+              </Box>
             </Stack>
 
             {/* Description */}
@@ -108,6 +161,26 @@ function VideoStream() {
             {/* Comments section */}
             <Typography className="comments-section-title">Comments</Typography>
             <VideoComments id={id} />
+
+            {/* Add to playlist */}
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle1">Add to playlist</Typography>
+              <select value={addingTo} onChange={(e) => setAddingTo(e.target.value)}>
+                <option value="">Choose playlist</option>
+                {playlists.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <Button variant="contained" sx={{ ml: 1 }} disabled={adding} onClick={async () => {
+                if (!addingTo || !video?.id) { alert('Select a playlist'); return; }
+                setAdding(true);
+                try {
+                  await addVideoToPlaylist(addingTo, video.id);
+                  alert('Added to playlist');
+                } catch (e) {
+                  alert('Failed to add to playlist');
+                }
+                setAdding(false);
+              }}>Add</Button>
+            </Box>
           </Box>
         </Box>
 
