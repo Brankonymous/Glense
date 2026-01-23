@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Glense.VideoCatalogue.Data;
 using Glense.VideoCatalogue.Services;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace Glense.VideoCatalogue.Controllers;
@@ -45,6 +46,28 @@ namespace Glense.VideoCatalogue.Controllers;
             };
 
             return CreatedAtAction(nameof(Get), new { id = resp.Id }, resp);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> List()
+        {
+            var vids = await _db.Videos
+                .Select(video => new DTOs.UploadResponseDTO
+                {
+                    Id = video.Id,
+                    Title = video.Title,
+                    Description = video.Description,
+                    VideoUrl = video.VideoUrl,
+                    ThumbnailUrl = video.ThumbnailUrl,
+                    UploadDate = video.UploadDate,
+                    UploaderId = video.UploaderId,
+                    ViewCount = video.ViewCount,
+                    LikeCount = video.LikeCount,
+                    DislikeCount = video.DislikeCount
+                })
+                .ToListAsync();
+
+            return Ok(vids);
         }
 
         [HttpGet("{id:guid}")]

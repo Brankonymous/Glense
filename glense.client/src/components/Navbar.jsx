@@ -52,6 +52,9 @@ function Navbar() {
                                             Chat
                                         </Typography>
                                     </Link>
+                                    <Link to="/upload">
+                                        <Typography className="navbar-option">Upload</Typography>
+                                    </Link>
                                     <Link to="/donations">
                                         <Typography className="navbar-option">
                                             Donations

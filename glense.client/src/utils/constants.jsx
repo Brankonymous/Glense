@@ -197,3 +197,6 @@ export const videoInfo = {
     likeCount: 123456,
     dislikeCount: 1234
 };
+
+// Video catalogue API
+export const VIDEO_CATALOGUE_API = import.meta.env.VITE_VIDEO_CATALOGUE_API || 'http://localhost:5088';

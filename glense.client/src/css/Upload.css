@@ -1,0 +1,2 @@
+.upload-page { padding: 24px; display:flex; justify-content:center; }
+.upload-form { max-width:720px; width:100%; display:flex; flex-direction:column; gap:12px; }

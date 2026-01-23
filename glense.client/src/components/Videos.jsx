@@ -12,7 +12,7 @@ function Videos({ videos, direction }) {
             >
                 {videos.map((item, index) => (
                     <Box key={index} className="video-box">
-                        {item.id.videoId && <VideoCard video={item} />}
+                        <VideoCard video={item} />
                     </Box>
                 ))}
             </Stack>

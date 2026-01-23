@@ -1,12 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Stack } from "@mui/material";
 import { Sidebar, Videos, ChatList } from "./";
 
 import "../css/Feed.css";
-import { videos } from "../utils/constants";
+import { getVideos } from "../utils/videoApi";
+
+// Fetches videos from VideoCatalogue service and shows them in feed.
 
 function Feed() {
     const [selectedCategory, setSelectedCategory] = useState("Category changed");
+    const [items, setItems] = useState([]);
+
+    useEffect(() => {
+        let mounted = true;
+        getVideos()
+            .then(data => { if (mounted && Array.isArray(data)) setItems(data); })
+            .catch(() => {});
+        return () => { mounted = false; };
+    }, []);
 
     return (
         <Stack className="feed-container">
@@ -19,7 +30,7 @@ function Feed() {
             </Box>
 
             <Box className="feed-content" >
-                <Videos videos={videos} />
+                <Videos videos={items} />
             </Box>
         </Stack>
     );

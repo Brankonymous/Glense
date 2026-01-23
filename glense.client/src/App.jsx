@@ -6,7 +6,10 @@ import {
     Feed,
     VideoStream,
     ChannelDetail,
-    Donations
+    Donations,
+    Upload,
+    Playlists,
+    PlaylistDetail
 } from "./components";
 import Chat from "./components/Chat/Chat";
 
@@ -21,6 +24,9 @@ const App = () => {
 
                         <Route path='/video/:id' element={<VideoStream />} />
                         <Route path='/channel/:id' element={<ChannelDetail />} />
+                        <Route path='/upload' element={<Upload />} />
+                        <Route path='/playlists' element={<Playlists />} />
+                        <Route path='/playlists/:id' element={<PlaylistDetail />} />
                         <Route path='/chat/:id' element={<Chat />} />
                         <Route path='/donations' element={<Donations />} />
                     </Routes>

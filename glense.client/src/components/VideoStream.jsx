@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import ReactPlayer from "react-player";
-import { Typography, Box, Stack } from "@mui/material";
+import { Typography, Box, Stack, Button, FormControl, Select, MenuItem } from "@mui/material";
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import {
   CheckCircle,
   ThumbDownOutlined,
@@ -9,15 +11,36 @@ import {
 } from "@mui/icons-material";
 
 import { Videos, VideoComments } from ".";
-import { videos, videoInfo } from "../utils/constants";
+import { videoInfo as demoVideoInfo } from "../utils/constants";
+import { getVideo, getVideos, getPlaylists, addVideoToPlaylist } from "../utils/videoApi";
+import { useAuth } from "../context/AuthContext";
 
 import "../css/VideoStream.css";
 
 function VideoStream() {
   const [showMoreTags, setShowMoreTags] = useState(false);
   const [showMoreDesc, setShowMoreDesc] = useState(false);
+  const { id } = useParams();
+  const [video, setVideo] = useState(null);
+  const [related, setRelated] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
+  const [addingTo, setAddingTo] = useState("");
+  const [adding, setAdding] = useState(false);
+  const { user } = useAuth();
+  useEffect(() => {
+    let mounted = true;
+    if (!id) return;
+    getVideo(id).then(d => { if (mounted) setVideo(d); }).catch(() => {});
+    getVideos().then(list => { if (mounted && Array.isArray(list)) setRelated(list.filter(v => String(v.id) !== String(id)).slice(0, 12)); }).catch(() => {});
+    return () => { mounted = false; };
+  }, [id]);
 
-  const id = 'haDjmBT9tu4';
+  useEffect(() => {
+    let mounted = true;
+    const uid = user?.id || 0;
+    getPlaylists(uid).then(list => { if (mounted && Array.isArray(list)) setPlaylists(list); }).catch(() => {});
+    return () => { mounted = false; };
+  }, [user]);
 
   return (
     <Box className="video-stream-container">
@@ -25,38 +48,78 @@ function VideoStream() {
       <Box className="video-player-container">
         <Box className="video-player-box">
             <ReactPlayer 
-              url={`https://www.youtube.com/watch?v=${id}`}
+              url={video?.videoUrl || (id && id.includes('-') ? undefined : `https://www.youtube.com/watch?v=${id}`)}
               controls
               width="100%"
               height="100%"
             />
-            <Typography className="video-title">{videoInfo.title}</Typography>
+            <Typography className="video-title">{video?.title || demoVideoInfo.title}</Typography>
 
             <Stack className="video-details">
-              <Link to={`/channel/${videoInfo.channelId}`}>
+              <Link to={`/channel/${video?.uploaderId || demoVideoInfo.channelId}`}>
               <Typography className="channel-title">
-                  {videoInfo.channelTitle}
+                  {video?.channelTitle || demoVideoInfo.channelTitle}
                   <CheckCircle className="check-circle-icon" />
                 </Typography>
               </Link>
 
-              <Typography className="like-dislike">
-                <ThumbUpOutlined className="thumb-icon" />
-                {Number(videoInfo.likeCount).toLocaleString()} {" | "}
-                <ThumbDownOutlined className="thumb-icon" />
-                {Number(videoInfo.dislikeCount).toLocaleString()}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography className="like-dislike">
+                  <ThumbUpOutlined className="thumb-icon" />
+                  {Number(video?.likeCount ?? demoVideoInfo.likeCount).toLocaleString()} {" | "}
+                  <ThumbDownOutlined className="thumb-icon" />
+                  {Number(video?.dislikeCount ?? demoVideoInfo.dislikeCount).toLocaleString()}
+                </Typography>
+
+                <FormControl size="small" sx={{ minWidth: 160 }}>
+                  <Select
+                    displayEmpty
+                    value={addingTo}
+                    onChange={(e) => setAddingTo(e.target.value)}
+                    renderValue={(selected) => {
+                      if (!selected) return 'Add to playlist';
+                      const p = playlists.find(x => String(x.id) === String(selected));
+                      return p ? p.name : 'Add to playlist';
+                    }}
+                  >
+                    <MenuItem value="">Add to playlist</MenuItem>
+                    {playlists.map(p => (
+                      <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<PlaylistAddIcon />}
+                  disabled={adding}
+                  onClick={async () => {
+                    if (!addingTo || !video?.id) { alert('Select a playlist'); return; }
+                    setAdding(true);
+                    try {
+                      await addVideoToPlaylist(addingTo, video.id);
+                      alert('Added to playlist');
+                    } catch (e) {
+                      alert('Failed to add to playlist');
+                    }
+                    setAdding(false);
+                  }}
+                >
+                  Add
+                </Button>
+              </Box>
             </Stack>
 
             {/* Description */}
              <Box className="description-container">
               <Box className="description-details">
-                <Typography>{Number(videoInfo.viewCount).toLocaleString()} views</Typography>
-                <Typography className="publish-date">Published at {videoInfo.publishedAt}</Typography>
+                <Typography>{Number(video?.viewCount ?? demoVideoInfo.viewCount).toLocaleString()} views</Typography>
+                <Typography className="publish-date">Published at {video?.uploadDate ?? demoVideoInfo.publishedAt}</Typography>
 
 
-                {videoInfo.tags.map((tag, index) =>
-                  videoInfo.tags.length > 10 ? (
+                {(video?.tags || demoVideoInfo.tags || []).map((tag, index) =>
+                  (video?.tags || demoVideoInfo.tags).length > 10 ? (
                     <Typography
                       key={index}
                       className="tag"
@@ -68,11 +131,11 @@ function VideoStream() {
                       key={tag}
                       className="tag"
                     >
-                      #{videoInfo.tags}
+                      #{tag}
                     </Typography>
                   )
                 )}
-                {videoInfo.tags.length > 10 && (
+                {(video?.tags || demoVideoInfo.tags).length > 10 && (
                   <button
                     className="toggle-tags-button"
                     onClick={() => setShowMoreTags(!showMoreTags)}
@@ -83,8 +146,8 @@ function VideoStream() {
 
                 <Typography className="description-text">
                   {showMoreDesc
-                    ? videoInfo.description
-                    : `${videoInfo.description.substring(0, 250)}`}
+                    ? (video?.description || demoVideoInfo.description)
+                    : `${(video?.description || demoVideoInfo.description).substring(0, 250)}`}
                   <button
                     className="toggle-description-button"
                     onClick={() => setShowMoreDesc(!showMoreDesc)}
@@ -98,11 +161,31 @@ function VideoStream() {
             {/* Comments section */}
             <Typography className="comments-section-title">Comments</Typography>
             <VideoComments id={id} />
+
+            {/* Add to playlist */}
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle1">Add to playlist</Typography>
+              <select value={addingTo} onChange={(e) => setAddingTo(e.target.value)}>
+                <option value="">Choose playlist</option>
+                {playlists.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <Button variant="contained" sx={{ ml: 1 }} disabled={adding} onClick={async () => {
+                if (!addingTo || !video?.id) { alert('Select a playlist'); return; }
+                setAdding(true);
+                try {
+                  await addVideoToPlaylist(addingTo, video.id);
+                  alert('Added to playlist');
+                } catch (e) {
+                  alert('Failed to add to playlist');
+                }
+                setAdding(false);
+              }}>Add</Button>
+            </Box>
           </Box>
         </Box>
 
         <Box className="related-videos-container">
-          <Videos videos={videos} direction={'column'} />
+          <Videos videos={related} direction={'column'} />
         </Box>
       </Stack>
     </Box>
