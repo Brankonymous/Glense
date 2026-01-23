@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Box, Stack } from "@mui/material";
-import { Sidebar, Videos } from "./";
+import { Sidebar, Videos, ChatList } from "./";
 
 import "../css/Feed.css";
 import { getVideos } from "../utils/videoApi";
@@ -26,6 +26,7 @@ function Feed() {
                     selectedCategory={selectedCategory}
                     setSelectedCategory={setSelectedCategory}
                 />
+                <ChatList />
             </Box>
 
             <Box className="feed-content" >

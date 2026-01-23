@@ -94,11 +94,16 @@ namespace Glense.AccountService.Services
         }
 
         public string GenerateJwtToken(Guid userId, string username, string email, string accountType) {
-            
+
             var jwtSettings = _configuration.GetSection("JwtSettings");
 
-            var secretKey = jwtSettings["SecretKey"]
+            // Priority: Environment variable > appsettings.json
+            var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+                ?? jwtSettings["SecretKey"]
                 ?? throw new InvalidOperationException("JWT SecretKey not configured");
+
+            if (string.IsNullOrEmpty(secretKey))
+                throw new InvalidOperationException("JWT SecretKey is empty");
 
             // Create a cryptographic key from the secret and create signing credentials
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));

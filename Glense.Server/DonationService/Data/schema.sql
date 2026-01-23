@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Wallets table: stores balance for each user
 CREATE TABLE IF NOT EXISTS wallets (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id INT NOT NULL UNIQUE,  -- Reference to Account microservice
+    user_id UUID NOT NULL UNIQUE,  -- Reference to Account microservice (UUID)
     balance DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -16,12 +16,12 @@ CREATE TABLE IF NOT EXISTS wallets (
 -- Donations table: records all donation transactions
 CREATE TABLE IF NOT EXISTS donations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    donor_user_id INT NOT NULL,
-    recipient_user_id INT NOT NULL,
+    donor_user_id UUID NOT NULL,
+    recipient_user_id UUID NOT NULL,
     amount DECIMAL(12, 2) NOT NULL CHECK (amount > 0),
     message TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    
+
     -- Ensure donor and recipient are different
     CONSTRAINT different_users CHECK (donor_user_id != recipient_user_id)
 );
