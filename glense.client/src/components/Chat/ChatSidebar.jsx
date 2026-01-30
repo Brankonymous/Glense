@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, List, ListItem, ListItemAvatar, Avatar, ListItemText, TextField, Button, ListItemButton } from "@mui/material";
-import "../../css/Chat/ChatSideBar.css";
+import "../../css/Chat/ChatSidebar.css";
 
 const ChatSidebar = ({ chats, onSelectChat, onCreate }) => {
   const [topic, setTopic] = useState("");

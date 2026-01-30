@@ -1,6 +1,10 @@
 version: '3.8'
 
 services:
+  # ===========================================
+  # DATABASES
+  # ===========================================
+
   # PostgreSQL for Account Service
   postgres_account:
     image: postgres:16-alpine
@@ -22,26 +26,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Account Microservice
-  account_service:
-    build:
-      context: ./services/Glense.AccountService
-      dockerfile: Dockerfile
-    container_name: glense_account_service
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=Host=postgres_account;Port=5432;Database=glense_account;Username=glense;Password=glense123
-    ports:
-      - "5001:5000"
-    depends_on:
-      postgres_account:
-        condition: service_healthy
-    networks:
-      - glense_network
-    restart: unless-stopped
-
-  # PostgreSQL for Video Service (placeholder for your teammates)
+  # PostgreSQL for Video Service
   postgres_video:
     image: postgres:16-alpine
     container_name: glense_postgres_video
@@ -53,6 +38,7 @@ services:
       - "5433:5432"
     volumes:
       - postgres_video_data:/var/lib/postgresql/data
+      - ./services/Glense.VideoCatalogue/Database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - glense_network
     healthcheck:
@@ -61,7 +47,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # PostgreSQL for Donation Service (placeholder for your teammates)
+  # PostgreSQL for Donation Service
   postgres_donation:
     image: postgres:16-alpine
     container_name: glense_postgres_donation
@@ -73,6 +59,7 @@ services:
       - "5434:5432"
     volumes:
       - postgres_donation_data:/var/lib/postgresql/data
+      - ./Glense.Server/DonationService/Data/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - glense_network
     healthcheck:
@@ -81,7 +68,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # PostgreSQL for Chat Service (placeholder for your teammates)
+  # PostgreSQL for Chat Service
   postgres_chat:
     image: postgres:16-alpine
     container_name: glense_postgres_chat
@@ -93,6 +80,7 @@ services:
       - "5435:5432"
     volumes:
       - postgres_chat_data:/var/lib/postgresql/data
+      - ./services/Glense.ChatService/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - glense_network
     healthcheck:
@@ -101,25 +89,85 @@ services:
       timeout: 5s
       retries: 5
 
-  # Frontend (existing React app)
-  frontend:
+  # ===========================================
+  # MICROSERVICES
+  # ===========================================
+
+  # Account Microservice
+  account_service:
     build:
-      context: ./glense.client
+      context: ./services/Glense.AccountService
       dockerfile: Dockerfile
-    container_name: glense_frontend
-    ports:
-      - "3000:3000"
+    container_name: glense_account_service
     environment:
-      - VITE_ACCOUNT_API_URL=http://localhost:5001
-      - VITE_VIDEO_API_URL=http://localhost:5002
-      - VITE_DONATION_API_URL=http://localhost:5003
-      - VITE_CHAT_API_URL=http://localhost:5004
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres_account;Port=5432;Database=glense_account;Username=glense;Password=glense123
+      - JwtSettings__Issuer=GlenseAccountService
+      - JwtSettings__Audience=GlenseApp
+      - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+    ports:
+      - "5001:5000"
+    depends_on:
+      postgres_account:
+        condition: service_healthy
     networks:
       - glense_network
-    depends_on:
-      - account_service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
-  # Chat Service
+  # Video Catalogue Microservice
+  video_service:
+    build:
+      context: ./services/Glense.VideoCatalogue
+      dockerfile: Dockerfile
+    container_name: glense_video_service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres_video;Port=5432;Database=glense_video;Username=glense;Password=glense123
+      - JwtSettings__Issuer=GlenseAccountService
+      - JwtSettings__Audience=GlenseApp
+      - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+    ports:
+      - "5002:80"
+    depends_on:
+      postgres_video:
+        condition: service_healthy
+    networks:
+      - glense_network
+    restart: unless-stopped
+    volumes:
+      - video_storage:/app/videos
+
+  # Donation Microservice
+  donation_service:
+    build:
+      context: ./Glense.Server/DonationService
+      dockerfile: Dockerfile
+    container_name: glense_donation_service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5100
+      - ConnectionStrings__DefaultConnection=Host=postgres_donation;Port=5432;Database=glense_donation;Username=glense;Password=glense123
+      - JwtSettings__Issuer=GlenseAccountService
+      - JwtSettings__Audience=GlenseApp
+      - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+    ports:
+      - "5100:5100"
+    depends_on:
+      postgres_donation:
+        condition: service_healthy
+    networks:
+      - glense_network
+    restart: unless-stopped
+
+  # Chat Microservice
   chat_service:
     build:
       context: ./services/Glense.ChatService
@@ -131,7 +179,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=postgres_chat;Port=5432;Database=glense_chat;Username=glense;Password=glense123
       - JwtSettings__Issuer=GlenseAccountService
       - JwtSettings__Audience=GlenseApp
-      - JwtSettings__SecretKey=ChangeMeToA32CharSecret
+      - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
     ports:
       - "5004:5000"
     depends_on:
@@ -139,6 +187,54 @@ services:
         condition: service_healthy
     networks:
       - glense_network
+    restart: unless-stopped
+
+  # ===========================================
+  # API GATEWAY
+  # ===========================================
+
+  api_gateway:
+    build:
+      context: ./Glense.Server
+      dockerfile: Dockerfile
+    container_name: glense_api_gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ACCOUNT_SERVICE_URL=http://account_service:5000
+      - VIDEO_SERVICE_URL=http://video_service:80
+      - DONATION_SERVICE_URL=http://donation_service:5100
+      - CHAT_SERVICE_URL=http://chat_service:5000
+    ports:
+      - "5050:5000"
+    depends_on:
+      - account_service
+      - video_service
+      - donation_service
+      - chat_service
+    networks:
+      - glense_network
+    restart: unless-stopped
+
+  # ===========================================
+  # FRONTEND
+  # ===========================================
+
+  frontend:
+    build:
+      context: ./glense.client
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:5050
+        - VITE_VIDEO_CATALOGUE_API=http://localhost:5002
+        - VITE_CHAT_SERVICE_URL=http://localhost:5004
+    container_name: glense_frontend
+    ports:
+      - "3000:80"
+    networks:
+      - glense_network
+    depends_on:
+      - api_gateway
     restart: unless-stopped
 
 networks:
@@ -150,3 +246,4 @@ volumes:
   postgres_video_data:
   postgres_donation_data:
   postgres_chat_data:
+  video_storage:

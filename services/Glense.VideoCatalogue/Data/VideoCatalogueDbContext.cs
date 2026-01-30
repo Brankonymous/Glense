@@ -20,6 +20,7 @@ namespace Glense.VideoCatalogue.Data;
 
             modelBuilder.Entity<Videos>(entity =>
             {
+                entity.ToTable("videos");
                 entity.HasKey(e => e.Id).HasName("PK_Videos");
                 entity.Property(e => e.Id).HasColumnName("id");
                 entity.Property(e => e.Title).HasColumnName("title").HasMaxLength(255).IsRequired();
@@ -35,6 +36,7 @@ namespace Glense.VideoCatalogue.Data;
 
             modelBuilder.Entity<Playlists>(entity =>
             {
+                entity.ToTable("playlists");
                 entity.HasKey(e => e.Id).HasName("PK_Playlists");
                 entity.Property(e => e.Id).HasColumnName("id");
                 entity.Property(e => e.Name).HasColumnName("name").HasMaxLength(255).IsRequired();
@@ -45,6 +47,7 @@ namespace Glense.VideoCatalogue.Data;
 
             modelBuilder.Entity<PlaylistVideos>(entity =>
             {
+                entity.ToTable("playlistvideos");
                 entity.HasKey(e => new { e.PlaylistId, e.VideoId }).HasName("PK_PlaylistVideos");
                 entity.Property(e => e.PlaylistId).HasColumnName("playlist_id");
                 entity.Property(e => e.VideoId).HasColumnName("video_id");
@@ -54,6 +57,7 @@ namespace Glense.VideoCatalogue.Data;
 
             modelBuilder.Entity<Subscriptions>(entity =>
             {
+                entity.ToTable("subscriptions");
                 entity.HasKey(e => new { e.SubscriberId, e.SubscribedToId }).HasName("PK_Subscriptions");
                 entity.Property(e => e.SubscriberId).HasColumnName("subscriber_id");
                 entity.Property(e => e.SubscribedToId).HasColumnName("subscribed_to_id");
@@ -62,6 +66,7 @@ namespace Glense.VideoCatalogue.Data;
 
             modelBuilder.Entity<VideoLikes>(entity =>
             {
+                entity.ToTable("videolikes");
                 entity.HasKey(e => new { e.UserId, e.VideoId }).HasName("PK_VideoLikes");
                 entity.Property(e => e.UserId).HasColumnName("user_id");
                 entity.Property(e => e.VideoId).HasColumnName("video_id");

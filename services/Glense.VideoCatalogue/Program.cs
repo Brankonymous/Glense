@@ -19,8 +19,9 @@ builder.Services.AddCors(options =>
 });
 
 // Configure DbContext (Postgres)
-var conn = builder.Configuration.GetConnectionString("VideoCatalogue")
-           ?? builder.Configuration.GetValue<string>("ConnectionStrings:VideoCatalogue");
+var conn = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+           ?? builder.Configuration.GetConnectionString("DefaultConnection")
+           ?? builder.Configuration.GetConnectionString("VideoCatalogue");
 if (!string.IsNullOrEmpty(conn))
 {
     builder.Services.AddDbContext<VideoCatalogueDbContext>(options =>

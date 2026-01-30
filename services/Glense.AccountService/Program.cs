@@ -65,10 +65,12 @@ builder.Services.AddSwaggerGen(c =>
 // Configure PostgreSQL Database
 // Priority: Environment variable > appsettings.json
 var connectionString = Environment.GetEnvironmentVariable("ACCOUNT_DB_CONNECTION_STRING")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string not found. Set ACCOUNT_DB_CONNECTION_STRING env var or configure in appsettings.json");
+    ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
-if (useInMemory || string.IsNullOrEmpty(connectionString) || connectionString.Contains("postgres_account"))
+var useInMemory = Environment.GetEnvironmentVariable("USE_IN_MEMORY_DB")?.ToLower() == "true";
+
+if (useInMemory || string.IsNullOrEmpty(connectionString))
 {
     // Use an in-memory database for quick local testing
     builder.Services.AddDbContext<AccountDbContext>(options =>

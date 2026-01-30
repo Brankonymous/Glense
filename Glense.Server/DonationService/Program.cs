@@ -12,7 +12,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Database configuration
-var connectionString = builder.Configuration.GetConnectionString("DonationDb")
+var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? builder.Configuration.GetConnectionString("DonationDb")
     ?? Environment.GetEnvironmentVariable("DONATION_DB_CONNECTION_STRING");
 
 if (!string.IsNullOrEmpty(connectionString))

@@ -2,7 +2,7 @@ import { Stack, Typography, Button, IconButton, Menu, MenuItem } from "@mui/mate
 import { Link } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import logo from "../assets/logo_transparent.png";
-import SearchBar from "../components/SearchBar";
+import SearchBar from "../components/Searchbar";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 

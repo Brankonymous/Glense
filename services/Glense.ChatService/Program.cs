@@ -79,7 +79,8 @@ builder.Services.AddCors(options =>
 });
 
 // DbContext: allow in-memory fallback for local testing
-var chatConn = builder.Configuration.GetConnectionString("DefaultConnection")
+var chatConn = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+               ?? builder.Configuration.GetConnectionString("DefaultConnection")
                ?? builder.Configuration["ConnectionStrings:DefaultConnection"];
 var chatUseInMemory = (Environment.GetEnvironmentVariable("CHAT_USE_INMEMORY") ?? "false").ToLowerInvariant() == "true";
 // Debug output to help diagnose env/connection issues during local dev
