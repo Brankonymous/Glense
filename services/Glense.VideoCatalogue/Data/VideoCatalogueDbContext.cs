@@ -13,6 +13,7 @@ namespace Glense.VideoCatalogue.Data;
         public DbSet<PlaylistVideos> PlaylistVideos { get; set; } = null!;
         public DbSet<Subscriptions> Subscriptions { get; set; } = null!;
         public DbSet<VideoLikes> VideoLikes { get; set; } = null!;
+        public DbSet<Comment> Comments { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -67,6 +68,20 @@ namespace Glense.VideoCatalogue.Data;
                 entity.Property(e => e.VideoId).HasColumnName("video_id");
                 entity.Property(e => e.IsLiked).HasColumnName("is_liked");
                 entity.HasOne(e => e.Video).WithMany(v => v.VideoLikes).HasForeignKey(e => e.VideoId).HasConstraintName("FK_VideoLikes_Videos_video_id");
+            });
+
+            modelBuilder.Entity<Comment>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK_Comments");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.VideoId).HasColumnName("video_id");
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.Username).HasColumnName("username").HasMaxLength(50).IsRequired();
+                entity.Property(e => e.Content).HasColumnName("content").HasMaxLength(2000).IsRequired();
+                entity.Property(e => e.LikeCount).HasColumnName("like_count");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+                entity.HasOne(e => e.Video).WithMany().HasForeignKey(e => e.VideoId).HasConstraintName("FK_Comments_Videos_video_id");
+                entity.HasIndex(e => e.VideoId).HasDatabaseName("IX_Comments_video_id");
             });
         }
     }

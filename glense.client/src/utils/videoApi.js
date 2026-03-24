@@ -100,6 +100,24 @@ export async function getPlaylists(creatorId = 0) {
   return handleRes(res);
 }
 
+export async function getComments(videoId) {
+  const res = await fetch(`${BASE}/api/videos/${videoId}/comments`);
+  return handleRes(res);
+}
+
+export async function postComment(videoId, content, userId = '', username = 'Anonymous') {
+  const res = await fetch(`${BASE}/api/videos/${videoId}/comments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(userId ? { 'X-User-Id': String(userId) } : {}),
+      ...(username ? { 'X-Username': username } : {}),
+    },
+    body: JSON.stringify({ content }),
+  });
+  return handleRes(res);
+}
+
 export async function getSubscriptions(userId = 0) {
   const headers = userId ? { 'X-User-Id': String(userId) } : {};
   const res = await fetch(`${BASE}/api/subscriptions`, { headers });
@@ -119,4 +137,6 @@ export default {
   subscribeTo,
   unsubscribeFrom,
   getSubscriptions,
+  getComments,
+  postComment,
 };

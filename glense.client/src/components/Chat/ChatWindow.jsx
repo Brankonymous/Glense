@@ -1,8 +1,15 @@
 import React from "react";
 import MessageBubble from "./MessageBubble";
-import { Box, TextField, IconButton } from "@mui/material";
+import { Box, TextField, IconButton, Avatar } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import "../../css/Chat/ChatWindow.css";
+
+const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#ff9800', '#ff5722'];
+function stringToColor(str) {
+  let h = 0;
+  for (let i = 0; i < (str||'').length; i++) h = str.charCodeAt(i) + ((h << 5) - h);
+  return colors[Math.abs(h) % colors.length];
+}
 
 import { useState } from "react";
 
@@ -27,11 +34,9 @@ const ChatWindow = ({ chat, onSend }) => {
     <div className="chat-window">
       {/* Chat Header */}
       <div className="chat-window-header">
-        <img
-          src={chat.profileImage || ''}
-          alt={chat.name || chat.Topic || chat.topic || 'Chat'}
-          className="chat-window-header-image"
-        />
+        <Avatar sx={{ bgcolor: stringToColor(chat.topic || chat.Topic || chat.name || ''), width: 36, height: 36, fontSize: 16 }}>
+          {(chat.topic || chat.Topic || chat.name || '?').charAt(0).toUpperCase()}
+        </Avatar>
         <span className="chat-window-header-name">{chat.name || chat.Topic || chat.topic || chat.title || 'Chat'}</span>
       </div>
 

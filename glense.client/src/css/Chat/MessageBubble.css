@@ -9,6 +9,14 @@
 
 .message-bubble.other {
     justify-content: flex-start !important;
+    align-items: flex-start !important;
+}
+
+.message-bubble-sender {
+    font-size: 12px !important;
+    font-weight: bold !important;
+    color: #90caf9 !important;
+    margin-bottom: 2px !important;
 }
 
 .message-bubble-content {

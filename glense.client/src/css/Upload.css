@@ -1,2 +1,69 @@
-.upload-page { padding: 24px; display:flex; justify-content:center; }
-.upload-form { max-width:720px; width:100%; display:flex; flex-direction:column; gap:12px; }
+.upload-page {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  min-height: calc(100vh - var(--navbar-height));
+}
+
+.upload-form {
+  max-width: 720px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.upload-form .MuiTypography-h5 {
+  color: var(--color-text-white);
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.upload-form .MuiTextField-root .MuiOutlinedInput-root {
+  color: var(--color-text-white);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.upload-form .MuiTextField-root .MuiOutlinedInput-root fieldset {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.upload-form .MuiTextField-root .MuiOutlinedInput-root:hover fieldset {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.upload-form .MuiTextField-root .MuiOutlinedInput-root.Mui-focused fieldset {
+  border-color: var(--color-primary);
+}
+
+.upload-form .MuiInputLabel-root {
+  color: var(--color-text-secondary);
+}
+
+.upload-form .MuiInputLabel-root.Mui-focused {
+  color: var(--color-primary);
+}
+
+.upload-form input[type="file"] {
+  color: var(--color-text-secondary);
+  padding: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.upload-form input[type="file"]:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.upload-form .MuiButton-contained {
+  background-color: var(--color-primary);
+  text-transform: none;
+  font-weight: bold;
+  padding: 10px 24px;
+  align-self: flex-start;
+}
+
+.upload-form .MuiTypography-root:last-child {
+  color: var(--color-text-secondary);
+}
