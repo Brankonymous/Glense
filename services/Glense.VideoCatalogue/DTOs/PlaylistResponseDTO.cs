@@ -12,5 +12,5 @@ public class PlaylistResponseDTO
     public string? Description { get; set; }
     public DateTime CreationDate { get; set; }
     [Required]
-    public int CreatorId { get; set; }
+    public Guid CreatorId { get; set; }
 }

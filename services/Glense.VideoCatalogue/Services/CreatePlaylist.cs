@@ -14,7 +14,7 @@ namespace Glense.VideoCatalogue.Services;
 			_db = db;
 		}
 
-		public async Task<Playlists> CreateAsync(string name, string? description, int creatorId, CancellationToken cancellationToken = default)
+		public async Task<Playlists> CreateAsync(string name, string? description, Guid creatorId, CancellationToken cancellationToken = default)
 		{
 			var playlist = new Playlists
 			{

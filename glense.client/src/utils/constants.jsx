@@ -96,4 +96,4 @@ export const videoInfo = {
 };
 
 // Video catalogue API
-export const VIDEO_CATALOGUE_API = import.meta.env.VITE_VIDEO_CATALOGUE_API || 'http://localhost:5088';
+export const VIDEO_CATALOGUE_API = import.meta.env.VITE_VIDEO_CATALOGUE_API || 'http://localhost:5002';

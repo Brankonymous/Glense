@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_VIDEO_CATALOGUE_API || 'http://localhost:5088';
+const BASE = import.meta.env.VITE_VIDEO_CATALOGUE_API || 'http://localhost:5002';
 
 async function handleRes(res) {
   if (!res.ok) {

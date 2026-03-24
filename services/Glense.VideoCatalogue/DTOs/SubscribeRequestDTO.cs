@@ -6,5 +6,5 @@ namespace Glense.VideoCatalogue.DTOs;
 public class SubscribeRequestDTO
 {
 	[Required]
-	public int SubscribedToId { get; set; }
+	public Guid SubscribedToId { get; set; }
 }

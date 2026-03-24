@@ -15,7 +15,7 @@ namespace Glense.VideoCatalogue.Services;
 			_db = db;
 		}
 
-		public async Task<(int LikeCount, int DislikeCount)> SetLikeAsync(int userId, Guid videoId, bool isLiked, CancellationToken cancellationToken = default)
+		public async Task<(int LikeCount, int DislikeCount)> SetLikeAsync(Guid userId, Guid videoId, bool isLiked, CancellationToken cancellationToken = default)
 		{
 			var like = await _db.VideoLikes.FirstOrDefaultAsync(l => l.UserId == userId && l.VideoId == videoId, cancellationToken).ConfigureAwait(false);
 			if (like == null)

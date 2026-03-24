@@ -125,6 +125,24 @@ services:
       timeout: 5s
       retries: 5
 
+  # Video Catalogue Microservice
+  video_service:
+    build:
+      context: ./services/Glense.VideoCatalogue
+      dockerfile: Dockerfile
+    container_name: glense_video_service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__VideoCatalogue=Host=postgres_video;Port=5432;Database=glense_video;Username=glense;Password=glense123
+    ports:
+      - "5002:5002"
+    depends_on:
+      postgres_video:
+        condition: service_healthy
+    networks:
+      - glense_network
+    restart: unless-stopped
+
   # Frontend (existing React app)
   frontend:
     build:
@@ -155,7 +173,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=postgres_chat;Port=5432;Database=glense_chat;Username=glense;Password=glense123
       - JwtSettings__Issuer=GlenseAccountService
       - JwtSettings__Audience=GlenseApp
-      - JwtSettings__SecretKey=ChangeMeToA32CharSecret
+      - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
     ports:
       - "5004:5000"
     depends_on:

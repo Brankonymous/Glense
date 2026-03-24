@@ -17,7 +17,7 @@ namespace Glense.VideoCatalogue.Controllers;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Subscribe([FromBody] DTOs.SubscribeRequestDTO dto, [FromHeader(Name = "X-User-Id")] int subscriberId = 0)
+        public async Task<IActionResult> Subscribe([FromBody] DTOs.SubscribeRequestDTO dto, [FromHeader(Name = "X-User-Id")] Guid subscriberId = default)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -33,7 +33,7 @@ namespace Glense.VideoCatalogue.Controllers;
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Unsubscribe([FromBody] DTOs.SubscribeRequestDTO dto, [FromHeader(Name = "X-User-Id")] int subscriberId = 0)
+        public async Task<IActionResult> Unsubscribe([FromBody] DTOs.SubscribeRequestDTO dto, [FromHeader(Name = "X-User-Id")] Guid subscriberId = default)
         {
             var s = await _db.Subscriptions.FirstOrDefaultAsync(x => x.SubscriberId == subscriberId && x.SubscribedToId == dto.SubscribedToId);
             if (s == null) return NotFound();

@@ -12,6 +12,8 @@ public class Message
     public Guid ChatId { get; set; }
     public Chat Chat { get; set; } = default!;
 
+    public Guid UserId { get; set; }
+
     public MessageSender Sender { get; set; }
 
     [Required]

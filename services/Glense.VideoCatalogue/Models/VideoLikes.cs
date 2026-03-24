@@ -7,7 +7,7 @@ namespace Glense.VideoCatalogue.Models;
 public class VideoLikes
 {
     [Column("user_id")]
-    public int UserId { get; set; }
+    public Guid UserId { get; set; }
 
     [Column("video_id")]
     public Guid VideoId { get; set; }

@@ -17,7 +17,7 @@ namespace Glense.VideoCatalogue.Controllers;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Like([FromBody] DTOs.LikeRequestDTO dto, [FromHeader(Name = "X-User-Id")] int userId = 0)
+        public async Task<IActionResult> Like([FromBody] DTOs.LikeRequestDTO dto, [FromHeader(Name = "X-User-Id")] Guid userId = default)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 

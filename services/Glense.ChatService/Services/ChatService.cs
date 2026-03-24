@@ -77,27 +77,27 @@ public class ChatService : IChatService
         var hasMore = items.Count > pageSize;
         if (hasMore) items = items.Take(pageSize).ToList();
 
-        var dtos = items.Select(m => new MessageDto(m.Id, m.ChatId, m.Sender.ToString().ToLower(), m.Content, m.CreatedAtUtc));
+        var dtos = items.Select(m => new MessageDto(m.Id, m.ChatId, m.UserId, m.Sender.ToString().ToLower(), m.Content, m.CreatedAtUtc));
         var next = hasMore ? items.Last().Id : (Guid?)null;
         return new PagedResponse<MessageDto>(dtos, next);
     }
 
-    public async Task<MessageDto> CreateMessageAsync(Guid chatId, CreateMessageRequest req, CancellationToken ct = default)
+    public async Task<MessageDto> CreateMessageAsync(Guid chatId, Guid userId, CreateMessageRequest req, CancellationToken ct = default)
     {
         var chat = await _db.Chats.FindAsync(new object[] { chatId }, ct);
         if (chat == null) throw new KeyNotFoundException("Chat not found");
         if (!Enum.TryParse<MessageSender>(req.Sender, true, out var sender)) sender = MessageSender.User;
-        var m = new Message { Id = Guid.NewGuid(), ChatId = chatId, Content = req.Content, Sender = sender, CreatedAtUtc = DateTime.UtcNow };
+        var m = new Message { Id = Guid.NewGuid(), ChatId = chatId, UserId = userId, Content = req.Content, Sender = sender, CreatedAtUtc = DateTime.UtcNow };
         _db.Messages.Add(m);
         await _db.SaveChangesAsync(ct);
-        return new MessageDto(m.Id, m.ChatId, m.Sender.ToString().ToLower(), m.Content, m.CreatedAtUtc);
+        return new MessageDto(m.Id, m.ChatId, m.UserId, m.Sender.ToString().ToLower(), m.Content, m.CreatedAtUtc);
     }
 
     public async Task<MessageDto?> GetMessageAsync(Guid messageId, CancellationToken ct = default)
     {
         var m = await _db.Messages.AsNoTracking().FirstOrDefaultAsync(x => x.Id == messageId, ct);
         if (m == null) return null;
-        return new MessageDto(m.Id, m.ChatId, m.Sender.ToString().ToLower(), m.Content, m.CreatedAtUtc);
+        return new MessageDto(m.Id, m.ChatId, m.UserId, m.Sender.ToString().ToLower(), m.Content, m.CreatedAtUtc);
     }
 
     public async Task DeleteMessageAsync(Guid messageId, CancellationToken ct = default)
