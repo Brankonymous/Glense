@@ -19,10 +19,23 @@ public class ProfileProxyController : ControllerBase
         _logger = logger;
     }
 
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchUsers([FromQuery] string? q, [FromQuery] int limit = 20)
+    {
+        var path = $"/api/profile/search?q={Uri.EscapeDataString(q ?? "")}&limit={limit}";
+        return await ProxyGetToAccountService(path);
+    }
+
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentProfile()
     {
         return await ProxyGetToAccountService("/api/profile/me");
+    }
+
+    [HttpGet("{userId:guid}")]
+    public async Task<IActionResult> GetUserById(Guid userId)
+    {
+        return await ProxyGetToAccountService($"/api/profile/{userId}");
     }
 
     [HttpPut("me")]

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using DonationService.Data;
+using DonationService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,17 @@ else
         options.UseInMemoryDatabase("DonationDb"));
     Console.WriteLine("[WARNING] No connection string found, using in-memory database");
 }
+
+// HttpClient for Account Service
+builder.Services.AddHttpClient("AccountService", client =>
+{
+    var serviceUrl = Environment.GetEnvironmentVariable("ACCOUNT_SERVICE_URL")
+        ?? "http://localhost:5001";
+    client.BaseAddress = new Uri(serviceUrl);
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+
+builder.Services.AddScoped<IAccountServiceClient, AccountServiceClient>();
 
 // Health check endpoint for container orchestration
 builder.Services.AddHealthChecks();

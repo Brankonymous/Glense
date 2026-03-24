@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
     Modal,
     Box,
@@ -11,16 +11,54 @@ import {
     CircularProgress
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { users, recentRecipients } from "../../utils/constants";
+import { profileService } from "../../services/profileService";
+import { demoProfilePicture } from "../../utils/constants";
 import "../../css/Donations/DonationModal.css";
 
 const PRESET_AMOUNTS = [5, 10, 25, 50, 100];
 
-function DonationModal({ open, onClose, onSubmit, isSubmitting = false, currentBalance = 0 }) {
+function DonationModal({ open, onClose, onSubmit, isSubmitting = false, currentBalance = 0, currentUserId }) {
     const [selectedUser, setSelectedUser] = useState(null);
     const [amount, setAmount] = useState("");
     const [message, setMessage] = useState("");
     const [showConfirm, setShowConfirm] = useState(false);
+    const [userOptions, setUserOptions] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [searchInput, setSearchInput] = useState("");
+
+    // Load initial users when modal opens
+    useEffect(() => {
+        if (open) {
+            loadUsers("");
+        }
+    }, [open]);
+
+    const loadUsers = useCallback(async (query) => {
+        setSearchLoading(true);
+        try {
+            const users = await profileService.searchUsers(query, 20);
+            // Filter out the current user
+            const filtered = users.filter(u => u.id !== currentUserId);
+            setUserOptions(filtered.map(u => ({
+                id: u.id,
+                name: u.username,
+                handle: u.username,
+                profileImage: u.profilePictureUrl || demoProfilePicture,
+            })));
+        } catch (err) {
+            console.error("Failed to search users:", err);
+        } finally {
+            setSearchLoading(false);
+        }
+    }, [currentUserId]);
+
+    // Debounced search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            loadUsers(searchInput);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchInput, loadUsers]);
 
     const handlePresetAmount = (preset) => {
         setAmount(preset.toString());
@@ -35,14 +73,11 @@ function DonationModal({ open, onClose, onSubmit, isSubmitting = false, currentB
 
     const handleSubmit = () => {
         if (!selectedUser || !amount || parseInt(amount) <= 0) return;
-        
+
         const donationAmount = parseInt(amount);
-        
-        // Check if user has enough balance
-        if (donationAmount > currentBalance) {
-            return; // Button should be disabled anyway
-        }
-        
+
+        if (donationAmount > currentBalance) return;
+
         if (!showConfirm) {
             setShowConfirm(true);
             return;
@@ -57,7 +92,6 @@ function DonationModal({ open, onClose, onSubmit, isSubmitting = false, currentB
         };
 
         onSubmit(donation);
-        // Don't reset form here - let parent handle it on success
     };
 
     const resetForm = () => {
@@ -65,10 +99,11 @@ function DonationModal({ open, onClose, onSubmit, isSubmitting = false, currentB
         setAmount("");
         setMessage("");
         setShowConfirm(false);
+        setSearchInput("");
     };
 
     const handleClose = () => {
-        if (isSubmitting) return; // Prevent closing while submitting
+        if (isSubmitting) return;
         resetForm();
         onClose();
     };
@@ -84,8 +119,8 @@ function DonationModal({ open, onClose, onSubmit, isSubmitting = false, currentB
     return (
         <Modal open={open} onClose={handleClose}>
             <Box className="donation-modal-box">
-                <IconButton 
-                    className="donation-modal-close" 
+                <IconButton
+                    className="donation-modal-close"
                     onClick={handleClose}
                     disabled={isSubmitting}
                 >
@@ -106,19 +141,19 @@ function DonationModal({ open, onClose, onSubmit, isSubmitting = false, currentB
                             </Typography>
                         </div>
 
-                        {/* Recent Recipients */}
-                        {recentRecipients.length > 0 && (
+                        {/* Quick Send from loaded users */}
+                        {userOptions.length > 0 && !searchInput && (
                             <div className="recent-recipients">
                                 <Typography className="section-label">Quick Send</Typography>
                                 <div className="recent-list">
-                                    {recentRecipients.map((user) => (
+                                    {userOptions.slice(0, 3).map((user) => (
                                         <button
                                             key={user.id}
                                             className={`recent-btn ${selectedUser?.id === user.id ? "selected" : ""}`}
                                             onClick={() => setSelectedUser(user)}
                                         >
-                                            <Avatar 
-                                                src={user.profileImage} 
+                                            <Avatar
+                                                src={user.profileImage}
                                                 className="recent-avatar"
                                             />
                                             <span className="recent-name">{user.name}</span>
@@ -132,14 +167,19 @@ function DonationModal({ open, onClose, onSubmit, isSubmitting = false, currentB
                         <div className="user-search-section">
                             <Typography className="section-label">Recipient</Typography>
                             <Autocomplete
-                                options={users}
+                                options={userOptions}
                                 getOptionLabel={(option) => option.name}
                                 value={selectedUser}
                                 onChange={(e, newValue) => setSelectedUser(newValue)}
+                                onInputChange={(e, value, reason) => {
+                                    if (reason === 'input') setSearchInput(value);
+                                }}
+                                loading={searchLoading}
+                                isOptionEqualToValue={(option, value) => option.id === value.id}
                                 renderOption={(props, option) => (
-                                    <Box component="li" {...props} className="user-option">
-                                        <Avatar 
-                                            src={option.profileImage} 
+                                    <Box component="li" {...props} key={option.id} className="user-option">
+                                        <Avatar
+                                            src={option.profileImage}
                                             sx={{ width: 32, height: 32, mr: 1.5 }}
                                         />
                                         <div className="user-option-info">
@@ -154,6 +194,15 @@ function DonationModal({ open, onClose, onSubmit, isSubmitting = false, currentB
                                         placeholder="Search users..."
                                         className="donation-input"
                                         variant="outlined"
+                                        InputProps={{
+                                            ...params.InputProps,
+                                            endAdornment: (
+                                                <>
+                                                    {searchLoading ? <CircularProgress size={20} /> : null}
+                                                    {params.InputProps.endAdornment}
+                                                </>
+                                            ),
+                                        }}
                                     />
                                 )}
                             />
@@ -227,8 +276,8 @@ function DonationModal({ open, onClose, onSubmit, isSubmitting = false, currentB
 
                         <div className="confirmation-details">
                             <div className="confirm-recipient">
-                                <Avatar 
-                                    src={selectedUser?.profileImage} 
+                                <Avatar
+                                    src={selectedUser?.profileImage}
                                     className="confirm-avatar"
                                 />
                                 <div className="confirm-user-info">

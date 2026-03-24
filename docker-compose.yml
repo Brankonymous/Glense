@@ -32,6 +32,10 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__DefaultConnection=Host=postgres_account;Port=5432;Database=glense_account;Username=glense;Password=glense123
+      - DONATION_SERVICE_URL=http://donation_service:5100
+      - JWT_SECRET_KEY=YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
+      - JWT_ISSUER=GlenseAccountService
+      - JWT_AUDIENCE=GlenseApp
     ports:
       - "5001:5000"
     depends_on:
@@ -80,6 +84,26 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # Donation Microservice
+  donation_service:
+    build:
+      context: ./Glense.Server/DonationService
+      dockerfile: Dockerfile
+    container_name: glense_donation_service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - PORT=5100
+      - DONATION_DB_CONNECTION_STRING=Host=postgres_donation;Port=5432;Database=glense_donation;Username=glense;Password=glense123
+      - ACCOUNT_SERVICE_URL=http://account_service:5000
+    ports:
+      - "5100:5100"
+    depends_on:
+      postgres_donation:
+        condition: service_healthy
+    networks:
+      - glense_network
+    restart: unless-stopped
 
   # PostgreSQL for Chat Service (placeholder for your teammates)
   postgres_chat:

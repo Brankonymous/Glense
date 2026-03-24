@@ -72,16 +72,18 @@ docker-compose down
 
 ## Example Requests
 
+All user IDs are UUIDs (GUIDs). Replace the example IDs below with real ones from your database.
+
 ### Create a Wallet
 ```bash
 curl -X POST http://localhost:5100/api/wallet \
   -H "Content-Type: application/json" \
-  -d '{"userId": 1, "initialBalance": 100.00}'
+  -d '{"userId": "a1b2c3d4-0000-0000-0000-000000000001", "initialBalance": 100.00}'
 ```
 
 ### Top Up Wallet
 ```bash
-curl -X POST http://localhost:5100/api/wallet/user/1/topup \
+curl -X POST http://localhost:5100/api/wallet/user/a1b2c3d4-0000-0000-0000-000000000001/topup \
   -H "Content-Type: application/json" \
   -d '{"amount": 50.00}'
 ```
@@ -91,8 +93,8 @@ curl -X POST http://localhost:5100/api/wallet/user/1/topup \
 curl -X POST http://localhost:5100/api/donation \
   -H "Content-Type: application/json" \
   -d '{
-    "donorUserId": 1,
-    "recipientUserId": 2,
+    "donorUserId": "a1b2c3d4-0000-0000-0000-000000000001",
+    "recipientUserId": "a1b2c3d4-0000-0000-0000-000000000002",
     "amount": 25.00,
     "message": "Great content!"
   }'
@@ -100,8 +102,20 @@ curl -X POST http://localhost:5100/api/donation \
 
 ### Get Wallet
 ```bash
-curl http://localhost:5100/api/wallet/user/1
+curl http://localhost:5100/api/wallet/user/a1b2c3d4-0000-0000-0000-000000000001
 ```
+
+## Inter-Service Communication
+
+The Donation service communicates with the Account service via HTTP calls:
+
+| Flow | Direction | Description |
+|------|-----------|-------------|
+| Recipient validation | Donation → Account | Validates recipient exists before processing a donation |
+| Notification | Donation → Account | Notifies the recipient after a successful donation |
+| Wallet creation | Account → Donation | Account service creates a wallet when a new user registers |
+
+Notification failures are non-blocking — if the Account service is unavailable, the donation still succeeds.
 
 ## Configuration
 
@@ -109,6 +123,7 @@ curl http://localhost:5100/api/wallet/user/1
 |----------|-------------|---------|
 | `PORT` | Service port | `5100` |
 | `DONATION_DB_CONNECTION_STRING` | Neon PostgreSQL connection string | In-memory DB |
+| `ACCOUNT_SERVICE_URL` | Account service base URL | `http://localhost:5001` |
 
 ## Testing
 

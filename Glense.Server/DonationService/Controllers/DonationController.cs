@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using DonationService.Data;
 using DonationService.Entities;
 using DonationService.DTOs;
+using DonationService.Services;
 
 namespace DonationService.Controllers;
 
@@ -13,11 +14,16 @@ public class DonationController : ControllerBase
 {
     private readonly DonationDbContext _context;
     private readonly ILogger<DonationController> _logger;
+    private readonly IAccountServiceClient _accountService;
 
-    public DonationController(DonationDbContext context, ILogger<DonationController> logger)
+    public DonationController(
+        DonationDbContext context,
+        ILogger<DonationController> logger,
+        IAccountServiceClient accountService)
     {
         _context = context;
         _logger = logger;
+        _accountService = accountService;
     }
 
     /// <summary>
@@ -73,6 +79,13 @@ public class DonationController : ControllerBase
         if (request.DonorUserId == request.RecipientUserId)
         {
             return BadRequest(new { message = "Cannot donate to yourself" });
+        }
+
+        // Validate recipient exists in Account service
+        var recipientUsername = await _accountService.GetUsernameAsync(request.RecipientUserId);
+        if (recipientUsername == null)
+        {
+            return BadRequest(new { message = "Recipient user not found" });
         }
 
         // Check if we can use transactions (not supported by in-memory database)
@@ -143,6 +156,23 @@ public class DonationController : ControllerBase
             _logger.LogInformation(
                 "Donation created: {DonationId}, from user {DonorId} to user {RecipientId}, amount: {Amount}",
                 donation.Id, request.DonorUserId, request.RecipientUserId, request.Amount);
+
+            // Send notification to recipient (fire-and-forget, don't fail the donation)
+            try
+            {
+                var donorUsername = await _accountService.GetUsernameAsync(request.DonorUserId) ?? "Someone";
+                await _accountService.CreateDonationNotificationAsync(
+                    request.RecipientUserId,
+                    donorUsername,
+                    request.Amount,
+                    donation.Id);
+            }
+            catch (Exception notifEx)
+            {
+                _logger.LogWarning(notifEx,
+                    "Failed to send donation notification for donation {DonationId}",
+                    donation.Id);
+            }
 
             var response = new DonationResponse(
                 donation.Id, donation.DonorUserId, donation.RecipientUserId,

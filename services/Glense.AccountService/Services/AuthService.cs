@@ -17,12 +17,20 @@ namespace Glense.AccountService.Services
     public class AuthService : IAuthService
     {
         private readonly AccountDbContext _context;
-
         private readonly IConfiguration _configuration;
+        private readonly IWalletServiceClient _walletServiceClient;
+        private readonly ILogger<AuthService> _logger;
 
-        public AuthService(AccountDbContext context, IConfiguration configuration) {
+        public AuthService(
+            AccountDbContext context,
+            IConfiguration configuration,
+            IWalletServiceClient walletServiceClient,
+            ILogger<AuthService> logger)
+        {
             _context = context;
             _configuration = configuration;
+            _walletServiceClient = walletServiceClient;
+            _logger = logger;
         }
 
         // Implement IAuthService.RegisterAsync(RegisterDto)
@@ -43,6 +51,18 @@ namespace Glense.AccountService.Services
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
+            // Auto-create wallet in Donation service (non-blocking)
+            try
+            {
+                await _walletServiceClient.CreateWalletAsync(user.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex,
+                    "Failed to create wallet for user {UserId} during registration. Wallet can be created later.",
+                    user.Id);
+            }
 
             var token = GenerateJwtToken(user.Id, user.Username, user.Email, user.AccountType);
             var userDto = new UserDto
