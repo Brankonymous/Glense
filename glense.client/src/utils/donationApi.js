@@ -4,6 +4,7 @@
  */
 
 import { API_BASE_URL } from '../config/api';
+import { demoProfilePicture as DEFAULT_PROFILE_IMAGE } from './constants';
 
 const DONATION_API_BASE = `${API_BASE_URL}/api`;
 
@@ -192,14 +193,14 @@ export function transformDonation(apiDonation, usersMap, currentUserId) {
         id: apiDonation.donorUserId,
         name: `User ${apiDonation.donorUserId}`,
         handle: `user${apiDonation.donorUserId}`,
-        profileImage: 'http://dergipark.org.tr/assets/app/images/buddy_sample.png',
+        profileImage: DEFAULT_PROFILE_IMAGE,
     };
 
     const recipientUser = usersMap[apiDonation.recipientUserId] || {
         id: apiDonation.recipientUserId,
         name: `User ${apiDonation.recipientUserId}`,
         handle: `user${apiDonation.recipientUserId}`,
-        profileImage: 'http://dergipark.org.tr/assets/app/images/buddy_sample.png',
+        profileImage: DEFAULT_PROFILE_IMAGE,
     };
 
     return {

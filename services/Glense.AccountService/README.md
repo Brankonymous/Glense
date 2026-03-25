@@ -61,6 +61,7 @@ This is the Account microservice for the Glense streaming platform. It handles u
 - `POST /api/auth/login` - Login user
 
 ### Profile
+- `GET /api/profile/search?q=&limit=20` - Search users by username or email
 - `GET /api/profile/me` - Get current user profile (requires auth)
 - `GET /api/profile/{userId}` - Get user by ID
 - `PUT /api/profile/me` - Update current user profile (requires auth)
@@ -72,8 +73,23 @@ This is the Account microservice for the Glense streaming platform. It handles u
 - `PUT /api/notification/{id}/read` - Mark notification as read (requires auth)
 - `PUT /api/notification/read-all` - Mark all as read (requires auth)
 
+### Internal (service-to-service, no auth required)
+- `POST /api/internal/notifications` - Create a notification (used by Donation service)
+
 ### Health
 - `GET /health` - Service health check
+
+## Inter-Service Communication
+
+The Account service communicates with the Donation service via HTTP calls:
+
+| Flow | Direction | Description |
+|------|-----------|-------------|
+| Wallet creation | Account → Donation | Automatically creates a wallet when a new user registers |
+| Recipient validation | Donation → Account | Donation service validates users via `GET /api/profile/{userId}` |
+| Notification | Donation → Account | Donation service creates notifications via `POST /api/internal/notifications` |
+
+Wallet creation failure during registration is non-blocking — the user is still registered successfully, and the wallet can be created later.
 
 ## Running Locally
 
@@ -130,6 +146,8 @@ POSTGRES_PASSWORD=glense123
 JWT_SECRET_KEY=YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
 JWT_ISSUER=GlenseAccountService
 JWT_AUDIENCE=GlenseApp
+
+DONATION_SERVICE_URL=http://localhost:5100
 ```
 
 ## Testing with Swagger

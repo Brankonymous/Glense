@@ -5,7 +5,7 @@ import DepositModal from "./DepositModal";
 import WithdrawModal from "./WithdrawModal";
 import DonationHistory from "./DonationHistory";
 import { useAuth } from "../../context/AuthContext";
-import { users } from "../../utils/constants";
+import { profileService } from "../../services/profileService";
 import {
     getOrCreateWallet,
     getAllDonations,
@@ -13,13 +13,10 @@ import {
     topUpWallet,
     withdrawFromWallet,
     transformDonation,
-    createUsersMap
 } from "../../utils/donationApi";
+import { demoProfilePicture as DEFAULT_PROFILE_IMAGE } from "../../utils/constants";
 import logo from "../../assets/logo_transparent.png";
 import "../../css/Donations/Donations.css";
-
-// Create a map of users for quick lookup
-const usersMap = createUsersMap(users);
 
 function Donations() {
     const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -53,7 +50,25 @@ function Donations() {
 
             setBalance(walletData.balance);
 
-            // Transform donations to frontend format
+            // Collect unique user IDs from donations and resolve their profiles
+            const userIds = [...new Set(
+                donationsData.all.flatMap(d => [d.donorUserId, d.recipientUserId])
+            )];
+            const profiles = await Promise.all(
+                userIds.map(id => profileService.getUserById(id).catch(() => null))
+            );
+            const usersMap = {};
+            for (const p of profiles) {
+                if (p) {
+                    usersMap[p.id] = {
+                        id: p.id,
+                        name: p.username,
+                        handle: p.username,
+                        profileImage: p.profilePictureUrl || DEFAULT_PROFILE_IMAGE,
+                    };
+                }
+            }
+
             const transformedDonations = donationsData.all.map(d =>
                 transformDonation(d, usersMap, user.id)
             );
@@ -93,8 +108,19 @@ function Donations() {
             // Update local state
             setBalance(prev => prev - donationData.amount);
 
-            // Add new donation to history
-            const newDonation = transformDonation(result, usersMap, user.id);
+            // Add new donation to history — resolve recipient profile for display
+            const recipientProfile = await profileService.getUserById(donationData.recipientId).catch(() => null);
+            const newUsersMap = {};
+            if (recipientProfile) {
+                newUsersMap[recipientProfile.id] = {
+                    id: recipientProfile.id,
+                    name: recipientProfile.username,
+                    handle: recipientProfile.username,
+                    profileImage: recipientProfile.profilePictureUrl || DEFAULT_PROFILE_IMAGE,
+                };
+            }
+            newUsersMap[user.id] = { id: user.id, name: user.username, handle: user.username, profileImage: DEFAULT_PROFILE_IMAGE };
+            const newDonation = transformDonation(result, newUsersMap, user.id);
             setDonations(prev => [newDonation, ...prev]);
 
             setIsModalOpen(false);
@@ -226,12 +252,13 @@ function Donations() {
                 currentUserId={user.id}
             />
 
-            <DonationModal 
+            <DonationModal
                 open={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleDonationSuccess}
                 isSubmitting={isSubmitting}
                 currentBalance={balance}
+                currentUserId={user.id}
             />
 
             <DepositModal 

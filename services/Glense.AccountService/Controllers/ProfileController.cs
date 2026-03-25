@@ -26,6 +26,44 @@ namespace Glense.AccountService.Controllers
             return Guid.Parse(userIdClaim!);
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUsers([FromQuery] string? q, [FromQuery] int limit = 20)
+        {
+            try
+            {
+                var query = _context.Users.Where(u => u.IsActive);
+
+                if (!string.IsNullOrWhiteSpace(q))
+                {
+                    var search = q.ToLower();
+                    query = query.Where(u =>
+                        u.Username.ToLower().Contains(search) ||
+                        u.Email.ToLower().Contains(search));
+                }
+
+                var users = await query
+                    .OrderBy(u => u.Username)
+                    .Take(limit)
+                    .Select(u => new UserDto
+                    {
+                        Id = u.Id,
+                        Username = u.Username,
+                        Email = u.Email,
+                        ProfilePictureUrl = u.ProfilePictureUrl,
+                        AccountType = u.AccountType,
+                        CreatedAt = u.CreatedAt
+                    })
+                    .ToListAsync();
+
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching users");
+                return StatusCode(500, new { message = "An error occurred" });
+            }
+        }
+
         [HttpGet("me")]
         public async Task<IActionResult> GetMyProfile()
         {

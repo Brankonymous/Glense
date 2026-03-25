@@ -65,19 +65,19 @@ builder.Services.AddSwaggerGen(c =>
 // Configure PostgreSQL Database
 // Priority: Environment variable > appsettings.json
 var connectionString = Environment.GetEnvironmentVariable("ACCOUNT_DB_CONNECTION_STRING")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string not found. Set ACCOUNT_DB_CONNECTION_STRING env var or configure in appsettings.json");
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
-if (useInMemory || string.IsNullOrEmpty(connectionString) || connectionString.Contains("postgres_account"))
-{
-    // Use an in-memory database for quick local testing
-    builder.Services.AddDbContext<AccountDbContext>(options =>
-        options.UseInMemoryDatabase("GlenseAccount_InMemory"));
-}
-else
+if (!string.IsNullOrEmpty(connectionString))
 {
     builder.Services.AddDbContext<AccountDbContext>(options =>
         options.UseNpgsql(connectionString));
+}
+else
+{
+    // Development fallback: In-memory database (no setup required)
+    builder.Services.AddDbContext<AccountDbContext>(options =>
+        options.UseInMemoryDatabase("GlenseAccount_InMemory"));
+    Console.WriteLine("[WARNING] No connection string found, using in-memory database");
 }
 
 // Configure JWT Authentication
@@ -121,9 +121,19 @@ builder.Services.AddCors(options =>
     });
 });
 
+// HttpClient for Donation Service
+builder.Services.AddHttpClient("DonationService", client =>
+{
+    var serviceUrl = Environment.GetEnvironmentVariable("DONATION_SERVICE_URL")
+        ?? "http://localhost:5100";
+    client.BaseAddress = new Uri(serviceUrl);
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IWalletServiceClient, WalletServiceClient>();
 
 var app = builder.Build();
 

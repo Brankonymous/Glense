@@ -41,7 +41,43 @@ Mozda necemo koristiti. Koliko vidim po kursu treba svako da ima svoju bazu?
 
 ![Glense Database Schema](schema-Glense.svg)
 
+# Arhitektura
+
+## Komunikacija izmedju mikroservisa
+
+Mikroservisi komuniciraju medjusobno putem HTTP poziva:
+
+```
+Account Service ──HTTP──> Donation Service   (kreiranje wallet-a pri registraciji)
+Donation Service ──HTTP──> Account Service   (validacija korisnika + slanje notifikacija)
+```
+
+| Flow | Opis |
+|------|------|
+| Registracija korisnika | Account servis automatski kreira wallet u Donation servisu |
+| Kreiranje donacije | Donation servis validira da primalac postoji u Account servisu |
+| Posle donacije | Donation servis salje notifikaciju primaocu preko Account servisa |
+
+Sekundarne operacije (wallet kreiranje, notifikacije) ne blokiraju primarne — ako Account servis nije dostupan, registracija ce i dalje uspeti.
+
+## Servisi i portovi
+
+| Servis | Port | Opis |
+|--------|------|------|
+| API Gateway | 5050 | Proxy za frontend |
+| Account Service | 5001 | Auth, profili, notifikacije |
+| Donation Service | 5100 | Wallet-i i donacije |
+| Video Catalogue | 5002 | Video upload i streaming |
+| Chat Service | 5004 | Live chat |
+
 # Kako pokrenuti projekat
+
+## Docker Compose (preporuka)
+```bash
+docker-compose up
+```
+
+## Manuelno
 1. Preko konzole lociraj se na `Glense.Server/` folder
 2. **dotnet run**
 
