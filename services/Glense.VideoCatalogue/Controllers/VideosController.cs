@@ -25,7 +25,7 @@ namespace Glense.VideoCatalogue.Controllers;
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> Upload([FromForm] DTOs.UploadRequestDTO dto, [FromHeader(Name = "X-Uploader-Id")] int uploaderId = 0)
+        public async Task<IActionResult> Upload([FromForm] DTOs.UploadRequestDTO dto, [FromHeader(Name = "X-Uploader-Id")] Guid uploaderId = default)
         {
             if (dto == null || dto.File == null || dto.File.Length == 0) return BadRequest("No file provided");
 

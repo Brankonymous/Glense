@@ -25,7 +25,7 @@ public class Videos
 
     [Required]
     [Column("uploader_id")]
-    public int UploaderId { get; set; }
+    public Guid UploaderId { get; set; }
 
     [MaxLength(512)]
     [Column("thumbnail_url")]

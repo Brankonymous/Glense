@@ -10,6 +10,7 @@ CREATE INDEX IF NOT EXISTS IX_chats_created_at ON chats (created_at_utc);
 CREATE TABLE IF NOT EXISTS messages (
   id uuid PRIMARY KEY,
   chat_id uuid NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000',
   sender smallint NOT NULL,
   content text NOT NULL,
   created_at_utc timestamptz NOT NULL

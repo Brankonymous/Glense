@@ -1,9 +1,9 @@
 import React from "react";
 import MessageBubble from "./MessageBubble";
-import { Box, TextField, IconButton } from "@mui/material";
+import { Box, TextField, IconButton, Avatar } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import "../../css/Chat/ChatWindow.css";
-
+import { stringToColor } from "../../utils/constants";
 import { useState } from "react";
 
 const ChatWindow = ({ chat, onSend }) => {
@@ -27,11 +27,9 @@ const ChatWindow = ({ chat, onSend }) => {
     <div className="chat-window">
       {/* Chat Header */}
       <div className="chat-window-header">
-        <img
-          src={chat.profileImage || ''}
-          alt={chat.name || chat.Topic || chat.topic || 'Chat'}
-          className="chat-window-header-image"
-        />
+        <Avatar sx={{ bgcolor: stringToColor(chat.topic || chat.Topic || chat.name || ''), width: 36, height: 36, fontSize: 16 }}>
+          {(chat.topic || chat.Topic || chat.name || '?').charAt(0).toUpperCase()}
+        </Avatar>
         <span className="chat-window-header-name">{chat.name || chat.Topic || chat.topic || chat.title || 'Chat'}</span>
       </div>
 

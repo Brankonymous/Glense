@@ -7,10 +7,10 @@ namespace Glense.VideoCatalogue.Models;
 public class Subscriptions
 {
     [Column("subscriber_id")]
-    public int SubscriberId { get; set; }
+    public Guid SubscriberId { get; set; }
 
     [Column("subscribed_to_id")]
-    public int SubscribedToId { get; set; }
+    public Guid SubscribedToId { get; set; }
 
     [Column("subscription_date")]
     public DateTime SubscriptionDate { get; set; }

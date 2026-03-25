@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Box, List, ListItem, ListItemAvatar, Avatar, ListItemText, TextField, Button, ListItemButton } from "@mui/material";
 import "../../css/Chat/ChatSideBar.css";
+import { stringToColor } from "../../utils/constants";
 
 const ChatSidebar = ({ chats, onSelectChat, onCreate }) => {
   const [topic, setTopic] = useState("");
@@ -26,7 +27,9 @@ const ChatSidebar = ({ chats, onSelectChat, onCreate }) => {
           <ListItem key={index} className="chat-sidebar-item" disablePadding>
             <ListItemButton onClick={() => onSelectChat(chat)}>
               <ListItemAvatar>
-                <Avatar src={chat.profileImage} />
+                <Avatar sx={{ bgcolor: stringToColor(chat.topic || chat.Topic || chat.name || ''), fontSize: 16 }}>
+                  {(chat.topic || chat.Topic || chat.name || '?').charAt(0).toUpperCase()}
+                </Avatar>
               </ListItemAvatar>
               <ListItemText primary={chat.name || chat.Topic || chat.topic || chat.title || 'Untitled'} />
             </ListItemButton>

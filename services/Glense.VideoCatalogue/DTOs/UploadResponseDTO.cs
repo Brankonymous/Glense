@@ -15,7 +15,7 @@ public class UploadResponseDTO
     public string? ThumbnailUrl { get; set; }
     public DateTime UploadDate { get; set; }
     [Required]
-    public int UploaderId { get; set; }
+    public Guid UploaderId { get; set; }
     public int ViewCount { get; set; }
     public int LikeCount { get; set; }
     public int DislikeCount { get; set; }

@@ -207,14 +207,43 @@ try
     var startupChatConn = app.Configuration.GetConnectionString("DefaultConnection")
                         ?? app.Configuration["ConnectionStrings:DefaultConnection"];
 
-    if (!startupChatUseInMemory && !string.IsNullOrEmpty(startupChatConn))
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetService<ChatDbContext>();
+    if (db != null)
     {
-        using var scope = app.Services.CreateScope();
-        var db = scope.ServiceProvider.GetService<ChatDbContext>();
-        if (db != null)
+        db.Database.EnsureCreated();
+
+        // Seed demo chats if empty
+        if (!db.Chats.Any())
         {
-            // EnsureCreated is safe for simple local testing; for production use migrations.
-            db.Database.EnsureCreated();
+            var generalChat = new Glense.ChatService.Models.Chat
+            {
+                Id = Guid.NewGuid(),
+                Topic = "General",
+                CreatedAtUtc = DateTime.UtcNow.AddDays(-7)
+            };
+            var techChat = new Glense.ChatService.Models.Chat
+            {
+                Id = Guid.NewGuid(),
+                Topic = "Tech Talk",
+                CreatedAtUtc = DateTime.UtcNow.AddDays(-3)
+            };
+            var gamingChat = new Glense.ChatService.Models.Chat
+            {
+                Id = Guid.NewGuid(),
+                Topic = "Gaming",
+                CreatedAtUtc = DateTime.UtcNow.AddDays(-1)
+            };
+            db.Chats.AddRange(generalChat, techChat, gamingChat);
+
+            db.Messages.AddRange(
+                new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = generalChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Welcome to Glense!", CreatedAtUtc = DateTime.UtcNow.AddDays(-7) },
+                new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = generalChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Hey everyone, glad to be here", CreatedAtUtc = DateTime.UtcNow.AddDays(-6) },
+                new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = techChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Anyone tried .NET 8 yet?", CreatedAtUtc = DateTime.UtcNow.AddDays(-3) },
+                new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = techChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Yeah, the performance improvements are solid", CreatedAtUtc = DateTime.UtcNow.AddDays(-2) },
+                new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = gamingChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "What games are you all playing?", CreatedAtUtc = DateTime.UtcNow.AddDays(-1) }
+            );
+            db.SaveChanges();
         }
     }
 }

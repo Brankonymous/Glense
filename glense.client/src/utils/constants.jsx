@@ -11,6 +11,7 @@ import TheaterComedyIcon from "@mui/icons-material/TheaterComedy";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import DeveloperModeIcon from "@mui/icons-material/DeveloperMode";
 
+// Sidebar categories (UI-only, not from database)
 export const categories = [
     { name: "New Videos", icon: <HomeIcon /> },
     { name: "Music", icon: <MusicNoteIcon /> },
@@ -27,38 +28,7 @@ export const categories = [
     { name: "Crypto", icon: <DeveloperModeIcon /> },
 ];
 
-export const chats = [
-    { 
-        name: "Keki", 
-        profileImage: "http://dergipark.org.tr/assets/app/images/buddy_sample.png",
-        messages: [
-            {sender: "Keki", message: "Hello", time: "12:00", isMe: false},
-            {sender: "Branko", message: "Hello", time: "12:05", isMe: true},
-            {sender: "Keki", message: "How are you", time: "12:10", isMe: false},
-            {sender: "Keki", message: "Ok.", time: "12:10", isMe: false},
-        ]
-    },
-    { 
-        name: "Irena", 
-        profileImage: "http://dergipark.org.tr/assets/app/images/buddy_sample.png",
-        messages: [
-            {sender: "Irena", message: "Smorena sam nesto danas", time: "12:00", isMe: false},
-            {sender: "Branko", message: "Briga mee", time: "12:05", isMe: true},
-            {sender: "Irena", message: ":(", time: "12:10", isMe: false},
-            {sender: "Irena", message: "Sta radis", time: "13:10", isMe: false},
-        ]
-    }
-];
-
-export const videos = [];
-for (let i = 0; i < 100; i++) {
-    videos.push({
-        id: { videoId: "haDjmBT9tu4" },
-        title: "An Honest Review of Apple Intelligence\... So Far",
-        url: "https://www.youtube.com/watch?v=haDjmBT9tu4"
-    });
-}
-
+// Fallback values for when API data hasn't loaded yet
 export const demoThumbnailUrl = "https://i.ibb.co/G2L2Gwp/API-Course.png";
 export const demoChannelUrl = "/channel/UCmXmlB4-HJytD7wek0Uo97A";
 export const demoVideoUrl = "/video/GDa8kZLNhJ4";
@@ -67,7 +37,6 @@ export const demoVideoTitle =
     "Build and Deploy 5 JavaScript & React API Projects in 10 Hours - Full Course | RapidAPI";
 export const demoProfilePicture =
     "http://dergipark.org.tr/assets/app/images/buddy_sample.png";
-
 
 // Comment
 export const comments = [];
@@ -94,6 +63,14 @@ export const videoInfo = {
     likeCount: 123456,
     dislikeCount: 1234
 };
+
+// Consistent avatar color from a username/string
+const avatarColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#ff9800', '#ff5722'];
+export function stringToColor(str) {
+  let h = 0;
+  for (let i = 0; i < (str || '').length; i++) h = str.charCodeAt(i) + ((h << 5) - h);
+  return avatarColors[Math.abs(h) % avatarColors.length];
+}
 
 // Video catalogue API
 export const VIDEO_CATALOGUE_API = import.meta.env.VITE_VIDEO_CATALOGUE_API || 'http://localhost:5088';

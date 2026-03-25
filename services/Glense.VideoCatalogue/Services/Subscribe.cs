@@ -14,7 +14,7 @@ namespace Glense.VideoCatalogue.Services;
 			_db = db;
 		}
 
-		public async Task<Subscriptions> SubscribeAsync(int subscriberId, int subscribedToId, CancellationToken cancellationToken = default)
+		public async Task<Subscriptions> SubscribeAsync(Guid subscriberId, Guid subscribedToId, CancellationToken cancellationToken = default)
 		{
 			var exists = await _db.Subscriptions.FindAsync(new object[] { subscriberId, subscribedToId }, cancellationToken).ConfigureAwait(false);
 			if (exists != null) return exists;
@@ -25,7 +25,7 @@ namespace Glense.VideoCatalogue.Services;
 			return s;
 		}
 
-		public async Task<bool> UnsubscribeAsync(int subscriberId, int subscribedToId, CancellationToken cancellationToken = default)
+		public async Task<bool> UnsubscribeAsync(Guid subscriberId, Guid subscribedToId, CancellationToken cancellationToken = default)
 		{
 			var s = await _db.Subscriptions.FirstOrDefaultAsync(x => x.SubscriberId == subscriberId && x.SubscribedToId == subscribedToId, cancellationToken: cancellationToken).ConfigureAwait(false);
 			if (s == null) return false;

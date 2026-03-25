@@ -19,7 +19,7 @@ public class Playlists
     public string? Description { get; set; }
 
     [Column("creator_id")]
-    public int CreatorId { get; set; }
+    public Guid CreatorId { get; set; }
 
     [Column("creation_date")]
     public DateTime CreationDate { get; set; }

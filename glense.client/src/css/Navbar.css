@@ -68,6 +68,7 @@
 
 .navbar-option-stack {
     flex-direction: row !important;
+    align-items: center !important;
     gap: 20px !important;
 }
 

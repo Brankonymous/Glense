@@ -1,6 +1,5 @@
-import { Stack, Typography, Button, IconButton, Menu, MenuItem } from "@mui/material";
+import { Stack, Typography, Button, IconButton, Menu, MenuItem, Avatar } from "@mui/material";
 import { Link } from "react-router-dom";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import logo from "../assets/logo_transparent.png";
 import SearchBar from "../components/SearchBar";
 import { useState } from "react";
@@ -60,8 +59,10 @@ function Navbar() {
                                             Donations
                                         </Typography>
                                     </Link>
-                                    <IconButton onClick={handleMenuOpen} sx={{ color: 'white' }}>
-                                        <AccountCircleIcon />
+                                    <IconButton onClick={handleMenuOpen} sx={{ p: 0.5 }}>
+                                        <Avatar sx={{ bgcolor: '#c62828', width: 32, height: 32, fontSize: 14, fontWeight: 'bold' }}>
+                                            {user?.username?.charAt(0).toUpperCase() || '?'}
+                                        </Avatar>
                                     </IconButton>
                                 </Stack>
                                 <Menu

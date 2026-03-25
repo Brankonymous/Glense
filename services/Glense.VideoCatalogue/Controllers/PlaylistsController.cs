@@ -17,7 +17,7 @@ namespace Glense.VideoCatalogue.Controllers;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] DTOs.CreatePlaylistRequestDTO dto, [FromHeader(Name = "X-Creator-Id")] int creatorId = 0)
+        public async Task<IActionResult> Create([FromBody] DTOs.CreatePlaylistRequestDTO dto, [FromHeader(Name = "X-Creator-Id")] Guid creatorId = default)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -46,10 +46,10 @@ namespace Glense.VideoCatalogue.Controllers;
         }
 
         [HttpGet]
-        public async Task<IActionResult> List([FromHeader(Name = "X-Creator-Id")] int creatorId = 0)
+        public async Task<IActionResult> List([FromHeader(Name = "X-Creator-Id")] Guid creatorId = default)
         {
             var q = _db.Playlists.AsQueryable();
-            if (creatorId > 0) q = q.Where(p => p.CreatorId == creatorId);
+            if (creatorId != Guid.Empty) q = q.Where(p => p.CreatorId == creatorId);
 
             var list = await q.Select(playlist => new DTOs.PlaylistResponseDTO
             {

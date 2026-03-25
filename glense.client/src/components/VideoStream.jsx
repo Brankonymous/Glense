@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import ReactPlayer from "react-player";
-import { Typography, Box, Stack, Button, FormControl, Select, MenuItem } from "@mui/material";
+import { Typography, Box, Stack, Button, FormControl, Select, MenuItem, Avatar } from "@mui/material";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import {
   CheckCircle,
@@ -11,8 +11,12 @@ import {
 } from "@mui/icons-material";
 
 import { Videos, VideoComments } from ".";
-import { videoInfo as demoVideoInfo } from "../utils/constants";
+const demoVideoInfo = {
+  title: 'Loading...', channelTitle: '', viewCount: 0,
+  likeCount: 0, dislikeCount: 0, publishedAt: '', tags: [], description: ''
+};
 import { getVideo, getVideos, getPlaylists, addVideoToPlaylist } from "../utils/videoApi";
+import { profileService } from "../services/profileService";
 import { useAuth } from "../context/AuthContext";
 
 import "../css/VideoStream.css";
@@ -22,6 +26,7 @@ function VideoStream() {
   const [showMoreDesc, setShowMoreDesc] = useState(false);
   const { id } = useParams();
   const [video, setVideo] = useState(null);
+  const [uploader, setUploader] = useState(null);
   const [related, setRelated] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [addingTo, setAddingTo] = useState("");
@@ -30,7 +35,15 @@ function VideoStream() {
   useEffect(() => {
     let mounted = true;
     if (!id) return;
-    getVideo(id).then(d => { if (mounted) setVideo(d); }).catch(() => {});
+    getVideo(id).then(d => {
+      if (!mounted) return;
+      setVideo(d);
+      if (d?.uploaderId && d.uploaderId !== '00000000-0000-0000-0000-000000000000') {
+        profileService.getUserById(d.uploaderId)
+          .then(p => { if (mounted) setUploader(p); })
+          .catch(() => {});
+      }
+    }).catch(() => {});
     getVideos().then(list => { if (mounted && Array.isArray(list)) setRelated(list.filter(v => String(v.id) !== String(id)).slice(0, 12)); }).catch(() => {});
     return () => { mounted = false; };
   }, [id]);
@@ -56,9 +69,12 @@ function VideoStream() {
             <Typography className="video-title">{video?.title || demoVideoInfo.title}</Typography>
 
             <Stack className="video-details">
-              <Link to={`/channel/${video?.uploaderId || demoVideoInfo.channelId}`}>
-              <Typography className="channel-title">
-                  {video?.channelTitle || demoVideoInfo.channelTitle}
+              <Link to={`/channel/${video?.uploaderId}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+                <Avatar sx={{ bgcolor: '#c62828', width: 36, height: 36, fontSize: 16 }}>
+                  {(uploader?.username || video?.title || '?').charAt(0).toUpperCase()}
+                </Avatar>
+                <Typography className="channel-title">
+                  {uploader?.username || 'Glense'}
                   <CheckCircle className="check-circle-icon" />
                 </Typography>
               </Link>
@@ -162,25 +178,6 @@ function VideoStream() {
             <Typography className="comments-section-title">Comments</Typography>
             <VideoComments id={id} />
 
-            {/* Add to playlist */}
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle1">Add to playlist</Typography>
-              <select value={addingTo} onChange={(e) => setAddingTo(e.target.value)}>
-                <option value="">Choose playlist</option>
-                {playlists.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-              <Button variant="contained" sx={{ ml: 1 }} disabled={adding} onClick={async () => {
-                if (!addingTo || !video?.id) { alert('Select a playlist'); return; }
-                setAdding(true);
-                try {
-                  await addVideoToPlaylist(addingTo, video.id);
-                  alert('Added to playlist');
-                } catch (e) {
-                  alert('Failed to add to playlist');
-                }
-                setAdding(false);
-              }}>Add</Button>
-            </Box>
           </Box>
         </Box>
 

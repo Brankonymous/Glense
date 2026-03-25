@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Box, CardMedia, Typography } from "@mui/material";
 
 import { Videos, ChannelCard } from ".";
-import { videos } from "../utils/constants";
+import { getVideos } from "../utils/videoApi";
 
 import "../css/ChannelDetail.css";
 
 function ChannelDetail() {
   const [channelDetail, setChannelDetail] = useState(null);
+  const [videos, setVideos] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    getVideos()
+      .then(data => { if (mounted && Array.isArray(data)) setVideos(data); })
+      .catch(() => {});
+    return () => { mounted = false; };
+  }, []);
 
   const channelBanner =
     channelDetail?.brandingSettings?.image?.bannerExternalUrl;

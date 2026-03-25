@@ -10,7 +10,7 @@ public interface IChatService
     Task DeleteChatAsync(Guid id, CancellationToken ct = default);
 
     Task<PagedResponse<MessageDto>> GetMessagesAsync(Guid chatId, Guid? cursor, int pageSize, CancellationToken ct = default);
-    Task<MessageDto> CreateMessageAsync(Guid chatId, CreateMessageRequest req, CancellationToken ct = default);
+    Task<MessageDto> CreateMessageAsync(Guid chatId, Guid userId, CreateMessageRequest req, CancellationToken ct = default);
     Task<MessageDto?> GetMessageAsync(Guid messageId, CancellationToken ct = default);
     Task DeleteMessageAsync(Guid messageId, CancellationToken ct = default);
 }

@@ -14,7 +14,6 @@ function Upload() {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [uploaderId, setUploaderId] = useState(user?.id || "");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -31,7 +30,7 @@ function Upload() {
     setLoading(true);
     setMessage("");
     try {
-      const resp = await uploadVideo(file, title, description, Number(uploaderId) || 0);
+      const resp = await uploadVideo(file, title, description, user?.id || '');
       setMessage("Upload successful");
       // navigate to video page
       if (resp?.id) {
@@ -54,8 +53,6 @@ function Upload() {
 
         <TextField label="Title" value={title} onChange={(e) => setTitle(e.target.value)} fullWidth margin="normal" />
         <TextField label="Description" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline rows={4} margin="normal" />
-
-        <TextField label="Uploader Id (optional)" value={uploaderId} onChange={(e) => setUploaderId(e.target.value)} fullWidth margin="normal" />
 
         <Button variant="contained" color="primary" type="submit" disabled={loading}>
           {loading ? "Uploading..." : "Upload"}

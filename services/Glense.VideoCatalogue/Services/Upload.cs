@@ -17,7 +17,7 @@ namespace Glense.VideoCatalogue.Services;
 			_db = db;
 		}
 
-		public async Task<Videos> UploadFileAsync(IFormFile file, string? title, string? description, int uploaderId, CancellationToken cancellationToken = default)
+		public async Task<Videos> UploadFileAsync(IFormFile file, string? title, string? description, Guid uploaderId, CancellationToken cancellationToken = default)
 		{
 			if (file == null) throw new ArgumentNullException(nameof(file));
 

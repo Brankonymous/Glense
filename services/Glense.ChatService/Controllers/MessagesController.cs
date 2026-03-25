@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Glense.ChatService.DTOs;
 using Glense.ChatService.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,9 @@ public class MessagesController : ControllerBase
         if (!ModelState.IsValid) return ValidationProblem(ModelState);
         try
         {
-            var dto = await _svc.CreateMessageAsync(chatId, req, HttpContext.RequestAborted);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = Guid.TryParse(userIdClaim, out var uid) ? uid : Guid.Empty;
+            var dto = await _svc.CreateMessageAsync(chatId, userId, req, HttpContext.RequestAborted);
             // Return Location header pointing to GET /api/messages/{messageId}
             return CreatedAtAction(nameof(MessageRootController.GetMessage), "MessageRoot", new { messageId = dto.Id }, dto);
         }
