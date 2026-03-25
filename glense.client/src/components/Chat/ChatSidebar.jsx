@@ -1,13 +1,7 @@
 import React, { useState } from "react";
 import { Box, List, ListItem, ListItemAvatar, Avatar, ListItemText, TextField, Button, ListItemButton } from "@mui/material";
 import "../../css/Chat/ChatSideBar.css";
-
-const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#ff9800', '#ff5722'];
-function stringToColor(str) {
-  let h = 0;
-  for (let i = 0; i < (str||'').length; i++) h = str.charCodeAt(i) + ((h << 5) - h);
-  return colors[Math.abs(h) % colors.length];
-}
+import { stringToColor } from "../../utils/constants";
 
 const ChatSidebar = ({ chats, onSelectChat, onCreate }) => {
   const [topic, setTopic] = useState("");

@@ -64,5 +64,13 @@ export const videoInfo = {
     dislikeCount: 1234
 };
 
+// Consistent avatar color from a username/string
+const avatarColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#ff9800', '#ff5722'];
+export function stringToColor(str) {
+  let h = 0;
+  for (let i = 0; i < (str || '').length; i++) h = str.charCodeAt(i) + ((h << 5) - h);
+  return avatarColors[Math.abs(h) % avatarColors.length];
+}
+
 // Video catalogue API
 export const VIDEO_CATALOGUE_API = import.meta.env.VITE_VIDEO_CATALOGUE_API || 'http://localhost:5088';
