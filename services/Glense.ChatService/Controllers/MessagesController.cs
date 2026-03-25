@@ -34,7 +34,10 @@ public class MessagesController : ControllerBase
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userId = Guid.TryParse(userIdClaim, out var uid) ? uid : Guid.Empty;
-            var dto = await _svc.CreateMessageAsync(chatId, userId, req, HttpContext.RequestAborted);
+            var username = User.FindFirst(ClaimTypes.Name)?.Value
+                        ?? User.FindFirst("unique_name")?.Value
+                        ?? "Anonymous";
+            var dto = await _svc.CreateMessageAsync(chatId, userId, username, req, HttpContext.RequestAborted);
             // Return Location header pointing to GET /api/messages/{messageId}
             return CreatedAtAction(nameof(MessageRootController.GetMessage), "MessageRoot", new { messageId = dto.Id }, dto);
         }

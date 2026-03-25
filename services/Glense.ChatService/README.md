@@ -1,32 +1,44 @@
-# Glense.ChatService
+# Chat Microservice
 
-Minimal chat microservice used by the Glense solution.
+Real-time chat service for the Glense platform with SignalR support.
 
-Quickstart (local):
+## API Endpoints
 
-1. Update `appsettings.json` or set `DefaultConnection` env var with a Postgres connection.
-2. Run migrations (or allow EF to create DB):
+### Chats
+- `GET /api/chats?cursor=<uuid>&pageSize=50` - List chats (cursor pagination)
+- `POST /api/chats` - Create a chat room
+- `GET /api/chats/{chatId}` - Get chat by ID
+- `DELETE /api/chats/{chatId}` - Delete chat
 
-   dotnet ef migrations add InitialCreate -p . -s .
-   dotnet ef database update -p . -s .
+### Messages
+- `GET /api/chats/{chatId}/messages?cursor=<uuid>&pageSize=50` - List messages
+- `POST /api/chats/{chatId}/messages` - Send a message (userId + username from JWT)
+- `GET /api/messages/{messageId}` - Get message by ID
+- `DELETE /api/messages/{messageId}` - Delete message
 
-3. Run locally:
+### Health
+- `GET /health` - Service health check
 
-   dotnet run --project .
+### WebSocket
+- `/hubs/chat` - SignalR hub for real-time messaging
 
-Docker:
+## Running Locally
 
-  docker build -t glense_chat_service .
-  docker run --rm -p 5004:5000 -e ASPNETCORE_ENVIRONMENT=Development glense_chat_service
+```bash
+cd services/Glense.ChatService
+dotnet run
+```
 
-Endpoints:
+Or via Docker Compose from the repo root:
+```bash
+docker compose up chat_service postgres_chat
+```
 
-- GET /health
-- GET /api/chats?cursor=<uuid>&pageSize=50
-- POST /api/chats
-- GET /api/chats/{chatId}
-- DELETE /api/chats/{chatId}
-- GET /api/chats/{chatId}/messages?cursor=<uuid>&pageSize=50
-- POST /api/chats/{chatId}/messages
-- GET /api/messages/{messageId}
-- DELETE /api/messages/{messageId}
+## Configuration
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ConnectionStrings__DefaultConnection` | PostgreSQL connection string | In-memory DB |
+| `JwtSettings__SecretKey` | JWT secret (must match Account service) | — |
+| `JwtSettings__Issuer` | JWT issuer | `GlenseAccountService` |
+| `JwtSettings__Audience` | JWT audience | `GlenseApp` |
