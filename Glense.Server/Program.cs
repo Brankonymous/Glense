@@ -44,11 +44,19 @@ builder.Services.AddHttpClient("DonationService", client =>
     client.BaseAddress = new Uri(serviceUrl);
 });
 
-// Video Catalogue Service (for future use)
+// Video Catalogue Service
 builder.Services.AddHttpClient("VideoService", client =>
 {
     var serviceUrl = Environment.GetEnvironmentVariable("VIDEO_SERVICE_URL")
         ?? "http://localhost:5002";
+    client.BaseAddress = new Uri(serviceUrl);
+});
+
+// Chat Service
+builder.Services.AddHttpClient("ChatService", client =>
+{
+    var serviceUrl = Environment.GetEnvironmentVariable("CHAT_SERVICE_URL")
+        ?? "http://localhost:5004";
     client.BaseAddress = new Uri(serviceUrl);
 });
 
