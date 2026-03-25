@@ -33,6 +33,15 @@ else
         options.UseInMemoryDatabase("VideoCatalogue"));
 }
 
+// HttpClient for Account Service (resolve uploader usernames)
+builder.Services.AddHttpClient("AccountService", client =>
+{
+    var serviceUrl = Environment.GetEnvironmentVariable("ACCOUNT_SERVICE_URL")
+        ?? "http://localhost:5001";
+    client.BaseAddress = new Uri(serviceUrl);
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+
 // Health checks
 builder.Services.AddHealthChecks();
 

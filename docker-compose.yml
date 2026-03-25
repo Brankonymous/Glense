@@ -134,6 +134,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__VideoCatalogue=Host=postgres_video;Port=5432;Database=glense_video;Username=glense;Password=glense123
+      - ACCOUNT_SERVICE_URL=http://account_service:5000
     ports:
       - "5002:5002"
     depends_on:

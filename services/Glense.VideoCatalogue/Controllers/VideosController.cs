@@ -1,5 +1,8 @@
 using System;
 using System.IO;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
@@ -16,12 +19,44 @@ namespace Glense.VideoCatalogue.Controllers;
         private readonly Upload _uploader;
         private readonly VideoCatalogueDbContext _db;
         private readonly IVideoStorage _storage;
+        private readonly HttpClient _accountClient;
+        private readonly ILogger<VideosController> _logger;
 
-        public VideosController(Upload uploader, VideoCatalogueDbContext db, IVideoStorage storage)
+        private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
+
+        public VideosController(Upload uploader, VideoCatalogueDbContext db, IVideoStorage storage, IHttpClientFactory httpClientFactory, ILogger<VideosController> logger)
         {
             _uploader = uploader;
             _db = db;
             _storage = storage;
+            _accountClient = httpClientFactory.CreateClient("AccountService");
+            _logger = logger;
+        }
+
+        private async Task<string?> GetUsernameAsync(Guid userId)
+        {
+            if (userId == Guid.Empty) return null;
+            try
+            {
+                var resp = await _accountClient.GetAsync($"/api/profile/{userId}");
+                if (!resp.IsSuccessStatusCode) return null;
+                var json = await resp.Content.ReadFromJsonAsync<JsonElement>(JsonOpts);
+                return json.TryGetProperty("username", out var u) ? u.GetString() : null;
+            }
+            catch { return null; }
+        }
+
+        private async Task<Dictionary<Guid, string>> ResolveUsernamesAsync(IEnumerable<Guid> userIds)
+        {
+            var map = new Dictionary<Guid, string>();
+            var unique = userIds.Where(id => id != Guid.Empty).Distinct().ToList();
+            var tasks = unique.Select(async id =>
+            {
+                var name = await GetUsernameAsync(id);
+                if (name != null) map[id] = name;
+            });
+            await Task.WhenAll(tasks);
+            return map;
         }
 
         [HttpPost("upload")]
@@ -51,21 +86,23 @@ namespace Glense.VideoCatalogue.Controllers;
         [HttpGet]
         public async Task<IActionResult> List()
         {
-            var vids = await _db.Videos
-                .Select(video => new DTOs.UploadResponseDTO
-                {
-                    Id = video.Id,
-                    Title = video.Title,
-                    Description = video.Description,
-                    VideoUrl = video.VideoUrl,
-                    ThumbnailUrl = video.ThumbnailUrl,
-                    UploadDate = video.UploadDate,
-                    UploaderId = video.UploaderId,
-                    ViewCount = video.ViewCount,
-                    LikeCount = video.LikeCount,
-                    DislikeCount = video.DislikeCount
-                })
-                .ToListAsync();
+            var videos = await _db.Videos.ToListAsync();
+            var usernames = await ResolveUsernamesAsync(videos.Select(v => v.UploaderId));
+
+            var vids = videos.Select(video => new DTOs.UploadResponseDTO
+            {
+                Id = video.Id,
+                Title = video.Title,
+                Description = video.Description,
+                VideoUrl = video.VideoUrl,
+                ThumbnailUrl = video.ThumbnailUrl,
+                UploadDate = video.UploadDate,
+                UploaderId = video.UploaderId,
+                UploaderUsername = usernames.GetValueOrDefault(video.UploaderId),
+                ViewCount = video.ViewCount,
+                LikeCount = video.LikeCount,
+                DislikeCount = video.DislikeCount
+            }).ToList();
 
             return Ok(vids);
         }
@@ -76,6 +113,8 @@ namespace Glense.VideoCatalogue.Controllers;
             var video = await _db.Videos.FirstOrDefaultAsync(v => v.Id == id);
             if (video == null) return NotFound();
 
+            var username = await GetUsernameAsync(video.UploaderId);
+
             var resp = new DTOs.UploadResponseDTO
             {
                 Id = video.Id,
@@ -85,6 +124,7 @@ namespace Glense.VideoCatalogue.Controllers;
                 ThumbnailUrl = video.ThumbnailUrl,
                 UploadDate = video.UploadDate,
                 UploaderId = video.UploaderId,
+                UploaderUsername = username,
                 ViewCount = video.ViewCount,
                 LikeCount = video.LikeCount,
                 DislikeCount = video.DislikeCount
