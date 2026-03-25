@@ -1,7 +1,13 @@
 import React from "react";
 import { Box, Avatar } from "@mui/material";
 import "../../css/Chat/MessageBubble.css";
-import { stringToColor } from "../../utils/constants";
+
+const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#ff9800', '#ff5722'];
+function stringToColor(str) {
+  let h = 0;
+  for (let i = 0; i < (str||'').length; i++) h = str.charCodeAt(i) + ((h << 5) - h);
+  return colors[Math.abs(h) % colors.length];
+}
 
 const MessageBubble = ({ message }) => {
   const isMe = message.isMe;

@@ -3,7 +3,16 @@ import { Stack, Typography, Avatar } from "@mui/material";
 import { ThumbUpOutlined } from "@mui/icons-material";
 import { getComments } from "../utils/videoApi";
 import "../css/VideoComments.css";
-import { stringToColor } from "../utils/constants";
+
+// Generate a consistent color from a username
+function stringToColor(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#ff9800', '#ff5722'];
+  return colors[Math.abs(hash) % colors.length];
+}
 
 function VideoComments({ videoId, id }) {
   const resolvedVideoId = videoId || id;

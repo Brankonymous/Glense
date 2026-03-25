@@ -16,7 +16,6 @@ const demoVideoInfo = {
   likeCount: 0, dislikeCount: 0, publishedAt: '', tags: [], description: ''
 };
 import { getVideo, getVideos, getPlaylists, addVideoToPlaylist } from "../utils/videoApi";
-import { profileService } from "../services/profileService";
 import { useAuth } from "../context/AuthContext";
 
 import "../css/VideoStream.css";
@@ -26,7 +25,6 @@ function VideoStream() {
   const [showMoreDesc, setShowMoreDesc] = useState(false);
   const { id } = useParams();
   const [video, setVideo] = useState(null);
-  const [uploader, setUploader] = useState(null);
   const [related, setRelated] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [addingTo, setAddingTo] = useState("");
@@ -35,15 +33,7 @@ function VideoStream() {
   useEffect(() => {
     let mounted = true;
     if (!id) return;
-    getVideo(id).then(d => {
-      if (!mounted) return;
-      setVideo(d);
-      if (d?.uploaderId && d.uploaderId !== '00000000-0000-0000-0000-000000000000') {
-        profileService.getUserById(d.uploaderId)
-          .then(p => { if (mounted) setUploader(p); })
-          .catch(() => {});
-      }
-    }).catch(() => {});
+    getVideo(id).then(d => { if (mounted) setVideo(d); }).catch(() => {});
     getVideos().then(list => { if (mounted && Array.isArray(list)) setRelated(list.filter(v => String(v.id) !== String(id)).slice(0, 12)); }).catch(() => {});
     return () => { mounted = false; };
   }, [id]);
@@ -69,12 +59,12 @@ function VideoStream() {
             <Typography className="video-title">{video?.title || demoVideoInfo.title}</Typography>
 
             <Stack className="video-details">
-              <Link to={`/channel/${video?.uploaderId}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+              <Link to={`/channel/${video?.uploaderUsername || video?.uploaderId}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
                 <Avatar sx={{ bgcolor: '#c62828', width: 36, height: 36, fontSize: 16 }}>
-                  {(uploader?.username || video?.title || '?').charAt(0).toUpperCase()}
+                  {(video?.uploaderUsername || video?.title || '?').charAt(0).toUpperCase()}
                 </Avatar>
                 <Typography className="channel-title">
-                  {uploader?.username || 'Glense'}
+                  {video?.uploaderUsername || 'Glense'}
                   <CheckCircle className="check-circle-icon" />
                 </Typography>
               </Link>
