@@ -1,114 +1,116 @@
-# Mikroservisi koji treba da se urade
+# Glense
 
-1. Account
-2. Video katalozi / streaming
-3. Donations
-4. Live chat
+A microservice-based video streaming platform built with .NET 8, React, and PostgreSQL.
 
-### Account
-Profili, mogu medjusobno da se prate, sistem notifikacije, login/registracija
+## Architecture
 
-### Video katalozi / live streaming
+All frontend requests go through the **API Gateway** (port 5050), which proxies to the appropriate microservice. Services communicate with each other via HTTP.
 
-Upload videa, start live streaming-a, mogucnost kreiranja plejlisti. Subscription deo gde se vide klipovi subscribe-ovanih profila
+```
+                          ┌─────────────────┐
+                          │    Frontend      │
+                          │   (React/Vite)   │
+                          └────────┬─────────┘
+                                   │
+                          ┌────────▼─────────┐
+                          │   API Gateway     │
+                          │     :5050         │
+                          └──┬──┬──┬──┬──────┘
+                  ┌──────────┘  │  │  └──────────┐
+                  ▼             ▼  ▼             ▼
+          ┌──────────────┐ ┌────────────┐ ┌──────────────┐
+          │   Account    │ │  Donation  │ │    Video     │
+          │   :5001      │ │   :5100    │ │  Catalogue   │
+          │              │ │            │ │    :5002     │
+          │ Auth/Profile │ │  Wallets   │ │   Upload     │
+          │ Notification │ │  Donations │ │  Comments    │
+          └──────┬───────┘ └─────┬──────┘ │  Playlists   │
+                 │    ▲          │   ▲    └──────┬───────┘
+                 │    └──────────┘   │           │
+                 │    wallet create  │           │
+                 │    on register    │           │
+                 │                   │           │
+                 │    validate user  │           │
+                 │    + notify       │           │
+                 │                   │           │
+                 │◄──────────────────┘           │
+                 │                               │
+                 │   resolve uploader username   │
+                 │◄──────────────────────────────┘
+                 │
+          ┌──────▼───────┐
+          │    Chat      │
+          │    :5004     │
+          │              │
+          │  Rooms       │
+          │  Messages    │
+          │  SignalR     │
+          └──────────────┘
+```
 
-### Donacije
+### Inter-service communication
 
-Donacije izmedju naloga i donacije kreatorima sajta (potencijalno neka porukica uz donaciju?)
+| Flow | Direction | Description |
+|------|-----------|-------------|
+| User registration | Account → Donation | Auto-creates a wallet for the new user |
+| Donation | Donation → Account | Validates recipient exists, sends notification after success |
+| Video listing | Video → Account | Resolves uploader usernames for video responses |
+| Chat messages | JWT → Chat | Username extracted from JWT token, stored with message |
 
-### Live chat
+Secondary operations (wallet creation, notifications) are non-blocking — if a downstream service is unavailable, the primary operation still succeeds.
 
-u toku live streaminga profili mogu da se dopisuju sa strimerom ali i drugima. Strimer moze da ima neke permisije da blokira naloge itd
+### Services and ports
 
-# Instrukcije za instalaciju
+| Service | Port | Database | Description |
+|---------|------|----------|-------------|
+| API Gateway | 5050 | — | Proxies all frontend requests |
+| Account | 5001 | PostgreSQL :5432 | Auth, profiles, notifications |
+| Donation | 5100 | PostgreSQL :5434 | Wallets and donations |
+| Video Catalogue | 5002 | PostgreSQL :5433 | Video upload, comments, playlists |
+| Chat | 5004 | PostgreSQL :5435 | Chat rooms, messages, SignalR |
 
-`Visual Studio 2022 / Visual studio code` je preporuka
+## Quick start
 
-Instalirati dodatne stvari: 
-- `.NET8`
-- `nodejs v22`
+See [DEV_QUICKSTART.md](DEV_QUICKSTART.md) for full setup instructions.
 
-# Instrukcije za rad
+```bash
+# Start all services
+docker compose up --build -d
 
-1. Setupujte `git pp` da moze da se prati cije je grana, mislim da ce ispasti lepse kad prezentujemo
-1. Koristimo github tasks za pracenje sprintova i kreiranje taskova
-2. Pravimo PR koji mora da ima bar jedan approval pre merge-a
+# Start the gateway
+cd Glense.Server && dotnet run --urls http://localhost:5050
 
+# Start the frontend
+cd glense.client && npm install && npm run dev
 
-## Šema baze
+# Seed test data (users, videos, donations, comments)
+./scripts/seed.sh
+```
 
-Mozda necemo koristiti. Koliko vidim po kursu treba svako da ima svoju bazu?
+## Prerequisites
+
+- .NET 8 SDK
+- Node.js v22
+- Docker or Podman
+
+## Database schema
+
+Each microservice owns its own database. See individual service READMEs for schema details.
 
 ![Glense Database Schema](schema-Glense.svg)
 
-# Arhitektura
+## Development workflow
 
-## Komunikacija izmedju mikroservisa
-
-Mikroservisi komuniciraju medjusobno putem HTTP poziva:
-
-```
-Account Service ──HTTP──> Donation Service   (kreiranje wallet-a pri registraciji)
-Donation Service ──HTTP──> Account Service   (validacija korisnika + slanje notifikacija)
-```
-
-| Flow | Opis |
-|------|------|
-| Registracija korisnika | Account servis automatski kreira wallet u Donation servisu |
-| Kreiranje donacije | Donation servis validira da primalac postoji u Account servisu |
-| Posle donacije | Donation servis salje notifikaciju primaocu preko Account servisa |
-
-Sekundarne operacije (wallet kreiranje, notifikacije) ne blokiraju primarne — ako Account servis nije dostupan, registracija ce i dalje uspeti.
-
-## Servisi i portovi
-
-| Servis | Port | Opis |
-|--------|------|------|
-| API Gateway | 5050 | Proxy za frontend |
-| Account Service | 5001 | Auth, profili, notifikacije |
-| Donation Service | 5100 | Wallet-i i donacije |
-| Video Catalogue | 5002 | Video upload i streaming |
-| Chat Service | 5004 | Live chat |
-
-# Kako pokrenuti projekat
-
-## Docker Compose (preporuka)
-```bash
-docker-compose up
-```
-
-## Manuelno
-1. Preko konzole lociraj se na `Glense.Server/` folder
-2. **dotnet run**
-
-# Pre-commit Hook
-
-When you first clone the repository, run the setup script to install the pre-commit hook:
+1. Set up `git pp` so branch names are prefixed with your username
+2. Use GitHub Issues for sprint tracking
+3. PRs require at least one approval before merge
 
 ```bash
-# Make sure you're in the repository root
+# Setup git pp (one-time)
+./scripts/setup-pp.sh yourname
+
+# Setup pre-commit hook for C# formatting (one-time)
 ./scripts/setup-hooks.sh
 ```
 
-# Git PP
-
-Using `git pp` you can automatically add your username as a prefix when pushing the current branch. 
-Example:
-If your branch is called `fix-bugs` and you setup username to John using `./setup-pp.sh John` - pushed branched should look like this: `John/fix-bugs`
-
-```bash
-# Make sure you're in the repository root
-./scripts/setup-pp.sh username
-```
-
-
-This project includes a pre-commit hook that automatically formats C# code before each commit.
-
-The hook will automatically run and format your C# code. If any files are modified by formatting, the commit will be blocked and you'll need to stage the formatted files and commit again.
-
-You can also run formatting manually:
-
-```bash
-# Place yourself on some directory:
-dotnet format Glense.sln
-```
+The pre-commit hook auto-formats C# code. If files are modified by formatting, stage them and commit again.

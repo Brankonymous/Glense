@@ -38,7 +38,7 @@ npm run dev
 ### 4. Seed test users (new terminal)
 
 ```bash
-./scripts/seed-test-users.sh
+./scripts/seed.sh
 ```
 
 Creates 3 users (password for all: `Password123!`):
@@ -105,3 +105,5 @@ podman machine stop     # if using podman
 | Gateway | http://localhost:5050/swagger |
 | Account Service | http://localhost:5001/swagger |
 | Donation Service | http://localhost:5100 |
+| Video Catalogue | http://localhost:5002/swagger |
+| Chat Service | http://localhost:5004/swagger |

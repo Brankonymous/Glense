@@ -1,4 +1,4 @@
-const RAW_BASE = import.meta.env.VITE_CHAT_SERVICE_URL || 'http://localhost:5004';
+const RAW_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5050';
 
 function normalizeBase(raw) {
   if (!raw) return 'http://localhost:5004';

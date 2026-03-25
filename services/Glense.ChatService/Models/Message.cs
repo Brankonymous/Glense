@@ -14,6 +14,9 @@ public class Message
 
     public Guid UserId { get; set; }
 
+    [MaxLength(50)]
+    public string Username { get; set; } = "";
+
     public MessageSender Sender { get; set; }
 
     [Required]

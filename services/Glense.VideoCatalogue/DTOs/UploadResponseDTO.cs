@@ -16,6 +16,7 @@ public class UploadResponseDTO
     public DateTime UploadDate { get; set; }
     [Required]
     public Guid UploaderId { get; set; }
+    public string? UploaderUsername { get; set; }
     public int ViewCount { get; set; }
     public int LikeCount { get; set; }
     public int DislikeCount { get; set; }
