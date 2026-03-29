@@ -10,14 +10,19 @@ import {
     demoThumbnailUrl,
 } from "../utils/constants";
 
-import "../css/VideoCard.css"; 
+import "../css/VideoCard.css";
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5050';
 
 function VideoCard({ video }) {
     // Support both YouTube-like shape ({ id: { videoId } }) and catalogue shape ({ id: "guid", thumbnailUrl, title })
     const nestedId = video?.id?.videoId;
     const simpleId = video?.id && typeof video.id === 'string' ? video.id : null;
     const videoId = nestedId || simpleId || video?.videoId;
-    const thumbnail = video?.thumbnailUrl || demoThumbnailUrl;
+    const rawThumb = video?.thumbnailUrl;
+    const thumbnail = rawThumb
+        ? (rawThumb.startsWith('http') ? rawThumb : `${API_BASE}${rawThumb}`)
+        : demoThumbnailUrl;
     const title = video?.title || demoVideoTitle;
 
     return (

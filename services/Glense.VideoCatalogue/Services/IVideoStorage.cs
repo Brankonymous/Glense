@@ -18,4 +18,5 @@ namespace Glense.VideoCatalogue.Services;
         /// </summary>
         Task<(Stream Stream, long TotalLength)> OpenReadRangeAsync(string storedName, long? start = null, long? end = null, CancellationToken cancellationToken = default);
         Task DeleteAsync(string storedName, CancellationToken cancellationToken = default);
+        string? GetPhysicalPath(string storedName);
     }

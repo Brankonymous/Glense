@@ -7,6 +7,12 @@ using Glense.VideoCatalogue.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Allow large video uploads (500 MB)
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 500 * 1024 * 1024;
+});
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
