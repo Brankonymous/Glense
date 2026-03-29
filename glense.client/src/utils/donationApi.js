@@ -11,11 +11,17 @@ const DONATION_API_BASE = `${API_BASE_URL}/api`;
 /**
  * Generic fetch wrapper with error handling
  */
+function authHeaders() {
+    const token = localStorage.getItem('glense_auth_token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 async function apiFetch(endpoint, options = {}) {
     const url = `${DONATION_API_BASE}${endpoint}`;
-    
+
     const defaultHeaders = {
         'Content-Type': 'application/json',
+        ...authHeaders(),
     };
 
     const config = {
