@@ -1,5 +1,5 @@
 import { Stack, Typography, Button, IconButton, Menu, MenuItem, Avatar } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo_transparent.png";
 import SearchBar from "../components/SearchBar";
 import { useState } from "react";
@@ -12,6 +12,7 @@ function Navbar() {
     const [open, setOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const { isAuthenticated, user, logout } = useAuth();
+    const navigate = useNavigate();
     const channelId = user?.username || "mkbhd";
 
     const handleMenuOpen = (event) => {
@@ -25,6 +26,7 @@ function Navbar() {
     const handleLogout = () => {
         logout();
         handleMenuClose();
+        navigate('/');
     };
 
     return (

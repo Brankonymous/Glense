@@ -2,8 +2,10 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http.Json;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Glense.VideoCatalogue.Data;
@@ -31,6 +33,12 @@ namespace Glense.VideoCatalogue.Controllers;
             _storage = storage;
             _accountClient = httpClientFactory.CreateClient("AccountService");
             _logger = logger;
+        }
+
+        private Guid GetCurrentUserId()
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.TryParse(claim, out var id) ? id : Guid.Empty;
         }
 
         private static string? ResolveThumbnailUrl(Guid videoId, string? thumbnailUrl)
@@ -66,12 +74,14 @@ namespace Glense.VideoCatalogue.Controllers;
             return map;
         }
 
+        [Authorize]
         [HttpPost("upload")]
-        public async Task<IActionResult> Upload([FromForm] DTOs.UploadRequestDTO dto, [FromHeader(Name = "X-Uploader-Id")] Guid uploaderId = default)
+        public async Task<IActionResult> Upload([FromForm] DTOs.UploadRequestDTO dto)
         {
             if (dto == null || dto.File == null || dto.File.Length == 0) return BadRequest("No file provided");
 
-            var video = await _uploader.UploadFileAsync(dto.File, dto.Title, dto.Description, uploaderId, dto.Thumbnail);
+            var uploaderId = GetCurrentUserId();
+            var video = await _uploader.UploadFileAsync(dto.File, dto.Title, dto.Description, uploaderId, dto.Thumbnail, dto.Category);
 
             var resp = new DTOs.UploadResponseDTO
             {
@@ -84,7 +94,8 @@ namespace Glense.VideoCatalogue.Controllers;
                 UploaderId = video.UploaderId,
                 ViewCount = video.ViewCount,
                 LikeCount = video.LikeCount,
-                DislikeCount = video.DislikeCount
+                DislikeCount = video.DislikeCount,
+                Category = video.Category
             };
 
             return CreatedAtAction(nameof(Get), new { id = resp.Id }, resp);
@@ -108,7 +119,8 @@ namespace Glense.VideoCatalogue.Controllers;
                 UploaderUsername = usernames.GetValueOrDefault(video.UploaderId),
                 ViewCount = video.ViewCount,
                 LikeCount = video.LikeCount,
-                DislikeCount = video.DislikeCount
+                DislikeCount = video.DislikeCount,
+                Category = video.Category
             }).ToList();
 
             return Ok(vids);
@@ -134,10 +146,24 @@ namespace Glense.VideoCatalogue.Controllers;
                 UploaderUsername = username,
                 ViewCount = video.ViewCount,
                 LikeCount = video.LikeCount,
-                DislikeCount = video.DislikeCount
+                DislikeCount = video.DislikeCount,
+                Category = video.Category
             };
 
             return Ok(resp);
+        }
+
+        [Authorize]
+        [HttpPatch("{id:guid}/category")]
+        public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] DTOs.UpdateCategoryDTO dto)
+        {
+            var video = await _db.Videos.FirstOrDefaultAsync(v => v.Id == id);
+            if (video == null) return NotFound();
+            if (video.UploaderId != GetCurrentUserId()) return Forbid();
+
+            video.Category = dto.Category;
+            await _db.SaveChangesAsync();
+            return Ok(new { category = video.Category });
         }
 
         [HttpGet("{id:guid}/thumbnail")]

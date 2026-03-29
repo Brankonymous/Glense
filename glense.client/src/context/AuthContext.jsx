@@ -24,11 +24,28 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // Check if user is already logged in
+    // Check if user is already logged in and token is still valid
     const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-      setIsAuthenticated(true);
+    const token = authService.getToken();
+    if (currentUser && token) {
+      // Verify token is still accepted by the server
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050';
+      fetch(`${baseUrl}/api/chats?pageSize=1`, { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(res => {
+          if (res.ok) {
+            setUser(currentUser);
+            setIsAuthenticated(true);
+          } else {
+            authService.logout();
+          }
+        })
+        .catch(() => {
+          // Network error - keep auth state, user might be offline
+          setUser(currentUser);
+          setIsAuthenticated(true);
+        })
+        .finally(() => setIsLoading(false));
+      return;
     }
     setIsLoading(false);
 

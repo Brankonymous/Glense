@@ -132,6 +132,26 @@ do_prune() {
     echo "Done"
 }
 
+do_nuke() {
+    echo "Stopping ALL containers..."
+    $RUNTIME stop -a 2>/dev/null
+    echo "Removing ALL containers..."
+    $RUNTIME rm -a -f 2>/dev/null
+    echo "Removing ALL volumes..."
+    $RUNTIME volume prune -f 2>/dev/null
+    echo "Removing ALL images..."
+    $RUNTIME rmi -a -f 2>/dev/null
+    echo ""
+    echo "Everything wiped. Run './dev.sh up' to start fresh."
+}
+
+do_reset() {
+    echo "Full reset: nuke + rebuild + seed"
+    do_nuke
+    echo ""
+    do_up
+}
+
 case "${1:-up}" in
     up)       do_up ;;
     down)     do_down ;;
@@ -139,5 +159,7 @@ case "${1:-up}" in
     logs)     do_logs "$2" ;;
     seed)     do_seed ;;
     prune)    do_prune ;;
-    *)        echo "Usage: ./dev.sh [up|down|restart|logs|seed|prune]" ;;
+    nuke)     do_nuke ;;
+    reset)    do_reset ;;
+    *)        echo "Usage: ./dev.sh [up|down|restart|logs|seed|nuke|reset|prune]" ;;
 esac

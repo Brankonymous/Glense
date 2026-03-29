@@ -48,8 +48,67 @@
     padding-top: 0.3rem !important;
 }
 
-.comment-thumbs-up {
-    padding-right: 0.3rem !important;
+.comment-actions {
+    align-items: center !important;
+    gap: 4px !important;
+    margin-top: 4px !important;
+}
+
+.comment-like-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+}
+
+.comment-icon {
+    font-size: 16px !important;
+    color: var(--color-text-secondary) !important;
+    transition: color var(--transition-fast);
+}
+
+.comment-icon.active {
+    color: var(--color-text-white) !important;
+}
+
+.comment-like-btn:hover .comment-icon {
+    color: var(--color-text-white) !important;
+}
+
+.comment-count {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    min-width: 12px;
+}
+
+.comment-form {
+    gap: 12px !important;
+    align-items: flex-start !important;
+    margin-bottom: 16px !important;
+}
+
+.comment-input .MuiOutlinedInput-root {
+    color: var(--color-text-white);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.comment-input .MuiOutlinedInput-root fieldset {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.comment-input .MuiOutlinedInput-root:hover fieldset {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.comment-input .MuiOutlinedInput-root.Mui-focused fieldset {
+    border-color: var(--color-primary);
+}
+
+.comment-submit-btn {
+    white-space: nowrap !important;
+    text-transform: none !important;
 }
 
 /* Tablet / Mobile landscape (768px) */

@@ -3,6 +3,13 @@
  * Note: .category-btn base styles are in index.css to avoid duplication
  */
 
+.sidebar-link,
+.sidebar-link:visited,
+.sidebar-link:active {
+    text-decoration: none;
+    color: var(--color-text-primary);
+}
+
 .sidebar-stack {
     margin-top: var(--navbar-height);
     overflow-y: auto;

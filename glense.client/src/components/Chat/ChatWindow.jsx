@@ -34,10 +34,10 @@ const ChatWindow = ({ chat, onSend }) => {
     <div className="chat-window">
       {/* Chat Header */}
       <div className="chat-window-header">
-        <Avatar sx={{ bgcolor: stringToColor(chat.topic || chat.Topic || chat.name || ''), width: 36, height: 36, fontSize: 16 }}>
-          {(chat.topic || chat.Topic || chat.name || '?').charAt(0).toUpperCase()}
+        <Avatar sx={{ bgcolor: stringToColor(chat.displayName || chat.topic || ''), width: 36, height: 36, fontSize: 16 }}>
+          {(chat.displayName || chat.topic || '?').charAt(0).toUpperCase()}
         </Avatar>
-        <span className="chat-window-header-name">{chat.name || chat.Topic || chat.topic || chat.title || 'Chat'}</span>
+        <span className="chat-window-header-name">{chat.displayName || chat.topic || 'Chat'}</span>
       </div>
 
       {/* Chat Messages */}

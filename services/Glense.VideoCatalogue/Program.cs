@@ -1,8 +1,11 @@
 using Glense.VideoCatalogue.Data;
 using Glense.VideoCatalogue.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Linq;
+using System.Text;
 using Glense.VideoCatalogue.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +51,33 @@ builder.Services.AddHttpClient("AccountService", client =>
     client.Timeout = TimeSpan.FromSeconds(10);
 });
 
+// JWT Authentication
+var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "GlenseAccountService";
+var jwtAudience = builder.Configuration["JwtSettings:Audience"] ?? "GlenseApp";
+var jwtSecret = builder.Configuration["JwtSettings:SecretKey"]
+    ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? throw new InvalidOperationException("JWT secret key is not configured");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtIssuer,
+            ValidateAudience = true,
+            ValidAudience = jwtAudience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromSeconds(30)
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 // Health checks
 builder.Services.AddHealthChecks();
 
@@ -59,13 +89,17 @@ builder.Services.AddScoped<Upload>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

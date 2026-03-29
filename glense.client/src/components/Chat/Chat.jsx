@@ -2,29 +2,48 @@ import { useState, useEffect } from "react";
 import ChatWindow from "./ChatWindow";
 import ChatSidebar from "./ChatSidebar";
 import chatService from "../../utils/chatService";
+import { useAuth } from "../../context/AuthContext";
 import "../../css/Chat/Chat.css";
+
+function getOtherName(topic, myName) {
+    if (!topic) return 'Chat';
+    const parts = topic.split(':');
+    if (parts.length === 2) {
+        return parts[0] === myName ? parts[1] : parts[0];
+    }
+    return topic;
+}
 
 function Chat() {
     const [chats, setChats] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
-    const [displayName, setDisplayName] = useState(() => {
-        try { return localStorage.getItem('chat.displayName') || 'Alice'; } catch { return 'Alice'; }
-    });
+    const { user } = useAuth();
+    const displayName = user?.username || 'Anonymous';
     const localSender = 'user';
 
     const normalizeItems = (res) => {
         if (!res) return [];
         if (Array.isArray(res)) return res;
-        return res.items || res.Items || res.Items || res.Items || res.Items || res.Items || res.Items || res.Items || res.Items || res.Items || res.Items || res.Items || res.Items || res.Items || res.Items || res.items || [];
+        return res.items || res.Items || [];
+    };
+
+    const enrichChat = (chat) => {
+        const topic = chat.topic || chat.Topic || '';
+        return { ...chat, displayName: getOtherName(topic, displayName) };
     };
 
     const loadChats = async () => {
         try {
             const res = await chatService.getChats();
-            const items = normalizeItems(res);
+            const items = normalizeItems(res)
+                .filter(c => {
+                    const topic = c.topic || c.Topic || '';
+                    const parts = topic.split(':');
+                    return parts.includes(displayName);
+                })
+                .map(enrichChat);
             setChats(items);
             if (!selectedChat && items.length) {
-                // auto-select first
                 const first = items[0];
                 setSelectedChat(first);
                 await loadMessages(first);
@@ -51,7 +70,7 @@ function Chat() {
                     isMe: senderName === displayName
                 };
             });
-            setSelectedChat(prev => ({ ...chat, messages: msgs }));
+            setSelectedChat(prev => ({ ...enrichChat(chat), messages: msgs }));
         } catch (err) {
             console.error("getMessages", err);
         }
@@ -60,19 +79,19 @@ function Chat() {
     useEffect(() => { loadChats(); }, []);
 
     const handleSelect = async (chat) => {
-        setSelectedChat(chat);
+        setSelectedChat(enrichChat(chat));
         await loadMessages(chat);
     };
 
-    const handleCreate = async (topic) => {
+    const handleCreate = async (otherUsername) => {
         try {
+            const topic = `${displayName}:${otherUsername}`;
             const created = await chatService.createChat({ topic });
-            // reload chats and select created
             await loadChats();
             const id = created?.id || created?.Id || created?.chatId;
             if (id) {
-                const c = (await chatService.getChat(id));
-                handleSelect(c || { id });
+                const c = await chatService.getChat(id);
+                handleSelect(c || { id, topic });
             }
         } catch (err) {
             console.error('createChat', err);
@@ -103,7 +122,7 @@ function Chat() {
     };
 
     return (
-        <div className="chat-container">  
+        <div className="chat-container">
             <ChatSidebar chats={chats} onSelectChat={handleSelect} onCreate={handleCreate} />
             <ChatWindow chat={selectedChat || { profileImage: '', name: '', messages: [] }} onSend={handleSend} />
         </div>

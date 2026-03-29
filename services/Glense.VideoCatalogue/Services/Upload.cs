@@ -17,7 +17,7 @@ namespace Glense.VideoCatalogue.Services;
 			_db = db;
 		}
 
-		public async Task<Videos> UploadFileAsync(IFormFile file, string? title, string? description, Guid uploaderId, IFormFile? thumbnail = null, CancellationToken cancellationToken = default)
+		public async Task<Videos> UploadFileAsync(IFormFile file, string? title, string? description, Guid uploaderId, IFormFile? thumbnail = null, string? category = null, CancellationToken cancellationToken = default)
 		{
 			if (file == null) throw new ArgumentNullException(nameof(file));
 
@@ -42,7 +42,8 @@ namespace Glense.VideoCatalogue.Services;
 				VideoUrl = storedName,
 				ViewCount = 0,
 				LikeCount = 0,
-				DislikeCount = 0
+				DislikeCount = 0,
+				Category = category
 			};
 
 			_db.Videos.Add(video);

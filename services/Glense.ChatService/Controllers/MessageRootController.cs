@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 namespace Glense.ChatService.Controllers;
 
 [ApiController]
-[AllowAnonymous]
 [Authorize]
 [Route("api/messages")]
 public class MessageRootController : ControllerBase

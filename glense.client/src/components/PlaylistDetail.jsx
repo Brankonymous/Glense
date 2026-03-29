@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Grid, Button, Card, CardMedia, CardContent } from "@mui/material";
+import { Box, Typography, Grid, Button, Stack, Snackbar } from "@mui/material";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { getPlaylistVideos, removeVideoFromPlaylist } from "../utils/videoApi";
+import "../css/PlaylistDetail.css";
 
 function PlaylistDetail() {
   const { id } = useParams();
@@ -14,31 +16,56 @@ function PlaylistDetail() {
     return () => { mounted = false; };
   }, [id]);
 
+  const [snackbar, setSnackbar] = useState("");
+
   const handleRemove = async (videoId) => {
     try {
       await removeVideoFromPlaylist(id, videoId);
       setVideos(prev => prev.filter(v => String(v.id) !== String(videoId)));
-    } catch (e) { alert('Failed to remove'); }
+      setSnackbar("Video removed");
+    } catch { setSnackbar("Failed to remove video"); }
   };
 
   return (
-    <Box sx={{ p:3 }}>
-      <Typography variant="h5">Playlist</Typography>
-      <Grid container spacing={2} sx={{ mt:2 }}>
+    <Box className="playlist-detail-page">
+      <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 1 }}>
+        <Link to="/playlists" className="playlist-back-link">&larr; Back to playlists</Link>
+        <Typography variant="h5" className="playlist-detail-title">Playlist</Typography>
+      </Stack>
+
+      {videos.length === 0 && (
+        <Typography className="playlist-detail-empty">No videos in this playlist yet.</Typography>
+      )}
+
+      <Grid container spacing={2} sx={{ mt: 1 }}>
         {videos.map(v => (
           <Grid item xs={12} sm={6} md={4} key={v.id}>
-            <Card>
+            <Box className="playlist-video-card">
               <Link to={`/video/${v.id}`}>
-                <CardMedia image={v.thumbnailUrl || '/'} sx={{ height:140 }} />
+                <Box
+                  className="playlist-video-thumb"
+                  sx={{ backgroundImage: `url(${v.thumbnailUrl || ""})` }}
+                />
               </Link>
-              <CardContent>
-                <Typography variant="subtitle1">{v.title}</Typography>
-                <Button size="small" onClick={() => handleRemove(v.id)}>Remove</Button>
-              </CardContent>
-            </Card>
+              <Stack className="playlist-video-info">
+                <Link to={`/video/${v.id}`} className="playlist-video-link">
+                  <Typography className="playlist-video-title">{v.title}</Typography>
+                </Link>
+                <Button
+                  size="small"
+                  startIcon={<DeleteOutlineIcon />}
+                  onClick={() => handleRemove(v.id)}
+                  className="playlist-video-remove"
+                >
+                  Remove
+                </Button>
+              </Stack>
+            </Box>
           </Grid>
         ))}
       </Grid>
+
+      <Snackbar open={!!snackbar} autoHideDuration={3000} onClose={() => setSnackbar("")} message={snackbar} />
     </Box>
   );
 }
