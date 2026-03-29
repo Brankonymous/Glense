@@ -32,6 +32,9 @@ public class Comment
     [Column("like_count")]
     public int LikeCount { get; set; }
 
+    [Column("dislike_count")]
+    public int DislikeCount { get; set; }
+
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 

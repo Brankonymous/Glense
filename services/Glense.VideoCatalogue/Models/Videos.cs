@@ -45,6 +45,10 @@ public class Videos
     [Column("dislike_count")]
     public int DislikeCount { get; set; }
 
+    [MaxLength(50)]
+    [Column("category")]
+    public string? Category { get; set; }
+
     public ICollection<PlaylistVideos>? PlaylistVideos { get; set; }
     public ICollection<VideoLikes>? VideoLikes { get; set; }
 }

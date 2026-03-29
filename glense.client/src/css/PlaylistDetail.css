@@ -1,0 +1,73 @@
+.playlist-detail-page {
+  padding: 24px;
+  min-height: calc(100vh - var(--navbar-height));
+}
+
+.playlist-back-link {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-base);
+  transition: color var(--transition-fast);
+}
+
+.playlist-back-link:hover {
+  color: var(--color-text-white);
+}
+
+.playlist-detail-title {
+  color: var(--color-text-white) !important;
+  font-weight: bold !important;
+}
+
+.playlist-detail-empty {
+  color: var(--color-text-secondary) !important;
+  margin-top: 16px !important;
+}
+
+.playlist-video-card {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color var(--transition-fast);
+}
+
+.playlist-video-card:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.playlist-video-thumb {
+  height: 160px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--color-bg-secondary);
+}
+
+.playlist-video-info {
+  padding: 12px;
+}
+
+.playlist-video-link {
+  text-decoration: none;
+}
+
+.playlist-video-title {
+  color: var(--color-text-white) !important;
+  font-weight: bold !important;
+  font-size: var(--font-size-base) !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playlist-video-remove {
+  color: var(--color-text-secondary) !important;
+  text-transform: none !important;
+  justify-content: flex-start !important;
+  padding: 4px 0 !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+.playlist-video-remove:hover {
+  color: var(--color-accent-red) !important;
+}

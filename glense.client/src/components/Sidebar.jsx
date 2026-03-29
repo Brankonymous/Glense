@@ -1,4 +1,6 @@
 import { Stack } from "@mui/material";
+import { Link } from "react-router-dom";
+import PlaylistPlayIcon from "@mui/icons-material/PlaylistPlay";
 import { categories } from "../utils/constants";
 
 import "../css/Sidebar.css";
@@ -6,6 +8,10 @@ import "../css/Sidebar.css";
 function Sidebar({ setSelectedCategory }) {
     return (
         <Stack className='sidebar-stack'>
+            <Link to="/playlists" className='category-btn sidebar-link'>
+                <span><PlaylistPlayIcon /></span>
+                <span>Playlists</span>
+            </Link>
             {categories.map((category) => (
                 <button
                     key={category.name}

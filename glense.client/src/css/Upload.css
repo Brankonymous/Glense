@@ -70,6 +70,27 @@
   border-radius: 8px;
 }
 
+.upload-category-select .MuiOutlinedInput-root {
+  color: var(--color-text-white);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.upload-category-select .MuiOutlinedInput-root fieldset {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.upload-category-select .MuiOutlinedInput-root:hover fieldset {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.upload-category-select .MuiInputLabel-root {
+  color: var(--color-text-secondary);
+}
+
+.upload-category-select .MuiSvgIcon-root {
+  color: var(--color-text-secondary);
+}
+
 .upload-form .MuiButton-contained {
   background-color: var(--color-primary);
   text-transform: none;

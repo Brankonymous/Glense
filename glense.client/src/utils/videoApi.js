@@ -1,5 +1,10 @@
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5050';
 
+function authHeaders() {
+  const token = localStorage.getItem('glense_auth_token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 async function handleRes(res) {
   if (!res.ok) {
     const txt = await res.text();
@@ -18,30 +23,36 @@ export async function getVideo(id) {
   return handleRes(res);
 }
 
-export async function uploadVideo(file, title, description, uploaderId = 0, thumbnail = null) {
+export async function updateVideoCategory(videoId, category) {
+  const res = await fetch(`${BASE}/api/videos/${videoId}/category`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ category: category || null }),
+  });
+  return handleRes(res);
+}
+
+export async function uploadVideo(file, title, description, thumbnail = null, category = null) {
   const fd = new FormData();
   fd.append('file', file);
   if (title) fd.append('title', title);
   if (description) fd.append('description', description);
   if (thumbnail) fd.append('thumbnail', thumbnail);
+  if (category) fd.append('category', category);
 
-  const token = localStorage.getItem('glense_auth_token');
   const res = await fetch(`${BASE}/api/videos/upload`, {
     method: 'POST',
     body: fd,
-    headers: {
-      ...(uploaderId ? { 'X-Uploader-Id': String(uploaderId) } : {}),
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-    },
+    headers: authHeaders(),
   });
 
   return handleRes(res);
 }
 
-export async function createPlaylist(name, description, creatorId = 0) {
+export async function createPlaylist(name, description) {
   const res = await fetch(`${BASE}/api/playlists`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(creatorId ? { 'X-Creator-Id': String(creatorId) } : {}) },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ name, description }),
   });
   return handleRes(res);
@@ -50,7 +61,7 @@ export async function createPlaylist(name, description, creatorId = 0) {
 export async function addVideoToPlaylist(playlistId, videoId) {
   const res = await fetch(`${BASE}/api/playlistvideos`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ playlistId, videoId }),
   });
   return handleRes(res);
@@ -64,34 +75,34 @@ export async function getPlaylistVideos(playlistId) {
 export async function removeVideoFromPlaylist(playlistId, videoId) {
   const res = await fetch(`${BASE}/api/playlistvideos`, {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ playlistId, videoId }),
   });
   return handleRes(res);
 }
 
-export async function likeVideo(videoId, isLiked = true, userId = 0) {
+export async function likeVideo(videoId, isLiked = true) {
   const res = await fetch(`${BASE}/api/videolikes`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(userId ? { 'X-User-Id': String(userId) } : {}) },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ videoId, isLiked }),
   });
   return handleRes(res);
 }
 
-export async function subscribeTo(subscribedToId, userId = 0) {
+export async function subscribeTo(subscribedToId) {
   const res = await fetch(`${BASE}/api/subscriptions`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(userId ? { 'X-User-Id': String(userId) } : {}) },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ subscribedToId }),
   });
   return handleRes(res);
 }
 
-export async function unsubscribeFrom(subscribedToId, userId = 0) {
+export async function unsubscribeFrom(subscribedToId) {
   const res = await fetch(`${BASE}/api/subscriptions`, {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', ...(userId ? { 'X-User-Id': String(userId) } : {}) },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ subscribedToId }),
   });
   return handleRes(res);
@@ -108,13 +119,21 @@ export async function getComments(videoId) {
   return handleRes(res);
 }
 
-export async function postComment(videoId, content, userId = '', username = 'Anonymous') {
+export async function likeComment(videoId, commentId, isLiked) {
+  const res = await fetch(`${BASE}/api/videos/${videoId}/comments/${commentId}/like`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ isLiked }),
+  });
+  return handleRes(res);
+}
+
+export async function postComment(videoId, content) {
   const res = await fetch(`${BASE}/api/videos/${videoId}/comments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(userId ? { 'X-User-Id': String(userId) } : {}),
-      ...(username ? { 'X-Username': username } : {}),
+      ...authHeaders(),
     },
     body: JSON.stringify({ content }),
   });
@@ -142,4 +161,6 @@ export default {
   getSubscriptions,
   getComments,
   postComment,
+  likeComment,
+  updateVideoCategory,
 };

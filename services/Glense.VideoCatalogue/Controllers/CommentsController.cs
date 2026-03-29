@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Glense.VideoCatalogue.Data;
@@ -17,6 +19,19 @@ public class CommentsController : ControllerBase
         _db = db;
     }
 
+    private Guid GetCurrentUserId()
+    {
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(claim, out var id) ? id : Guid.Empty;
+    }
+
+    private string GetCurrentUsername()
+    {
+        return User.FindFirst(ClaimTypes.Name)?.Value
+            ?? User.FindFirst("unique_name")?.Value
+            ?? "Anonymous";
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetComments(Guid videoId)
     {
@@ -31,6 +46,7 @@ public class CommentsController : ControllerBase
                 Username = c.Username,
                 Content = c.Content,
                 LikeCount = c.LikeCount,
+                DislikeCount = c.DislikeCount,
                 CreatedAt = c.CreatedAt
             })
             .ToListAsync();
@@ -38,14 +54,16 @@ public class CommentsController : ControllerBase
         return Ok(comments);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateComment(
         Guid videoId,
-        [FromBody] CreateCommentRequestDTO dto,
-        [FromHeader(Name = "X-User-Id")] Guid userId = default,
-        [FromHeader(Name = "X-Username")] string username = "Anonymous")
+        [FromBody] CreateCommentRequestDTO dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var userId = GetCurrentUserId();
+        var username = GetCurrentUsername();
 
         var video = await _db.Videos.FindAsync(videoId);
         if (video == null) return NotFound("Video not found");
@@ -72,17 +90,51 @@ public class CommentsController : ControllerBase
             Username = comment.Username,
             Content = comment.Content,
             LikeCount = comment.LikeCount,
+            DislikeCount = comment.DislikeCount,
             CreatedAt = comment.CreatedAt
         };
 
         return Created($"/api/videos/{videoId}/comments", resp);
     }
 
+    [Authorize]
+    [HttpPost("{commentId:guid}/like")]
+    public async Task<IActionResult> LikeComment(Guid videoId, Guid commentId, [FromBody] CommentLikeRequestDTO dto)
+    {
+        var comment = await _db.Comments.FirstOrDefaultAsync(c => c.Id == commentId && c.VideoId == videoId);
+        if (comment == null) return NotFound();
+
+        var userId = GetCurrentUserId();
+        var existing = await _db.CommentLikes.FirstOrDefaultAsync(cl => cl.UserId == userId && cl.CommentId == commentId);
+
+        if (existing == null)
+        {
+            _db.CommentLikes.Add(new CommentLike { UserId = userId, CommentId = commentId, IsLiked = dto.IsLiked });
+            if (dto.IsLiked) comment.LikeCount++;
+            else comment.DislikeCount++;
+        }
+        else if (existing.IsLiked != dto.IsLiked)
+        {
+            existing.IsLiked = dto.IsLiked;
+            if (dto.IsLiked) { comment.LikeCount++; comment.DislikeCount = Math.Max(0, comment.DislikeCount - 1); }
+            else { comment.DislikeCount++; comment.LikeCount = Math.Max(0, comment.LikeCount - 1); }
+        }
+
+        await _db.SaveChangesAsync();
+
+        return Ok(new { likeCount = comment.LikeCount, dislikeCount = comment.DislikeCount });
+    }
+
+    [Authorize]
     [HttpDelete("{commentId:guid}")]
     public async Task<IActionResult> DeleteComment(Guid videoId, Guid commentId)
     {
         var comment = await _db.Comments.FirstOrDefaultAsync(c => c.Id == commentId && c.VideoId == videoId);
         if (comment == null) return NotFound();
+
+        var currentUserId = GetCurrentUserId();
+        if (comment.UserId != currentUserId)
+            return Forbid();
 
         _db.Comments.Remove(comment);
         await _db.SaveChangesAsync();

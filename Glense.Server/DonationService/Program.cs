@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using DonationService.Data;
 using DonationService.Services;
 
@@ -41,6 +44,33 @@ builder.Services.AddHttpClient("AccountService", client =>
 
 builder.Services.AddScoped<IAccountServiceClient, AccountServiceClient>();
 
+// JWT Authentication
+var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "GlenseAccountService";
+var jwtAudience = builder.Configuration["JwtSettings:Audience"] ?? "GlenseApp";
+var jwtSecret = builder.Configuration["JwtSettings:SecretKey"]
+    ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? throw new InvalidOperationException("JWT secret key is not configured");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtIssuer,
+            ValidateAudience = true,
+            ValidAudience = jwtAudience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromSeconds(30)
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 // Health check endpoint for container orchestration
 builder.Services.AddHealthChecks();
 
@@ -62,13 +92,17 @@ var app = builder.Build();
 app.UseCors();
 
 // Swagger UI available at root path for easy API exploration
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Donation Microservice API v1");
-    c.RoutePrefix = string.Empty;
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Donation Microservice API v1");
+        c.RoutePrefix = string.Empty;
+    });
+}
 
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");

@@ -20,4 +20,11 @@ public class UploadResponseDTO
     public int ViewCount { get; set; }
     public int LikeCount { get; set; }
     public int DislikeCount { get; set; }
+    public string? Category { get; set; }
+}
+
+public class UpdateCategoryDTO
+{
+    [MaxLength(50)]
+    public string? Category { get; set; }
 }

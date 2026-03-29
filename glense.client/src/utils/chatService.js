@@ -12,10 +12,15 @@ function normalizeBase(raw) {
 const BASE = normalizeBase(RAW_BASE);
 try { console.info('ChatService BASE =', BASE); } catch {}
 
+function authHeaders() {
+  const token = localStorage.getItem('glense_auth_token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 async function request(path, opts = {}) {
   try {
     const res = await fetch(`${BASE}${path}`, {
-      headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+      headers: { 'Content-Type': 'application/json', ...authHeaders(), ...(opts.headers || {}) },
       ...opts,
     });
     if (!res.ok) {

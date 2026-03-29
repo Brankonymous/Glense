@@ -23,6 +23,34 @@ echo "Using container runtime: $CONTAINER_CMD"
 
 PG_VIDEO=${PG_VIDEO:-glense_postgres_video}
 
+# ── Clean all databases before seeding ──
+echo "=== Cleaning all databases ==="
+
+clean_db() {
+    local container=$1 db=$2
+    echo "  Cleaning $db ($container)..."
+    $CONTAINER_CMD exec -i "$container" psql -U glense -d "$db" -c "
+        DO \$\$
+        DECLARE r RECORD;
+        BEGIN
+            FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+                EXECUTE 'TRUNCATE TABLE \"' || r.tablename || '\" CASCADE';
+            END LOOP;
+        END \$\$;
+    " > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "    Done"
+    else
+        echo "    WARNING: Failed to clean $db (is $container running?)"
+    fi
+}
+
+clean_db "glense_postgres_account" "glense_account"
+clean_db "glense_postgres_video"   "glense_video"
+clean_db "glense_postgres_donation" "glense_donation"
+clean_db "glense_postgres_chat"    "glense_chat"
+
+echo ""
 echo "=== Seeding test users ==="
 
 register_or_find() {
@@ -86,12 +114,8 @@ send_donation "irena"  "$IRENA_ID"  "keki"   "$KEKI_ID"   15 "Collab soon?"
 echo ""
 echo "=== Seeding videos & comments ==="
 
-VIDEO_COUNT=$(curl -s "$VIDEO/api/videos" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null)
-if [ "$VIDEO_COUNT" -gt 0 ] 2>/dev/null; then
-    echo "  Videos already seeded ($VIDEO_COUNT found), skipping"
-else
-    TMPFILE=$(mktemp)
-    python3 - "$KEKI_ID" "$IRENA_ID" "$BRANKO_ID" > "$TMPFILE" << 'PYEOF'
+TMPFILE=$(mktemp)
+python3 - "$KEKI_ID" "$IRENA_ID" "$BRANKO_ID" > "$TMPFILE" << 'PYEOF'
 import uuid, random, sys
 random.seed(42)
 
@@ -99,14 +123,14 @@ uids = sys.argv[1:4]
 names = ['keki', 'irena', 'branko']
 
 videos = [
-    ('Microservices Explained in 5 Minutes', 'Quick overview of microservice architecture patterns', 'lL_j7ilk7rc', 320000, 15000, 200),
-    ('Docker in 100 Seconds', 'Everything you need to know about Docker, fast', 'Gjnup-PuquQ', 890000, 42000, 300),
-    ('How Do APIs Work?', 'APIs explained with real-world examples', 's7wmiS2mSXY', 234175, 12300, 40),
-    ('Build and Deploy 5 JavaScript and React API Projects', 'Full course covering 5 real-world API projects', 'GDa8kZLNhJ4', 54321, 4560, 10),
-    ('.NET 8 Full Course for Beginners', 'Complete beginner guide to .NET 8 and C#', 'AhAxLiGC7Pc', 98000, 5600, 30),
-    ('Node.js Ultimate Beginners Guide', 'Learn Node.js from scratch in this crash course', 'ENrzD9HAZK4', 445000, 21000, 1800),
-    ('PostgreSQL Tutorial for Beginners', 'Learn PostgreSQL from the ground up', 'SpfIwlAYaKk', 187000, 9800, 120),
-    ('Git and GitHub for Beginners', 'Full crash course on Git and GitHub', 'RGOj5yH7evk', 150000, 8700, 95),
+    ('Microservices Explained in 5 Minutes', 'Quick overview of microservice architecture patterns', 'lL_j7ilk7rc', 320000, 15000, 200, 'Education'),
+    ('Docker in 100 Seconds', 'Everything you need to know about Docker, fast', 'Gjnup-PuquQ', 890000, 42000, 300, 'Education'),
+    ('How Do APIs Work?', 'APIs explained with real-world examples', 's7wmiS2mSXY', 234175, 12300, 40, 'Education'),
+    ('Build and Deploy 5 JavaScript and React API Projects', 'Full course covering 5 real-world API projects', 'GDa8kZLNhJ4', 54321, 4560, 10, 'Education'),
+    ('.NET 8 Full Course for Beginners', 'Complete beginner guide to .NET 8 and C#', 'AhAxLiGC7Pc', 98000, 5600, 30, 'Education'),
+    ('Node.js Ultimate Beginners Guide', 'Learn Node.js from scratch in this crash course', 'ENrzD9HAZK4', 445000, 21000, 1800, 'Podcast'),
+    ('PostgreSQL Tutorial for Beginners', 'Learn PostgreSQL from the ground up', 'SpfIwlAYaKk', 187000, 9800, 120, 'Education'),
+    ('Git and GitHub for Beginners', 'Full crash course on Git and GitHub', 'RGOj5yH7evk', 150000, 8700, 95, 'Education'),
 ]
 
 comments_list = [
@@ -125,14 +149,14 @@ comments_list = [
 ]
 
 video_ids = []
-for i, (title, desc, ytid, views, likes, dislikes) in enumerate(videos):
+for i, (title, desc, ytid, views, likes, dislikes, cat) in enumerate(videos):
     vid = str(uuid.uuid4())
     video_ids.append(vid)
     uid = uids[i % 3]
     days = i * 7 + 1
-    print(f'INSERT INTO "Videos" (id, title, description, upload_date, uploader_id, thumbnail_url, video_url, view_count, like_count, dislike_count) '
+    print(f'INSERT INTO "Videos" (id, title, description, upload_date, uploader_id, thumbnail_url, video_url, view_count, like_count, dislike_count, category) '
           f"VALUES ('{vid}', '{title}', '{desc}', NOW() - interval '{days} days', '{uid}', "
-          f"'https://img.youtube.com/vi/{ytid}/hqdefault.jpg', 'https://www.youtube.com/watch?v={ytid}', {views}, {likes}, {dislikes});")
+          f"'https://img.youtube.com/vi/{ytid}/hqdefault.jpg', 'https://www.youtube.com/watch?v={ytid}', {views}, {likes}, {dislikes}, '{cat}');")
 
 for vid in video_ids:
     for j in range(3):
@@ -145,14 +169,13 @@ for vid in video_ids:
               f"VALUES ('{cid}', '{vid}', '{uids[ni]}', '{names[ni]}', '{comments_list[ci]}', {lc}, NOW() - interval '{hrs} hours');")
 PYEOF
 
-    cat "$TMPFILE" | $CONTAINER_CMD exec -i "$PG_VIDEO" psql -U glense -d glense_video > /dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        echo "  Inserted 8 videos with comments"
-    else
-        echo "  ERROR: Failed to insert videos (is $PG_VIDEO running?)"
-    fi
-    rm -f "$TMPFILE"
+cat "$TMPFILE" | $CONTAINER_CMD exec -i "$PG_VIDEO" psql -U glense -d glense_video > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    echo "  Inserted 8 videos with comments"
+else
+    echo "  ERROR: Failed to insert videos (is $PG_VIDEO running?)"
 fi
+rm -f "$TMPFILE"
 
 echo ""
 echo "=== Done! ==="

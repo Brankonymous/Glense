@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
 import { useState, useRef } from "react";
-import { Box, TextField, Button, Typography, Stack } from "@mui/material";
+import { Box, TextField, Button, Typography, Stack, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import ImageIcon from '@mui/icons-material/Image';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { uploadVideo } from "../utils/videoApi";
+import { categories } from "../utils/constants";
 
 import "../css/Upload.css";
 
@@ -20,6 +21,7 @@ function Upload() {
   const [thumbPreview, setThumbPreview] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("error");
@@ -57,7 +59,7 @@ function Upload() {
     setLoading(true);
     setMessage("");
     try {
-      const resp = await uploadVideo(file, title, description, user?.id || '', thumbnail);
+      const resp = await uploadVideo(file, title, description, thumbnail, category || null);
       setMessage("Upload successful!");
       setMessageType("success");
       if (resp?.id) {
@@ -112,6 +114,16 @@ function Upload() {
 
         <TextField label="Title" value={title} onChange={(e) => setTitle(e.target.value)} fullWidth margin="normal" />
         <TextField label="Description" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline rows={4} margin="normal" />
+
+        <FormControl fullWidth margin="normal" className="upload-category-select">
+          <InputLabel>Category</InputLabel>
+          <Select value={category} onChange={(e) => setCategory(e.target.value)} label="Category">
+            <MenuItem value="">None</MenuItem>
+            {categories.filter(c => c.name !== "New Videos").map(c => (
+              <MenuItem key={c.name} value={c.name}>{c.name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         <Button variant="contained" color="primary" type="submit" disabled={loading || !file || !thumbnail}>
           {loading ? "Uploading..." : "Upload"}

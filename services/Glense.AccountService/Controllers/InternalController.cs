@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Glense.AccountService.DTOs;
 using Glense.AccountService.Services;
@@ -6,6 +7,7 @@ namespace Glense.AccountService.Controllers
 {
     [ApiController]
     [Route("api/internal")]
+    [Authorize]
     public class InternalController : ControllerBase
     {
         private readonly INotificationService _notificationService;

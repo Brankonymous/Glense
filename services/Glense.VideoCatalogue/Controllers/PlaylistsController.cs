@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Glense.VideoCatalogue.Data;
 using Glense.VideoCatalogue.Models;
@@ -16,11 +18,19 @@ namespace Glense.VideoCatalogue.Controllers;
             _db = db;
         }
 
+        private Guid GetCurrentUserId()
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.TryParse(claim, out var id) ? id : Guid.Empty;
+        }
+
+        [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] DTOs.CreatePlaylistRequestDTO dto, [FromHeader(Name = "X-Creator-Id")] Guid creatorId = default)
+        public async Task<IActionResult> Create([FromBody] DTOs.CreatePlaylistRequestDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            var creatorId = GetCurrentUserId();
             var playlist = new Playlists
             {
                 Id = System.Guid.NewGuid(),

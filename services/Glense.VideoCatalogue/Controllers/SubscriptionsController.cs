@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Glense.VideoCatalogue.Data;
 using Glense.VideoCatalogue.Models;
@@ -16,11 +18,19 @@ namespace Glense.VideoCatalogue.Controllers;
             _db = db;
         }
 
+        private Guid GetCurrentUserId()
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.TryParse(claim, out var id) ? id : Guid.Empty;
+        }
+
+        [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Subscribe([FromBody] DTOs.SubscribeRequestDTO dto, [FromHeader(Name = "X-User-Id")] Guid subscriberId = default)
+        public async Task<IActionResult> Subscribe([FromBody] DTOs.SubscribeRequestDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            var subscriberId = GetCurrentUserId();
             var exists = await _db.Subscriptions.AnyAsync(s => s.SubscriberId == subscriberId && s.SubscribedToId == dto.SubscribedToId);
             if (exists) return Conflict("Already subscribed");
 
@@ -32,9 +42,11 @@ namespace Glense.VideoCatalogue.Controllers;
             return Created(string.Empty, resp);
         }
 
+        [Authorize]
         [HttpDelete]
-        public async Task<IActionResult> Unsubscribe([FromBody] DTOs.SubscribeRequestDTO dto, [FromHeader(Name = "X-User-Id")] Guid subscriberId = default)
+        public async Task<IActionResult> Unsubscribe([FromBody] DTOs.SubscribeRequestDTO dto)
         {
+            var subscriberId = GetCurrentUserId();
             var s = await _db.Subscriptions.FirstOrDefaultAsync(x => x.SubscriberId == subscriberId && x.SubscribedToId == dto.SubscribedToId);
             if (s == null) return NotFound();
             _db.Subscriptions.Remove(s);

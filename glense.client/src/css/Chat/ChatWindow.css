@@ -17,6 +17,7 @@
     border-bottom: 1px solid var(--chat-border) !important;
     display: flex !important;
     align-items: center !important;
+    gap: 12px !important;
     flex-shrink: 0;
 }
 

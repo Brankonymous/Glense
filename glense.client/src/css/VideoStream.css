@@ -76,19 +76,67 @@
     margin-left: 5px !important;
 }
 
+.video-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap;
+}
+
 .like-dislike {
-    opacity: 0.7 !important;
     background-color: var(--color-bg-overlay) !important;
-    padding: var(--spacing-sm) !important;
+    padding: 6px 12px !important;
     border-radius: var(--radius-2xl) !important;
     display: flex !important;
     align-items: center !important;
-    gap: 5px !important;
+    gap: 6px !important;
+    color: var(--color-text-secondary) !important;
+    font-size: var(--font-size-base) !important;
+}
+
+.like-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+}
+
+.like-separator {
+    opacity: 0.4;
+    margin: 0 2px;
 }
 
 .thumb-icon {
     font-size: 20px !important;
     color: var(--color-text-secondary) !important;
+    transition: color var(--transition-fast);
+}
+
+.thumb-icon.active {
+    color: var(--color-text-white) !important;
+}
+
+.like-btn:hover .thumb-icon {
+    color: var(--color-text-white) !important;
+}
+
+.playlist-add-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.playlist-add-btn {
+    color: var(--color-text-secondary) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    text-transform: none !important;
+    white-space: nowrap;
+}
+
+.playlist-add-btn:hover {
+    border-color: rgba(255, 255, 255, 0.4) !important;
 }
 
 .description-container {
@@ -96,6 +144,40 @@
     border-radius: var(--radius-lg) !important;
     padding: 15px !important;
     margin-top: var(--spacing-md) !important;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.description-container:hover:not(.expanded) {
+    background-color: var(--color-bg-overlay-hover) !important;
+}
+
+.description-container.expanded {
+    cursor: default;
+}
+
+.video-category-badge {
+    display: inline-block !important;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-text-white) !important;
+    padding: 2px 10px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm) !important;
+    margin: 4px 0 !important;
+}
+
+.category-edit-row {
+    margin-top: var(--spacing-sm);
+}
+
+.category-edit-btn {
+    color: var(--color-text-secondary) !important;
+    text-transform: none !important;
+    font-size: var(--font-size-sm) !important;
+}
+
+.category-edit-btn:hover {
+    color: var(--color-text-white) !important;
 }
 
 .description-details {

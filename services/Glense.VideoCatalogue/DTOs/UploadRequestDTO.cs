@@ -14,4 +14,7 @@ public class UploadRequestDTO
 	public string? Description { get; set; }
 
 	public IFormFile? Thumbnail { get; set; }
+
+	[MaxLength(50)]
+	public string? Category { get; set; }
 }
