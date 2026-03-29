@@ -51,7 +51,7 @@ function VideoStream() {
       <Box className="video-player-container">
         <Box className="video-player-box">
             <ReactPlayer 
-              url={video?.videoUrl || (id && id.includes('-') ? undefined : `https://www.youtube.com/watch?v=${id}`)}
+              url={video?.videoUrl?.startsWith('http') ? video.videoUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:5050'}/api/videos/${id}/stream`}
               controls
               width="100%"
               height="100%"

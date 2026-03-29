@@ -1,11 +1,27 @@
 #!/usr/bin/env bash
 # Seed all test data for local development
-# Usage: ./scripts/seed.sh [ACCOUNT_URL] [DONATION_URL] [VIDEO_URL]
+# Usage: ./scripts/seed.sh [GATEWAY_URL]
+# Examples:
+#   ./scripts/seed.sh                          # defaults to http://localhost:5050
+#   ./scripts/seed.sh http://localhost:5050     # explicit gateway URL
 
-ACCOUNT=${1:-http://localhost:5001}
-DONATION=${2:-http://localhost:5100}
-VIDEO=${3:-http://localhost:5002}
-PG_VIDEO=${DOCKER_PG_VIDEO:-glense_postgres_video}
+GATEWAY=${1:-http://localhost:5050}
+ACCOUNT=$GATEWAY
+DONATION=$GATEWAY
+VIDEO=$GATEWAY
+
+# Auto-detect container runtime (podman or docker)
+if command -v podman &> /dev/null; then
+    CONTAINER_CMD=podman
+elif command -v docker &> /dev/null; then
+    CONTAINER_CMD=docker
+else
+    echo "ERROR: Neither podman nor docker found in PATH"
+    exit 1
+fi
+echo "Using container runtime: $CONTAINER_CMD"
+
+PG_VIDEO=${PG_VIDEO:-glense_postgres_video}
 
 echo "=== Seeding test users ==="
 
@@ -89,7 +105,7 @@ videos = [
     ('Build and Deploy 5 JavaScript and React API Projects', 'Full course covering 5 real-world API projects', 'GDa8kZLNhJ4', 54321, 4560, 10),
     ('.NET 8 Full Course for Beginners', 'Complete beginner guide to .NET 8 and C#', 'AhAxLiGC7Pc', 98000, 5600, 30),
     ('Node.js Ultimate Beginners Guide', 'Learn Node.js from scratch in this crash course', 'ENrzD9HAZK4', 445000, 21000, 1800),
-    ('PostgreSQL Tutorial for Beginners', 'Learn PostgreSQL from the ground up', 'qw--VYLpSFk', 187000, 9800, 120),
+    ('PostgreSQL Tutorial for Beginners', 'Learn PostgreSQL from the ground up', 'SpfIwlAYaKk', 187000, 9800, 120),
     ('Git and GitHub for Beginners', 'Full crash course on Git and GitHub', 'RGOj5yH7evk', 150000, 8700, 95),
 ]
 
@@ -129,7 +145,7 @@ for vid in video_ids:
               f"VALUES ('{cid}', '{vid}', '{uids[ni]}', '{names[ni]}', '{comments_list[ci]}', {lc}, NOW() - interval '{hrs} hours');")
 PYEOF
 
-    cat "$TMPFILE" | docker exec -i "$PG_VIDEO" psql -U glense -d glense_video > /dev/null 2>&1
+    cat "$TMPFILE" | $CONTAINER_CMD exec -i "$PG_VIDEO" psql -U glense -d glense_video > /dev/null 2>&1
     if [ $? -eq 0 ]; then
         echo "  Inserted 8 videos with comments"
     else

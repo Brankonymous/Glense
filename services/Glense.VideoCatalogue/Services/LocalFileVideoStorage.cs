@@ -75,4 +75,10 @@ namespace Glense.VideoCatalogue.Services;
             // Note: callers are responsible for disposing the stream
             return Task.FromResult<(Stream, long)>((fs, total));
         }
+
+        public string? GetPhysicalPath(string storedName)
+        {
+            var path = Path.Combine(_basePath, storedName);
+            return File.Exists(path) ? path : null;
+        }
     }

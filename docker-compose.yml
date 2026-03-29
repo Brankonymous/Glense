@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL for Account Service
   postgres_account:
@@ -144,6 +142,26 @@ services:
       - glense_network
     restart: unless-stopped
 
+  # API Gateway (YARP reverse proxy)
+  gateway:
+    build:
+      context: ./Glense.Server
+      dockerfile: Dockerfile
+    container_name: glense_gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:5050
+    ports:
+      - "5050:5050"
+    depends_on:
+      - account_service
+      - video_service
+      - donation_service
+      - chat_service
+    networks:
+      - glense_network
+    restart: unless-stopped
+
   # Frontend (existing React app)
   frontend:
     build:
@@ -153,14 +171,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - VITE_ACCOUNT_API_URL=http://localhost:5001
-      - VITE_VIDEO_API_URL=http://localhost:5002
-      - VITE_DONATION_API_URL=http://localhost:5003
-      - VITE_CHAT_API_URL=http://localhost:5004
+      - VITE_API_URL=http://localhost:5050
     networks:
       - glense_network
     depends_on:
-      - account_service
+      - gateway
 
   # Chat Service
   chat_service:

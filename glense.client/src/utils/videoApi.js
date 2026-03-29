@@ -18,17 +18,20 @@ export async function getVideo(id) {
   return handleRes(res);
 }
 
-export async function uploadVideo(file, title, description, uploaderId = 0) {
+export async function uploadVideo(file, title, description, uploaderId = 0, thumbnail = null) {
   const fd = new FormData();
   fd.append('file', file);
   if (title) fd.append('title', title);
   if (description) fd.append('description', description);
+  if (thumbnail) fd.append('thumbnail', thumbnail);
 
+  const token = localStorage.getItem('glense_auth_token');
   const res = await fetch(`${BASE}/api/videos/upload`, {
     method: 'POST',
     body: fd,
     headers: {
       ...(uploaderId ? { 'X-Uploader-Id': String(uploaderId) } : {}),
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     },
   });
 

@@ -1,0 +1,7 @@
+DonationService/
+bin/
+obj/
+*.md
+.env
+.git
+.gitignore

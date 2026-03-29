@@ -33,6 +33,13 @@ namespace Glense.VideoCatalogue.Controllers;
             _logger = logger;
         }
 
+        private static string? ResolveThumbnailUrl(Guid videoId, string? thumbnailUrl)
+        {
+            if (string.IsNullOrEmpty(thumbnailUrl)) return null;
+            if (thumbnailUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return thumbnailUrl;
+            return $"/api/videos/{videoId}/thumbnail";
+        }
+
         private async Task<string?> GetUsernameAsync(Guid userId)
         {
             if (userId == Guid.Empty) return null;
@@ -64,7 +71,7 @@ namespace Glense.VideoCatalogue.Controllers;
         {
             if (dto == null || dto.File == null || dto.File.Length == 0) return BadRequest("No file provided");
 
-            var video = await _uploader.UploadFileAsync(dto.File, dto.Title, dto.Description, uploaderId);
+            var video = await _uploader.UploadFileAsync(dto.File, dto.Title, dto.Description, uploaderId, dto.Thumbnail);
 
             var resp = new DTOs.UploadResponseDTO
             {
@@ -72,7 +79,7 @@ namespace Glense.VideoCatalogue.Controllers;
                 Title = video.Title,
                 Description = video.Description,
                 VideoUrl = video.VideoUrl,
-                ThumbnailUrl = video.ThumbnailUrl,
+                ThumbnailUrl = ResolveThumbnailUrl(video.Id, video.ThumbnailUrl),
                 UploadDate = video.UploadDate,
                 UploaderId = video.UploaderId,
                 ViewCount = video.ViewCount,
@@ -95,7 +102,7 @@ namespace Glense.VideoCatalogue.Controllers;
                 Title = video.Title,
                 Description = video.Description,
                 VideoUrl = video.VideoUrl,
-                ThumbnailUrl = video.ThumbnailUrl,
+                ThumbnailUrl = ResolveThumbnailUrl(video.Id, video.ThumbnailUrl),
                 UploadDate = video.UploadDate,
                 UploaderId = video.UploaderId,
                 UploaderUsername = usernames.GetValueOrDefault(video.UploaderId),
@@ -121,7 +128,7 @@ namespace Glense.VideoCatalogue.Controllers;
                 Title = video.Title,
                 Description = video.Description,
                 VideoUrl = video.VideoUrl,
-                ThumbnailUrl = video.ThumbnailUrl,
+                ThumbnailUrl = ResolveThumbnailUrl(video.Id, video.ThumbnailUrl),
                 UploadDate = video.UploadDate,
                 UploaderId = video.UploaderId,
                 UploaderUsername = username,
@@ -133,6 +140,24 @@ namespace Glense.VideoCatalogue.Controllers;
             return Ok(resp);
         }
 
+        [HttpGet("{id:guid}/thumbnail")]
+        public async Task<IActionResult> Thumbnail(Guid id)
+        {
+            var video = await _db.Videos.FirstOrDefaultAsync(v => v.Id == id);
+            if (video == null || string.IsNullOrEmpty(video.ThumbnailUrl)) return NotFound();
+
+            var physicalPath = _storage.GetPhysicalPath(video.ThumbnailUrl);
+            if (physicalPath == null) return NotFound();
+
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(video.ThumbnailUrl, out var contentType))
+            {
+                contentType = "image/jpeg";
+            }
+
+            return PhysicalFile(physicalPath, contentType);
+        }
+
         [HttpGet("{id:guid}/stream")]
         public async Task<IActionResult> Stream(Guid id)
         {
@@ -142,21 +167,8 @@ namespace Glense.VideoCatalogue.Controllers;
             var storedName = video.VideoUrl;
             if (string.IsNullOrEmpty(storedName)) return NotFound();
 
-            Request.Headers.TryGetValue("Range", out var rangeHeader);
-            long? start = null, end = null;
-            if (!string.IsNullOrEmpty(rangeHeader))
-            {
-                // Expecting "bytes=start-end"
-                var range = rangeHeader.ToString();
-                if (range.StartsWith("bytes=", StringComparison.OrdinalIgnoreCase))
-                {
-                    var parts = range.Substring(6).Split('-');
-                    if (long.TryParse(parts[0], out var s)) start = s;
-                    if (parts.Length > 1 && long.TryParse(parts[1], out var e)) end = e;
-                }
-            }
-
-            var (stream, total) = await _storage.OpenReadRangeAsync(storedName, start, end);
+            var physicalPath = _storage.GetPhysicalPath(storedName);
+            if (physicalPath == null) return NotFound();
 
             var provider = new FileExtensionContentTypeProvider();
             if (!provider.TryGetContentType(storedName, out var contentType))
@@ -164,20 +176,6 @@ namespace Glense.VideoCatalogue.Controllers;
                 contentType = "application/octet-stream";
             }
 
-            Response.Headers["Accept-Ranges"] = "bytes";
-
-            if (start.HasValue)
-            {
-                var s = start.Value;
-                var e = end ?? (total - 1);
-                var contentLength = e - s + 1;
-                Response.StatusCode = 206;
-                Response.Headers["Content-Range"] = $"bytes {s}-{e}/{total}";
-                Response.ContentLength = contentLength;
-                return File(stream, contentType);
-            }
-
-            Response.ContentLength = total;
-            return File(stream, contentType);
+            return PhysicalFile(physicalPath, contentType, enableRangeProcessing: true);
         }
     }
