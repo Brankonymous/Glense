@@ -64,6 +64,7 @@ namespace Glense.AccountService.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("me")]
         public async Task<IActionResult> GetMyProfile()
         {
@@ -97,7 +98,9 @@ namespace Glense.AccountService.Controllers
         {
             try
             {
-                var user = await _context.Users.FindAsync(userId);
+                var user = await _context.Users
+                    .Where(u => u.Id == userId && u.IsActive)
+                    .FirstOrDefaultAsync();
                 if (user == null) return NotFound();
 
                 var dto = new UserDto
@@ -119,6 +122,7 @@ namespace Glense.AccountService.Controllers
             }
         }
 
+        [Authorize]
         [HttpPut("me")]
         public async Task<ActionResult<UserDto>> UpdateProfile([FromBody] UpdateProfileDto updateDto)
         {
@@ -181,6 +185,7 @@ namespace Glense.AccountService.Controllers
             }
         }
 
+        [Authorize]
         [HttpDelete("me")]
         public async Task<IActionResult> DeleteAccount()
         {

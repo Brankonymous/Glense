@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option csharp_namespace = "Glense.VideoCatalogue.Protos";
+
+package account;
+
+service AccountGrpc {
+  rpc GetUsername (GetUsernameRequest) returns (GetUsernameResponse);
+  rpc GetUsernames (GetUsernamesRequest) returns (GetUsernamesResponse);
+}
+
+message GetUsernameRequest {
+  string user_id = 1;
+}
+
+message GetUsernameResponse {
+  string user_id = 1;
+  string username = 2;
+  bool found = 3;
+}
+
+message GetUsernamesRequest {
+  repeated string user_ids = 1;
+}
+
+message GetUsernamesResponse {
+  repeated UserMapping users = 1;
+}
+
+message UserMapping {
+  string user_id = 1;
+  string username = 2;
+}
