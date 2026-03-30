@@ -12,17 +12,17 @@ All frontend requests go through the **API Gateway** ([YARP](https://microsoft.g
                         │   (React/Vite)   │
                         └────────┬─────────┘
                                  │
-                      ┌──────────▼──────────────┐
-                      │      API Gateway        │
-                      │      YARP :5050         │
-                      │                         │
+                      ┌──────────▼────────────────┐
+                      │      API Gateway          │
+                      │      YARP :5050           │
+                      │                           │
                       │ /api/auth/*    → Account  │
                       │ /api/profile/* → Account  │
                       │ /api/videos/*  → Video    │
                       │ /api/donation/*→ Donation │
                       │ /api/chats/*   → Chat     │
                       │ /hubs/chat     → Chat(WS) │
-                      └──┬───┬───┬───┬──────────┘
+                      └──┬───┬───┬───┬────────────┘
            ┌─────────────┘   │   │   └──────────┐
            ▼                 ▼   ▼              ▼
     ┌─────────────┐  ┌────────────┐  ┌─────────────┐  ┌─────────────┐
@@ -38,13 +38,14 @@ All frontend requests go through the **API Gateway** ([YARP](https://microsoft.g
            │         ┌──────┴──────┐        │
            │         │  RabbitMQ   │        │
            │         │ :5672/:15672│        │
-           │         └─────────────┘        │
-           │                                │
-           │◄─── RabbitMQ ──── Donation     │  wallet create on registration
-           │◄─── HTTP ──────── Donation     │  validate recipient
-           │◄─── RabbitMQ ──── Donation     │  donation notification
-           │◄─── gRPC ──────────────── Video   resolve usernames
-           │◄─── RabbitMQ ─────────── Video    subscription notification
+           │         └──────┬──────┘        │
+           │                │               │
+           ├──RabbitMQ─────►│               │  wallet create on registration
+           │◄──RabbitMQ─────┤               │  donation notification
+           │◄──HTTP─────────┤               │  validate recipient
+           │◄──RabbitMQ─────────────────────┤  subscription notification
+           │◄──gRPC─────────────────────────┤  resolve usernames
+                                                     Chat: JWT only (no inter-service calls)
 ```
 
 The gateway is config-driven — adding a new route is a few lines of JSON in `appsettings.json`. YARP handles header forwarding, WebSocket proxying (SignalR), and active health checks.
@@ -117,12 +118,6 @@ Works with both Docker and Podman.
 
 - Node.js v22
 - Docker or Podman
-
-## Database schema
-
-Each microservice owns its own database. See individual service READMEs for schema details.
-
-![Glense Database Schema](schema-Glense.svg)
 
 ## Development workflow
 
