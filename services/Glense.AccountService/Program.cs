@@ -1,10 +1,14 @@
 using System.Text;
 using DotNetEnv;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Glense.AccountService.Consumers;
 using Glense.AccountService.Data;
+using Glense.AccountService.GrpcServices;
 using Glense.AccountService.Services;
 
 // Load environment variables from a .env file if present in this directory or any parent directory
@@ -26,13 +30,28 @@ catch { }
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Allow overriding URLs from environment: use ACCOUNT_URLS first, then ASPNETCORE_URLS
-var accountUrls = Environment.GetEnvironmentVariable("ACCOUNT_URLS") ?? Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
-if (!string.IsNullOrEmpty(accountUrls)) builder.WebHost.UseUrls(accountUrls);
+// Configure Kestrel with two ports: HTTP/1.1 for REST API, HTTP/2 for gRPC
+var restPort = int.Parse(Environment.GetEnvironmentVariable("ACCOUNT_REST_PORT") ?? "5000");
+var grpcPort = int.Parse(Environment.GetEnvironmentVariable("ACCOUNT_GRPC_PORT") ?? "5001");
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // REST API endpoint (HTTP/1.1)
+    options.ListenAnyIP(restPort, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http1;
+    });
+    // gRPC endpoint (HTTP/2 cleartext)
+    options.ListenAnyIP(grpcPort, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2;
+    });
+});
 
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddGrpc();
 
 // Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>
@@ -121,19 +140,31 @@ builder.Services.AddCors(options =>
     });
 });
 
-// HttpClient for Donation Service
-builder.Services.AddHttpClient("DonationService", client =>
+// Configure MassTransit with RabbitMQ
+var rabbitHost = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
+var rabbitUser = builder.Configuration["RabbitMQ:Username"] ?? "guest";
+var rabbitPass = builder.Configuration["RabbitMQ:Password"] ?? "guest";
+
+builder.Services.AddMassTransit(x =>
 {
-    var serviceUrl = Environment.GetEnvironmentVariable("DONATION_SERVICE_URL")
-        ?? "http://localhost:5100";
-    client.BaseAddress = new Uri(serviceUrl);
-    client.Timeout = TimeSpan.FromSeconds(10);
+    x.AddConsumer<DonationMadeEventConsumer>();
+    x.AddConsumer<UserSubscribedEventConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(rabbitHost, "/", h =>
+        {
+            h.Username(rabbitUser);
+            h.Password(rabbitPass);
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
 });
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IWalletServiceClient, WalletServiceClient>();
 
 var app = builder.Build();
 
@@ -153,6 +184,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGrpcService<AccountGrpcService>();
 
 // Health check endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "account", timestamp = DateTime.UtcNow }));

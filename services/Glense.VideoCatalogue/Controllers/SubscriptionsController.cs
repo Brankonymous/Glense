@@ -1,8 +1,11 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Glense.VideoCatalogue.Data;
+using Glense.VideoCatalogue.GrpcClients;
+using Glense.Shared.Messages;
 using Glense.VideoCatalogue.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,10 +15,20 @@ namespace Glense.VideoCatalogue.Controllers;
     public class SubscriptionsController : ControllerBase
     {
         private readonly VideoCatalogueDbContext _db;
+        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IAccountGrpcClient _accountClient;
+        private readonly ILogger<SubscriptionsController> _logger;
 
-        public SubscriptionsController(VideoCatalogueDbContext db)
+        public SubscriptionsController(
+            VideoCatalogueDbContext db,
+            IPublishEndpoint publishEndpoint,
+            IAccountGrpcClient accountClient,
+            ILogger<SubscriptionsController> logger)
         {
             _db = db;
+            _publishEndpoint = publishEndpoint;
+            _accountClient = accountClient;
+            _logger = logger;
         }
 
         private Guid GetCurrentUserId()
@@ -37,6 +50,27 @@ namespace Glense.VideoCatalogue.Controllers;
             var s = new Subscriptions { SubscriberId = subscriberId, SubscribedToId = dto.SubscribedToId, SubscriptionDate = System.DateTime.UtcNow };
             _db.Subscriptions.Add(s);
             await _db.SaveChangesAsync();
+
+            // Publish UserSubscribedEvent so Account Service creates the notification
+            try
+            {
+                var subscriberUsername = await _accountClient.GetUsernameAsync(subscriberId) ?? "Someone";
+                await _publishEndpoint.Publish(new UserSubscribedEvent
+                {
+                    SubscriberId = subscriberId,
+                    ChannelOwnerId = dto.SubscribedToId,
+                    SubscriberUsername = subscriberUsername
+                });
+                _logger.LogInformation(
+                    "Published UserSubscribedEvent: SubscriberId={SubscriberId}, ChannelOwnerId={ChannelOwnerId}",
+                    subscriberId, dto.SubscribedToId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex,
+                    "Failed to publish UserSubscribedEvent for subscription {SubscriberId} -> {ChannelOwnerId}",
+                    subscriberId, dto.SubscribedToId);
+            }
 
             var resp = new DTOs.SubscribeResponseDTO { SubscriberId = s.SubscriberId, SubscribedToId = s.SubscribedToId, SubscriptionDate = s.SubscriptionDate };
             return Created(string.Empty, resp);

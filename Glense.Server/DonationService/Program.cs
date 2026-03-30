@@ -1,7 +1,9 @@
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using DonationService.Consumers;
 using DonationService.Data;
 using DonationService.Services;
 
@@ -33,7 +35,7 @@ else
     Console.WriteLine("[WARNING] No connection string found, using in-memory database");
 }
 
-// HttpClient for Account Service
+// HttpClient for Account Service (kept for synchronous profile lookup/validation)
 builder.Services.AddHttpClient("AccountService", client =>
 {
     var serviceUrl = Environment.GetEnvironmentVariable("ACCOUNT_SERVICE_URL")
@@ -43,6 +45,27 @@ builder.Services.AddHttpClient("AccountService", client =>
 });
 
 builder.Services.AddScoped<IAccountServiceClient, AccountServiceClient>();
+
+// Configure MassTransit with RabbitMQ
+var rabbitHost = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
+var rabbitUser = builder.Configuration["RabbitMQ:Username"] ?? "guest";
+var rabbitPass = builder.Configuration["RabbitMQ:Password"] ?? "guest";
+
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<UserRegisteredEventConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(rabbitHost, "/", h =>
+        {
+            h.Username(rabbitUser);
+            h.Password(rabbitPass);
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
 
 // JWT Authentication
 var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "GlenseAccountService";

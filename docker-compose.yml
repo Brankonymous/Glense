@@ -1,4 +1,22 @@
 services:
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: glense_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - glense_network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # PostgreSQL for Account Service
   postgres_account:
     image: postgres:16-alpine
@@ -28,16 +46,22 @@ services:
     container_name: glense_account_service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5000
+      - ACCOUNT_REST_PORT=5000
+      - ACCOUNT_GRPC_PORT=5001
       - ConnectionStrings__DefaultConnection=Host=postgres_account;Port=5432;Database=glense_account;Username=glense;Password=glense123
-      - DONATION_SERVICE_URL=http://donation_service:5100
       - JWT_SECRET_KEY=YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
       - JWT_ISSUER=GlenseAccountService
       - JWT_AUDIENCE=GlenseApp
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
     ports:
       - "5001:5000"
+      - "5003:5001"
     depends_on:
       postgres_account:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - glense_network
@@ -97,10 +121,15 @@ services:
       - JwtSettings__Issuer=GlenseAccountService
       - JwtSettings__Audience=GlenseApp
       - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
     ports:
       - "5100:5100"
     depends_on:
       postgres_donation:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - glense_network
@@ -136,13 +165,19 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__VideoCatalogue=Host=postgres_video;Port=5432;Database=glense_video;Username=glense;Password=glense123
       - ACCOUNT_SERVICE_URL=http://account_service:5000
+      - ACCOUNT_GRPC_URL=http://account_service:5001
       - JwtSettings__Issuer=GlenseAccountService
       - JwtSettings__Audience=GlenseApp
       - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
     ports:
       - "5002:5002"
     depends_on:
       postgres_video:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - glense_network

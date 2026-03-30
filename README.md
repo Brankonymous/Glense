@@ -4,79 +4,76 @@ A microservice-based video streaming platform built with .NET 8, React, and Post
 
 ## Architecture
 
-All frontend requests go through the **API Gateway** ([YARP](https://microsoft.github.io/reverse-proxy/) reverse proxy, port 5050), which routes to the appropriate microservice based on URL path. Services communicate with each other via HTTP.
+All frontend requests go through the **API Gateway** ([YARP](https://microsoft.github.io/reverse-proxy/) reverse proxy, port 5050), which routes to the appropriate microservice based on URL path.
 
 ```
-                      ┌─────────────────┐
-                      │    Frontend      │
-                      │   (React/Vite)   │
-                      └────────┬─────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │   API Gateway       │
-                    │   YARP :5050        │
-                    │                     │
-                    │ /api/auth/*     ──→ account   │
-                    │ /api/profile/*  ──→ account   │
-                    │ /api/videos/*   ──→ video     │
-                    │ /api/donation/* ──→ donation  │
-                    │ /api/chats/*    ──→ chat      │
-                    │ /hubs/chat      ──→ chat (WS) │
-                    └──┬──┬──┬──┬────────┘
-         ┌────────────┘  │  │  └────────────┐
-         ▼               ▼  ▼               ▼
-  ┌────────────┐  ┌──────────┐  ┌────────────┐
-  │  Account   │  │ Donation │  │   Video    │
-  │   :5001    │  │  :5100   │  │ Catalogue  │
-  │            │  │          │  │   :5002    │
-  │ Auth       │  │ Wallets  │  │ Upload     │
-  │ Profiles   │  │ Donations│  │ Comments   │
-  │ Notifs     │  │          │  │ Playlists  │
-  └──────┬─────┘  └────┬─────┘  └─────┬─────┘
-         │    ▲         │   ▲          │
-         │    └─────────┘   │          │
-         │  wallet create   │          │
-         │  on register     │          │
-         │                  │          │
-         │  validate user   │          │
-         │  + notify        │          │
-         │◄─────────────────┘          │
-         │                             │
-         │  resolve uploader username  │
-         │◄────────────────────────────┘
-         │
-  ┌──────▼─────┐
-  │   Chat     │
-  │   :5004    │
-  │            │
-  │ Rooms      │
-  │ Messages   │
-  │ SignalR    │
-  └────────────┘
+                        ┌─────────────────┐
+                        │    Frontend      │
+                        │   (React/Vite)   │
+                        └────────┬─────────┘
+                                 │
+                      ┌──────────▼──────────────┐
+                      │      API Gateway        │
+                      │      YARP :5050         │
+                      │                         │
+                      │ /api/auth/*    → Account  │
+                      │ /api/profile/* → Account  │
+                      │ /api/videos/*  → Video    │
+                      │ /api/donation/*→ Donation │
+                      │ /api/chats/*   → Chat     │
+                      │ /hubs/chat     → Chat(WS) │
+                      └──┬───┬───┬───┬──────────┘
+           ┌─────────────┘   │   │   └──────────┐
+           ▼                 ▼   ▼              ▼
+    ┌─────────────┐  ┌────────────┐  ┌─────────────┐  ┌─────────────┐
+    │   Account   │  │  Donation  │  │    Video    │  │    Chat     │
+    │    :5001    │  │   :5100    │  │  Catalogue  │  │    :5004    │
+    │             │  │            │  │    :5002    │  │             │
+    │ Auth        │  │ Wallets    │  │ Upload      │  │ Rooms       │
+    │ Profiles    │  │ Donations  │  │ Comments    │  │ Messages    │
+    │ Notifs      │  │            │  │ Playlists   │  │ SignalR     │
+    │ gRPC server │  │            │  │ gRPC client │  │             │
+    └──────┬──────┘  └──────┬─────┘  └──────┬──────┘  └─────────────┘
+           │                │               │
+           │         ┌──────┴──────┐        │
+           │         │  RabbitMQ   │        │
+           │         │ :5672/:15672│        │
+           │         └─────────────┘        │
+           │                                │
+           │◄─── RabbitMQ ──── Donation     │  wallet create on registration
+           │◄─── HTTP ──────── Donation     │  validate recipient
+           │◄─── RabbitMQ ──── Donation     │  donation notification
+           │◄─── gRPC ──────────────── Video   resolve usernames
+           │◄─── RabbitMQ ─────────── Video    subscription notification
 ```
 
-The gateway is config-driven — adding a new route is a few lines of JSON in `appsettings.json`, not a new controller. YARP handles header forwarding, WebSocket proxying (SignalR), and active health checks automatically.
+The gateway is config-driven — adding a new route is a few lines of JSON in `appsettings.json`. YARP handles header forwarding, WebSocket proxying (SignalR), and active health checks.
 
 ### Services and ports
 
 | Service | Port | Database | Description |
 |---------|------|----------|-------------|
 | API Gateway (YARP) | 5050 | — | Routes all frontend requests, health checks backends |
-| Account | 5001 | PostgreSQL :5432 | Auth, profiles, notifications |
+| Account | 5001 (REST), 5003 (gRPC) | PostgreSQL :5432 | Auth, profiles, notifications, gRPC server |
 | Donation | 5100 | PostgreSQL :5434 | Wallets and donations |
 | Video Catalogue | 5002 | PostgreSQL :5433 | Video upload, comments, playlists |
 | Chat | 5004 | PostgreSQL :5435 | Chat rooms, messages, SignalR |
+| RabbitMQ | 5672 (AMQP), 15672 (management UI) | — | Message broker for async events |
 
 ### Inter-service communication
 
-| Flow | Direction | Description |
-|------|-----------|-------------|
-| User registration | Account -> Donation | Auto-creates a wallet for the new user |
-| Donation | Donation -> Account | Validates recipient exists, sends notification |
-| Video listing | Video -> Account | Resolves uploader usernames |
-| Chat messages | JWT -> Chat | Username extracted from JWT token |
+Services use three different protocols depending on the use case:
 
-Secondary operations (wallet creation, notifications) are non-blocking.
+| Flow | Direction | Protocol | Why |
+|------|-----------|----------|-----|
+| Wallet creation | Account → Donation | **RabbitMQ** | Fire-and-forget event on registration |
+| Donation notification | Donation → Account | **RabbitMQ** | Async notification, doesn't block donation |
+| Subscription notification | Video → Account | **RabbitMQ** | Async notification on subscribe |
+| Recipient validation | Donation → Account | **HTTP** | Synchronous check before processing |
+| Username resolution | Video → Account | **gRPC** | High-performance batch lookups (Protobuf) |
+| Chat auth | JWT → Chat | **JWT claims** | No inter-service call needed |
+
+**RabbitMQ** (MassTransit) handles fire-and-forget events where the sender doesn't need a response. **gRPC** handles high-frequency synchronous lookups with binary serialization. **HTTP** is kept for simple synchronous calls.
 
 ## Quick start
 

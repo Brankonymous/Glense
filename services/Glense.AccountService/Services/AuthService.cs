@@ -2,10 +2,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Glense.AccountService.Data;
 using Glense.AccountService.DTOs;
+using Glense.Shared.Messages;
 using Glense.AccountService.Models;
 
 namespace Glense.AccountService.Services
@@ -18,18 +20,18 @@ namespace Glense.AccountService.Services
     {
         private readonly AccountDbContext _context;
         private readonly IConfiguration _configuration;
-        private readonly IWalletServiceClient _walletServiceClient;
+        private readonly IPublishEndpoint _publishEndpoint;
         private readonly ILogger<AuthService> _logger;
 
         public AuthService(
             AccountDbContext context,
             IConfiguration configuration,
-            IWalletServiceClient walletServiceClient,
+            IPublishEndpoint publishEndpoint,
             ILogger<AuthService> logger)
         {
             _context = context;
             _configuration = configuration;
-            _walletServiceClient = walletServiceClient;
+            _publishEndpoint = publishEndpoint;
             _logger = logger;
         }
 
@@ -52,15 +54,21 @@ namespace Glense.AccountService.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            // Auto-create wallet in Donation service (non-blocking)
+            // Publish UserRegisteredEvent so Donation Service creates the wallet asynchronously
             try
             {
-                await _walletServiceClient.CreateWalletAsync(user.Id);
+                await _publishEndpoint.Publish(new UserRegisteredEvent
+                {
+                    UserId = user.Id,
+                    Username = user.Username,
+                    Email = user.Email
+                });
+                _logger.LogInformation("Published UserRegisteredEvent for user {UserId}", user.Id);
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex,
-                    "Failed to create wallet for user {UserId} during registration. Wallet can be created later.",
+                    "Failed to publish UserRegisteredEvent for user {UserId}. Wallet can be created later.",
                     user.Id);
             }
 

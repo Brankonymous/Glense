@@ -1,5 +1,8 @@
 using Glense.VideoCatalogue.Data;
+using Glense.VideoCatalogue.GrpcClients;
+using Glense.VideoCatalogue.Protos;
 using Glense.VideoCatalogue.Services;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -42,14 +45,16 @@ else
         options.UseInMemoryDatabase("VideoCatalogue"));
 }
 
-// HttpClient for Account Service (resolve uploader usernames)
-builder.Services.AddHttpClient("AccountService", client =>
+// gRPC client for Account Service (replaces HTTP-based username resolution)
+var accountGrpcUrl = Environment.GetEnvironmentVariable("ACCOUNT_GRPC_URL")
+    ?? builder.Configuration["AccountService:GrpcUrl"]
+    ?? "http://localhost:5001";
+
+builder.Services.AddGrpcClient<AccountGrpc.AccountGrpcClient>(options =>
 {
-    var serviceUrl = Environment.GetEnvironmentVariable("ACCOUNT_SERVICE_URL")
-        ?? "http://localhost:5001";
-    client.BaseAddress = new Uri(serviceUrl);
-    client.Timeout = TimeSpan.FromSeconds(10);
+    options.Address = new Uri(accountGrpcUrl);
 });
+builder.Services.AddScoped<IAccountGrpcClient, AccountGrpcClient>();
 
 // JWT Authentication
 var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "GlenseAccountService";
@@ -78,6 +83,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// Configure MassTransit with RabbitMQ
+var rabbitHost = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
+var rabbitUser = builder.Configuration["RabbitMQ:Username"] ?? "guest";
+var rabbitPass = builder.Configuration["RabbitMQ:Password"] ?? "guest";
+
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(rabbitHost, "/", h =>
+        {
+            h.Username(rabbitUser);
+            h.Password(rabbitPass);
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
 // Health checks
 builder.Services.AddHealthChecks();
 
@@ -94,8 +118,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 

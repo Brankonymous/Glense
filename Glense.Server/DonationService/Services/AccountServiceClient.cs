@@ -22,33 +22,22 @@ public class AccountServiceClient : IAccountServiceClient
 
     public async Task<string?> GetUsernameAsync(Guid userId)
     {
-        var response = await _httpClient.GetAsync($"/api/profile/{userId}");
-
-        if (response.StatusCode == HttpStatusCode.NotFound)
-            return null;
-
-        response.EnsureSuccessStatusCode();
-
-        var json = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-        return json.TryGetProperty("username", out var username) ? username.GetString() : null;
-    }
-
-    public async Task CreateDonationNotificationAsync(
-        Guid recipientUserId,
-        string donorUsername,
-        decimal amount,
-        Guid donationId)
-    {
-        var request = new
+        try
         {
-            UserId = recipientUserId,
-            Title = "New Donation!",
-            Message = $"{donorUsername} donated ${amount:F2} to you!",
-            Type = "donation",
-            RelatedEntityId = donationId
-        };
+            var response = await _httpClient.GetAsync($"/api/profile/{userId}");
 
-        var response = await _httpClient.PostAsJsonAsync("/api/internal/notifications", request);
-        response.EnsureSuccessStatusCode();
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+            return json.TryGetProperty("username", out var username) ? username.GetString() : null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get username for user {UserId} from Account Service", userId);
+            return null;
+        }
     }
 }

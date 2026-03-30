@@ -1,10 +1,12 @@
 using System.Security.Claims;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DonationService.Data;
 using DonationService.Entities;
 using DonationService.DTOs;
+using Glense.Shared.Messages;
 using DonationService.Services;
 
 namespace DonationService.Controllers;
@@ -18,15 +20,18 @@ public class DonationController : ControllerBase
     private readonly DonationDbContext _context;
     private readonly ILogger<DonationController> _logger;
     private readonly IAccountServiceClient _accountService;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public DonationController(
         DonationDbContext context,
         ILogger<DonationController> logger,
-        IAccountServiceClient accountService)
+        IAccountServiceClient accountService,
+        IPublishEndpoint publishEndpoint)
     {
         _context = context;
         _logger = logger;
         _accountService = accountService;
+        _publishEndpoint = publishEndpoint;
     }
 
     /// <summary>
@@ -84,12 +89,14 @@ public class DonationController : ControllerBase
             return BadRequest(new { message = "Cannot donate to yourself" });
         }
 
-        // Validate recipient exists in Account service
+        // Fetch both usernames upfront to validate and reuse later for the event
         var recipientUsername = await _accountService.GetUsernameAsync(request.RecipientUserId);
         if (recipientUsername == null)
         {
             return BadRequest(new { message = "Recipient user not found" });
         }
+
+        var donorUsername = await _accountService.GetUsernameAsync(request.DonorUserId) ?? "Someone";
 
         // Check if we can use transactions (not supported by in-memory database)
         var supportsTransactions = !_context.Database.IsInMemory();
@@ -160,20 +167,23 @@ public class DonationController : ControllerBase
                 "Donation created: {DonationId}, from user {DonorId} to user {RecipientId}, amount: {Amount}",
                 donation.Id, request.DonorUserId, request.RecipientUserId, request.Amount);
 
-            // Send notification to recipient (fire-and-forget, don't fail the donation)
+            // Publish DonationMadeEvent so Account Service creates the notification asynchronously
             try
             {
-                var donorUsername = await _accountService.GetUsernameAsync(request.DonorUserId) ?? "Someone";
-                await _accountService.CreateDonationNotificationAsync(
-                    request.RecipientUserId,
-                    donorUsername,
-                    request.Amount,
-                    donation.Id);
+                await _publishEndpoint.Publish(new DonationMadeEvent
+                {
+                    DonorId = request.DonorUserId,
+                    RecipientId = request.RecipientUserId,
+                    Amount = request.Amount,
+                    DonorUsername = donorUsername
+                });
+                _logger.LogInformation(
+                    "Published DonationMadeEvent for donation {DonationId}", donation.Id);
             }
             catch (Exception notifEx)
             {
                 _logger.LogWarning(notifEx,
-                    "Failed to send donation notification for donation {DonationId}",
+                    "Failed to publish DonationMadeEvent for donation {DonationId}",
                     donation.Id);
             }
 
