@@ -50,8 +50,8 @@ A microservice-based video streaming platform built with .NET 8, React, and Post
 | Service | Port | Database | What it does |
 |---------|------|----------|--------------|
 | API Gateway (YARP) | 5050 | -- | Routes all requests, CORS whitelist, health checks |
-| Account | 5001 (REST), 5003 (gRPC) | PostgreSQL :5432 | Auth, profiles, notifications, gRPC username server |
-| Video Catalogue | 5002 | PostgreSQL :5433 | Upload, comments, playlists, subscriptions |
+| Account | 5001 (REST), 5003 (gRPC) | PostgreSQL :5432 | Auth, profiles, notifications, user search, gRPC username server |
+| Video Catalogue | 5002 | PostgreSQL :5433 | Upload, search, comments, playlists, subscriptions |
 | Donation | 5100 | PostgreSQL :5434 | Wallets, donations, balance transfers |
 | Chat | 5004 | PostgreSQL :5435 | Chat rooms, messages, real-time via SignalR |
 | RabbitMQ | 5672 / 15672 | -- | Async event broker (MassTransit) |
@@ -157,6 +157,15 @@ Services read from environment variables first, then fall back to `appsettings.j
 - **JWT**: BCrypt password hashing, 7-day token expiry, validated on all services
 - **Inter-service auth**: gRPC and HTTP calls between services require `INTERNAL_API_KEY` header
 - **Secrets**: No credentials in code or config files -- all in `.env` (gitignored)
+
+## Search
+
+The platform supports searching across videos and channels from a single search bar.
+
+**Backend**: `GET /api/videos/search?q={query}&category={category}`
+- Searches video titles and descriptions (case-insensitive, DB-level filtering)
+- Optional `category` parameter to narrow results
+- Returns videos with resolved uploader usernames (via gRPC)
 
 ## Swagger docs
 

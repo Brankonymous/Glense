@@ -40,9 +40,9 @@ function VideoCard({ video }) {
                         {title.slice(0, 80) + (title.length > 80 ? "..." : "")}
                     </Typography>
                 </Link>
-                <Link to={demoVideoUrl}>
+                <Link to={video?.uploaderId ? `/channel/${video.uploaderId}` : demoVideoUrl}>
                     <Typography variant="subtitle2" className="video-card-channel">
-                        {demoChannelTitle}
+                        {video?.uploaderUsername || demoChannelTitle}
                         <CheckCircle className="video-card-icon" />
                     </Typography>
                 </Link>

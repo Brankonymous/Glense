@@ -25,6 +25,16 @@ namespace Glense.VideoCatalogue.Controllers;
         }
 
         [Authorize]
+        [HttpGet("{videoId:guid}")]
+        public async Task<IActionResult> GetUserLike(Guid videoId)
+        {
+            var userId = GetCurrentUserId();
+            var existing = await _db.VideoLikes.FirstOrDefaultAsync(l => l.UserId == userId && l.VideoId == videoId);
+            if (existing == null) return Ok(new { liked = (bool?)null });
+            return Ok(new { liked = existing.IsLiked });
+        }
+
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Like([FromBody] DTOs.LikeRequestDTO dto)
         {

@@ -1,0 +1,92 @@
+.search-results-container {
+    padding: var(--spacing-xl);
+    padding-top: calc(var(--navbar-height) + var(--spacing-xl));
+    min-height: 100vh;
+    background-color: var(--color-bg-primary);
+}
+
+.search-results-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+}
+
+.search-results-heading {
+    color: var(--color-text-primary) !important;
+    margin-bottom: var(--spacing-xl) !important;
+    font-weight: bold !important;
+}
+
+.search-results-empty {
+    color: var(--color-text-secondary) !important;
+    font-size: var(--font-size-lg) !important;
+    text-align: center;
+    margin-top: var(--spacing-xl) !important;
+}
+
+.search-results-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.search-results-section-title {
+    color: var(--color-text-primary) !important;
+    margin-bottom: var(--spacing-base) !important;
+    font-weight: bold !important;
+}
+
+.search-results-categories {
+    flex-wrap: wrap !important;
+    gap: var(--spacing-sm) !important;
+    margin-bottom: var(--spacing-lg);
+}
+
+.search-results-channels {
+    flex-wrap: wrap !important;
+    gap: var(--spacing-lg) !important;
+    margin-bottom: var(--spacing-lg);
+}
+
+.search-results-channel-link {
+    text-decoration: none;
+}
+
+.search-results-channel-card {
+    padding: var(--spacing-base);
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-fast);
+    min-width: 100px;
+    align-items: center;
+}
+
+.search-results-channel-card:hover {
+    background-color: var(--color-bg-overlay);
+}
+
+.search-results-channel-name {
+    color: var(--color-text-primary) !important;
+    margin-top: var(--spacing-sm) !important;
+    display: flex !important;
+    align-items: center !important;
+    font-size: var(--font-size-sm) !important;
+}
+
+/* Tablet (1024px) */
+@media screen and (max-width: 1024px) {
+    .search-results-container {
+        padding: var(--spacing-lg);
+        padding-top: calc(var(--navbar-height-tablet) + var(--spacing-lg));
+    }
+}
+
+/* Mobile (600px) */
+@media screen and (max-width: 600px) {
+    .search-results-container {
+        padding: var(--spacing-base);
+        padding-top: calc(var(--navbar-height-mobile) + var(--spacing-base));
+    }
+
+    .search-results-heading {
+        font-size: var(--font-size-xl) !important;
+    }
+}

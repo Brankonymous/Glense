@@ -9,7 +9,8 @@ import {
     Donations,
     Upload,
     Playlists,
-    PlaylistDetail
+    PlaylistDetail,
+    SearchResults
 } from "./components";
 import Chat from "./components/Chat/Chat";
 
@@ -22,6 +23,7 @@ const App = () => {
                     <Routes>
                         <Route path='/' element={<Feed />} />
 
+                        <Route path='/search/:searchTerm' element={<SearchResults />} />
                         <Route path='/video/:id' element={<VideoStream />} />
                         <Route path='/channel/:id' element={<ChannelDetail />} />
                         <Route path='/upload' element={<Upload />} />

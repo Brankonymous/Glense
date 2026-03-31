@@ -10,6 +10,7 @@ using Glense.VideoCatalogue.GrpcClients;
 using Glense.VideoCatalogue.Services;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Glense.VideoCatalogue.Controllers;
     [ApiController]
@@ -21,19 +22,22 @@ namespace Glense.VideoCatalogue.Controllers;
         private readonly IVideoStorage _storage;
         private readonly IAccountGrpcClient _accountClient;
         private readonly ILogger<VideosController> _logger;
+        private readonly IMemoryCache _viewCache;
 
         public VideosController(
             Upload uploader,
             VideoCatalogueDbContext db,
             IVideoStorage storage,
             IAccountGrpcClient accountClient,
-            ILogger<VideosController> logger)
+            ILogger<VideosController> logger,
+            IMemoryCache viewCache)
         {
             _uploader = uploader;
             _db = db;
             _storage = storage;
             _accountClient = accountClient;
             _logger = logger;
+            _viewCache = viewCache;
         }
 
         private Guid GetCurrentUserId()
@@ -74,6 +78,45 @@ namespace Glense.VideoCatalogue.Controllers;
             };
 
             return CreatedAtAction(nameof(Get), new { id = resp.Id }, resp);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string q = "", [FromQuery] string? category = null)
+        {
+            if (string.IsNullOrWhiteSpace(q))
+                return Ok(Array.Empty<DTOs.UploadResponseDTO>());
+
+            var query = _db.Videos.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(category))
+                query = query.Where(v => v.Category == category);
+
+            var lowerQ = q.ToLower();
+            query = query.Where(v =>
+                v.Title.ToLower().Contains(lowerQ) ||
+                (v.Description != null && v.Description.ToLower().Contains(lowerQ)));
+            var matched = await query.OrderByDescending(v => v.ViewCount).ToListAsync();
+
+            var uploaderIds = matched.Select(v => v.UploaderId).ToList();
+            var usernames = await _accountClient.GetUsernamesAsync(uploaderIds);
+
+            var results = matched.Select(video => new DTOs.UploadResponseDTO
+            {
+                Id = video.Id,
+                Title = video.Title,
+                Description = video.Description,
+                VideoUrl = video.VideoUrl,
+                ThumbnailUrl = ResolveThumbnailUrl(video.Id, video.ThumbnailUrl),
+                UploadDate = video.UploadDate,
+                UploaderId = video.UploaderId,
+                UploaderUsername = usernames.GetValueOrDefault(video.UploaderId),
+                ViewCount = video.ViewCount,
+                LikeCount = video.LikeCount,
+                DislikeCount = video.DislikeCount,
+                Category = video.Category
+            }).ToList();
+
+            return Ok(results);
         }
 
         [HttpGet]
@@ -127,6 +170,24 @@ namespace Glense.VideoCatalogue.Controllers;
             };
 
             return Ok(resp);
+        }
+
+        [HttpPatch("{id:guid}/view")]
+        public async Task<IActionResult> IncrementView(Guid id)
+        {
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            var cacheKey = $"view:{ip}:{id}";
+            if (_viewCache.TryGetValue(cacheKey, out _))
+                return Ok(new { viewCount = -1 });
+
+            _viewCache.Set(cacheKey, true, TimeSpan.FromMinutes(30));
+
+            var rows = await _db.Videos.Where(v => v.Id == id)
+                .ExecuteUpdateAsync(s => s.SetProperty(v => v.ViewCount, v => v.ViewCount + 1));
+            if (rows == 0) return NotFound();
+
+            var viewCount = await _db.Videos.Where(v => v.Id == id).Select(v => v.ViewCount).FirstAsync();
+            return Ok(new { viewCount });
         }
 
         [Authorize]
