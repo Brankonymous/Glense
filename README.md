@@ -4,25 +4,23 @@ A microservice-based video streaming platform built with .NET 8, React, and Post
 
 ## Architecture
 
-All frontend requests go through the **API Gateway** ([YARP](https://microsoft.github.io/reverse-proxy/) reverse proxy, port 5050), which routes to the appropriate microservice based on URL path.
-
 ```
                         ┌─────────────────┐
                         │    Frontend      │
                         │   (React/Vite)   │
                         └────────┬─────────┘
                                  │
-                      ┌──────────▼────────────────┐
-                      │      API Gateway          │
-                      │      YARP :5050           │
-                      │                           │
-                      │ /api/auth/*    → Account  │
-                      │ /api/profile/* → Account  │
-                      │ /api/videos/*  → Video    │
-                      │ /api/donation/*→ Donation │
-                      │ /api/chats/*   → Chat     │
-                      │ /hubs/chat     → Chat(WS) │
-                      └──┬───┬───┬───┬────────────┘
+                      ┌──────────▼──────────────┐
+                      │      API Gateway        │
+                      │      YARP :5050         │
+                      │                         │
+                      │ /api/auth/*    → Account │
+                      │ /api/profile/* → Account │
+                      │ /api/videos/*  → Video   │
+                      │ /api/donation/*→ Donation│
+                      │ /api/chats/*   → Chat    │
+                      │ /hubs/chat     → Chat(WS)│
+                      └──┬───┬───┬───┬──────────┘
            ┌─────────────┘   │   │   └──────────┐
            ▼                 ▼   ▼              ▼
     ┌─────────────┐  ┌────────────┐  ┌─────────────┐  ┌─────────────┐
@@ -38,97 +36,145 @@ All frontend requests go through the **API Gateway** ([YARP](https://microsoft.g
            │         ┌──────┴──────┐        │
            │         │  RabbitMQ   │        │
            │         │ :5672/:15672│        │
-           │         └──────┬──────┘        │
-           │                │               │
-           ├──RabbitMQ─────►│               │  wallet create on registration
-           │◄──RabbitMQ─────┤               │  donation notification
-           │◄──HTTP─────────┤               │  validate recipient
-           │◄──RabbitMQ─────────────────────┤  subscription notification
-           │◄──gRPC─────────────────────────┤  resolve usernames
-                                                     Chat: JWT only (no inter-service calls)
+           │         └─────────────┘        │
+           │                                │
+           │◄─── RabbitMQ ──── Donation        wallet create on registration
+           │◄─── HTTP ──────── Donation        validate recipient
+           │◄─── RabbitMQ ──── Donation        donation notification
+           │◄─── gRPC ──────────────── Video   resolve usernames
+           │◄─── RabbitMQ ─────────── Video    subscription notification
 ```
 
-The gateway is config-driven — adding a new route is a few lines of JSON in `appsettings.json`. YARP handles header forwarding, WebSocket proxying (SignalR), and active health checks.
+### Services
 
-### Services and ports
-
-| Service | Port | Database | Description |
-|---------|------|----------|-------------|
-| API Gateway (YARP) | 5050 | — | Routes all frontend requests, health checks backends |
-| Account | 5001 (REST), 5003 (gRPC) | PostgreSQL :5432 | Auth, profiles, notifications, gRPC server |
-| Donation | 5100 | PostgreSQL :5434 | Wallets and donations |
-| Video Catalogue | 5002 | PostgreSQL :5433 | Video upload, comments, playlists |
-| Chat | 5004 | PostgreSQL :5435 | Chat rooms, messages, SignalR |
-| RabbitMQ | 5672 (AMQP), 15672 (management UI) | — | Message broker for async events |
+| Service | Port | Database | What it does |
+|---------|------|----------|--------------|
+| API Gateway (YARP) | 5050 | -- | Routes all requests, CORS whitelist, health checks |
+| Account | 5001 (REST), 5003 (gRPC) | PostgreSQL :5432 | Auth, profiles, notifications, gRPC username server |
+| Video Catalogue | 5002 | PostgreSQL :5433 | Upload, comments, playlists, subscriptions |
+| Donation | 5100 | PostgreSQL :5434 | Wallets, donations, balance transfers |
+| Chat | 5004 | PostgreSQL :5435 | Chat rooms, messages, real-time via SignalR |
+| RabbitMQ | 5672 / 15672 | -- | Async event broker (MassTransit) |
 
 ### Inter-service communication
 
-Services use three different protocols depending on the use case:
+| Flow | Protocol | Why |
+|------|----------|-----|
+| Wallet creation on registration | Account → Donation via **RabbitMQ** | Fire-and-forget |
+| Donation notifications | Donation → Account via **RabbitMQ** | Async, doesn't block payment |
+| Subscription notifications | Video → Account via **RabbitMQ** | Async |
+| Recipient validation | Donation → Account via **HTTP** | Sync check before transfer |
+| Username resolution | Video → Account via **gRPC** | High-perf batch lookups (Protobuf) |
 
-| Flow | Direction | Protocol | Why |
-|------|-----------|----------|-----|
-| Wallet creation | Account → Donation | **RabbitMQ** | Fire-and-forget event on registration |
-| Donation notification | Donation → Account | **RabbitMQ** | Async notification, doesn't block donation |
-| Subscription notification | Video → Account | **RabbitMQ** | Async notification on subscribe |
-| Recipient validation | Donation → Account | **HTTP** | Synchronous check before processing |
-| Username resolution | Video → Account | **gRPC** | High-performance batch lookups (Protobuf) |
-| Chat auth | JWT → Chat | **JWT claims** | No inter-service call needed |
-
-**RabbitMQ** (MassTransit) handles fire-and-forget events where the sender doesn't need a response. **gRPC** handles high-frequency synchronous lookups with binary serialization. **HTTP** is kept for simple synchronous calls.
+All inter-service calls (HTTP and gRPC) are authenticated with a shared API key (`INTERNAL_API_KEY`).
 
 ## Quick start
 
+### Prerequisites
+
+- Docker or Podman
+- Node.js v22 (for frontend)
+
+### 1. Configure environment
+
 ```bash
-# Start everything (containers + seed data)
+cp .env.example .env
+# Edit .env with your secrets (defaults work for local dev)
+```
+
+### 2. Start everything
+
+```bash
+# Using the dev script:
 ./dev.sh
 
-# Start the frontend (separate terminal)
+# Or manually:
+docker compose up --build -d
+```
+
+### 3. Start the frontend
+
+```bash
 cd glense.client && npm install && npm run dev
 ```
 
-Other commands:
+### Verify it works
 
 ```bash
-./dev.sh down      # Stop everything
-./dev.sh restart   # Full clean restart + seed
-./dev.sh logs      # Follow all container logs
-./dev.sh logs gateway  # Follow a single service
-./dev.sh seed      # Re-seed test data
-./dev.sh prune     # Nuclear option: stop + wipe all images/cache
+# Health checks
+curl http://localhost:5050/health          # Gateway
+curl http://localhost:5001/health          # Account
+curl http://localhost:5002/health          # Video
+curl http://localhost:5100/health          # Donation
+curl http://localhost:5004/health          # Chat
+
+# Register + login
+curl -X POST http://localhost:5050/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test","email":"test@test.com","password":"Password123!"}'
+
+curl -X POST http://localhost:5050/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"usernameOrEmail":"test","password":"Password123!"}'
 ```
 
-The seed script creates 3 users (password: `Password123!`), wallets, donations, 8 videos with comments.
-
-### Manual setup
-
-If you prefer to start services individually:
+### Seed test data
 
 ```bash
-# Start databases, then services, then gateway
-docker compose up --build -d postgres_account postgres_video postgres_donation postgres_chat
-docker compose up --build -d account_service video_service donation_service chat_service gateway
-
-# Seed test data
 ./scripts/seed.sh
 ```
 
-Works with both Docker and Podman.
+Creates 3 users (password: `Password123!`): `keki`, `irena`, `branko` -- each with $500 wallets.
 
-## Prerequisites
-
-- Node.js v22
-- Docker or Podman
-
-## Development workflow
-
-1. Set up `git pp` so branch names are prefixed with your username
-2. Use GitHub Issues for sprint tracking
-3. PRs require at least one approval before merge
+### Other commands
 
 ```bash
-# Setup git pp (one-time)
-./scripts/setup-pp.sh yourname
-
-# Setup pre-commit hook for C# formatting (one-time)
-./scripts/setup-hooks.sh
+./dev.sh down          # Stop everything
+./dev.sh restart       # Clean restart + seed
+./dev.sh logs          # Follow all logs
+./dev.sh logs gateway  # Follow one service
+./dev.sh prune         # Wipe everything (containers, volumes, images)
 ```
+
+## Configuration
+
+All secrets live in `.env` (gitignored). The `.env.example` template shows every variable:
+
+| Variable | Used by | Purpose |
+|----------|---------|---------|
+| `JWT_SECRET_KEY` | All services | JWT token signing (min 32 chars) |
+| `JWT_ISSUER` / `JWT_AUDIENCE` | All services | Token validation |
+| `INTERNAL_API_KEY` | Account, Video, Donation | Service-to-service auth |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` | All databases | DB credentials |
+| `RABBITMQ_USER` / `RABBITMQ_PASS` | RabbitMQ + consumers | Broker credentials |
+| `*_DB_CONNECTION_STRING` | Each service | Full Npgsql connection string |
+
+Services read from environment variables first, then fall back to `appsettings.json`.
+
+## Security
+
+- **CORS**: All services restrict origins to a configurable whitelist (default: `localhost:5173`, `:3000`, `:50653`, `:50654`)
+- **JWT**: BCrypt password hashing, 7-day token expiry, validated on all services
+- **Inter-service auth**: gRPC and HTTP calls between services require `INTERNAL_API_KEY` header
+- **Secrets**: No credentials in code or config files -- all in `.env` (gitignored)
+
+## Swagger docs
+
+| Service | URL |
+|---------|-----|
+| Account | http://localhost:5001/swagger |
+| Video Catalogue | http://localhost:5002/swagger |
+| Donation | http://localhost:5100 |
+| Chat | http://localhost:5004/swagger |
+
+## Development
+
+```bash
+# Setup pre-commit hook for C# formatting
+./scripts/setup-hooks.sh
+
+# Setup git pp branch prefixes
+./scripts/setup-pp.sh yourname
+```
+
+PRs require at least one approval before merge.

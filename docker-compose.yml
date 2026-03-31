@@ -4,8 +4,8 @@ services:
     image: rabbitmq:3-management
     container_name: glense_rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -23,8 +23,8 @@ services:
     container_name: glense_postgres_account
     environment:
       POSTGRES_DB: glense_account
-      POSTGRES_USER: glense
-      POSTGRES_PASSWORD: glense123
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -33,7 +33,7 @@ services:
     networks:
       - glense_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U glense -d glense_account"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d glense_account"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -48,13 +48,14 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ACCOUNT_REST_PORT=5000
       - ACCOUNT_GRPC_PORT=5001
-      - ConnectionStrings__DefaultConnection=Host=postgres_account;Port=5432;Database=glense_account;Username=glense;Password=glense123
-      - JWT_SECRET_KEY=YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
-      - JWT_ISSUER=GlenseAccountService
-      - JWT_AUDIENCE=GlenseApp
+      - ConnectionStrings__DefaultConnection=${ACCOUNT_DB_CONNECTION_STRING}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
       - RabbitMQ__Host=rabbitmq
-      - RabbitMQ__Username=guest
-      - RabbitMQ__Password=guest
+      - RabbitMQ__Username=${RABBITMQ_USER}
+      - RabbitMQ__Password=${RABBITMQ_PASS}
     ports:
       - "5001:5000"
       - "5003:5001"
@@ -73,8 +74,8 @@ services:
     container_name: glense_postgres_video
     environment:
       POSTGRES_DB: glense_video
-      POSTGRES_USER: glense
-      POSTGRES_PASSWORD: glense123
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
     volumes:
@@ -82,7 +83,7 @@ services:
     networks:
       - glense_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U glense -d glense_video"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d glense_video"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -93,8 +94,8 @@ services:
     container_name: glense_postgres_donation
     environment:
       POSTGRES_DB: glense_donation
-      POSTGRES_USER: glense
-      POSTGRES_PASSWORD: glense123
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5434:5432"
     volumes:
@@ -102,7 +103,7 @@ services:
     networks:
       - glense_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U glense -d glense_donation"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d glense_donation"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -116,14 +117,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - PORT=5100
-      - DONATION_DB_CONNECTION_STRING=Host=postgres_donation;Port=5432;Database=glense_donation;Username=glense;Password=glense123
+      - DONATION_DB_CONNECTION_STRING=${DONATION_DB_CONNECTION_STRING}
       - ACCOUNT_SERVICE_URL=http://account_service:5000
-      - JwtSettings__Issuer=GlenseAccountService
-      - JwtSettings__Audience=GlenseApp
-      - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
       - RabbitMQ__Host=rabbitmq
-      - RabbitMQ__Username=guest
-      - RabbitMQ__Password=guest
+      - RabbitMQ__Username=${RABBITMQ_USER}
+      - RabbitMQ__Password=${RABBITMQ_PASS}
     ports:
       - "5100:5100"
     depends_on:
@@ -141,8 +143,8 @@ services:
     container_name: glense_postgres_chat
     environment:
       POSTGRES_DB: glense_chat
-      POSTGRES_USER: glense
-      POSTGRES_PASSWORD: glense123
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5435:5432"
     volumes:
@@ -150,7 +152,7 @@ services:
     networks:
       - glense_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U glense -d glense_chat"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d glense_chat"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -163,15 +165,16 @@ services:
     container_name: glense_video_service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__VideoCatalogue=Host=postgres_video;Port=5432;Database=glense_video;Username=glense;Password=glense123
+      - ConnectionStrings__VideoCatalogue=${VIDEO_DB_CONNECTION_STRING}
       - ACCOUNT_SERVICE_URL=http://account_service:5000
       - ACCOUNT_GRPC_URL=http://account_service:5001
-      - JwtSettings__Issuer=GlenseAccountService
-      - JwtSettings__Audience=GlenseApp
-      - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
       - RabbitMQ__Host=rabbitmq
-      - RabbitMQ__Username=guest
-      - RabbitMQ__Password=guest
+      - RabbitMQ__Username=${RABBITMQ_USER}
+      - RabbitMQ__Password=${RABBITMQ_PASS}
     ports:
       - "5002:5002"
     depends_on:
@@ -195,10 +198,14 @@ services:
     ports:
       - "5050:5050"
     depends_on:
-      - account_service
-      - video_service
-      - donation_service
-      - chat_service
+      account_service:
+        condition: service_started
+      video_service:
+        condition: service_started
+      donation_service:
+        condition: service_started
+      chat_service:
+        condition: service_started
     networks:
       - glense_network
     restart: unless-stopped
@@ -227,10 +234,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=Host=postgres_chat;Port=5432;Database=glense_chat;Username=glense;Password=glense123
-      - JwtSettings__Issuer=GlenseAccountService
-      - JwtSettings__Audience=GlenseApp
-      - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
+      - ConnectionStrings__DefaultConnection=${CHAT_DB_CONNECTION_STRING}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
     ports:
       - "5004:5000"
     depends_on:

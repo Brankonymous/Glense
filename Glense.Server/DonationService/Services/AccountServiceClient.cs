@@ -18,6 +18,12 @@ public class AccountServiceClient : IAccountServiceClient
     {
         _httpClient = httpClientFactory.CreateClient("AccountService");
         _logger = logger;
+
+        var apiKey = Environment.GetEnvironmentVariable("INTERNAL_API_KEY");
+        if (!string.IsNullOrEmpty(apiKey))
+        {
+            _httpClient.DefaultRequestHeaders.Add("X-Internal-Api-Key", apiKey);
+        }
     }
 
     public async Task<string?> GetUsernameAsync(Guid userId)

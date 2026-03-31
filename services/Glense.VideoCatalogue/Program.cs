@@ -1,6 +1,7 @@
 using Glense.VideoCatalogue.Data;
 using Glense.VideoCatalogue.GrpcClients;
 using Glense.VideoCatalogue.Protos;
+using Grpc.Core.Interceptors;
 using Glense.VideoCatalogue.Services;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -24,10 +25,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS for frontend dev
+// Configure CORS — restrict to known frontend origins
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:5173", "http://localhost:50653", "http://localhost:50654", "http://localhost:3000"];
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+    options.AddPolicy("AllowFrontend", policy => policy
+        .WithOrigins(allowedOrigins)
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials());
 });
 
 // Configure DbContext (Postgres)
@@ -50,10 +58,12 @@ var accountGrpcUrl = Environment.GetEnvironmentVariable("ACCOUNT_GRPC_URL")
     ?? builder.Configuration["AccountService:GrpcUrl"]
     ?? "http://localhost:5001";
 
+builder.Services.AddSingleton<InternalApiKeyClientInterceptor>();
 builder.Services.AddGrpcClient<AccountGrpc.AccountGrpcClient>(options =>
 {
     options.Address = new Uri(accountGrpcUrl);
-});
+})
+.AddInterceptor<InternalApiKeyClientInterceptor>();
 builder.Services.AddScoped<IAccountGrpcClient, AccountGrpcClient>();
 
 // JWT Authentication
@@ -119,7 +129,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
