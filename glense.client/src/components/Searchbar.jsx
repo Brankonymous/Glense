@@ -12,7 +12,8 @@ function SearchBar() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        navigate(`/search/${searchTerm}`);
+        if (!searchTerm.trim()) return;
+        navigate(`/search/${encodeURIComponent(searchTerm)}`);
         setSearchTerm("");
     };
 
@@ -30,7 +31,7 @@ function SearchBar() {
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
 
-            <IconButton>
+            <IconButton type="submit">
                 <Search className='search-icon'/>
             </IconButton>
         </Paper>

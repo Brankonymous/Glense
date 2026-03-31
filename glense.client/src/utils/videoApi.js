@@ -23,6 +23,18 @@ export async function getVideo(id) {
   return handleRes(res);
 }
 
+export async function searchVideos(query, category) {
+  const params = new URLSearchParams({ q: query });
+  if (category) params.append('category', category);
+  const res = await fetch(`${BASE}/api/videos/search?${params}`);
+  return handleRes(res);
+}
+
+export async function incrementView(videoId) {
+  const res = await fetch(`${BASE}/api/videos/${videoId}/view`, { method: 'PATCH' });
+  return handleRes(res);
+}
+
 export async function updateVideoCategory(videoId, category) {
   const res = await fetch(`${BASE}/api/videos/${videoId}/category`, {
     method: 'PATCH',
@@ -77,6 +89,13 @@ export async function removeVideoFromPlaylist(playlistId, videoId) {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ playlistId, videoId }),
+  });
+  return handleRes(res);
+}
+
+export async function getUserLike(videoId) {
+  const res = await fetch(`${BASE}/api/videolikes/${videoId}`, {
+    headers: authHeaders(),
   });
   return handleRes(res);
 }
@@ -156,11 +175,14 @@ export default {
   getPlaylistVideos,
   removeVideoFromPlaylist,
   likeVideo,
+  getUserLike,
   subscribeTo,
   unsubscribeFrom,
   getSubscriptions,
   getComments,
   postComment,
   likeComment,
+  searchVideos,
+  incrementView,
   updateVideoCategory,
 };

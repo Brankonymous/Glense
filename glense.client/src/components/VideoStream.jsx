@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import ReactPlayer from "react-player";
 import { Typography, Box, Stack, Button, FormControl, Select, MenuItem, Avatar, Snackbar } from "@mui/material";
@@ -13,7 +13,7 @@ import {
 } from "@mui/icons-material";
 
 import { Videos, VideoComments } from ".";
-import { getVideo, getVideos, getPlaylists, addVideoToPlaylist, likeVideo, updateVideoCategory } from "../utils/videoApi";
+import { getVideo, getVideos, getPlaylists, addVideoToPlaylist, likeVideo, getUserLike, updateVideoCategory, incrementView } from "../utils/videoApi";
 import { categories } from "../utils/constants";
 import { useAuth } from "../context/AuthContext";
 
@@ -42,6 +42,7 @@ function VideoStream() {
   const [userLike, setUserLike] = useState(null);
   const [editingCategory, setEditingCategory] = useState(false);
   const { user } = useAuth();
+  const viewCounted = useRef(false);
 
   const isOwner = user && video && String(user.id) === String(video.uploaderId);
 
@@ -52,8 +53,12 @@ function VideoStream() {
     getVideos().then(list => { if (mounted && Array.isArray(list)) setRelated(list.filter(v => String(v.id) !== String(id)).slice(0, 12)); }).catch(() => {});
     setUserLike(null);
     setShowMoreDesc(false);
+    viewCounted.current = false;
+    if (user && id) {
+      getUserLike(id).then(data => { if (mounted && data?.liked != null) setUserLike(data.liked); }).catch(() => {});
+    }
     return () => { mounted = false; };
-  }, [id]);
+  }, [id, user]);
 
   useEffect(() => {
     let mounted = true;
@@ -120,11 +125,17 @@ function VideoStream() {
               controls
               width="100%"
               height="100%"
+              onStart={() => {
+                if (!viewCounted.current) {
+                  viewCounted.current = true;
+                  incrementView(id).catch(() => {});
+                }
+              }}
             />
             <Typography className="video-title">{video?.title || demoVideoInfo.title}</Typography>
 
             <Stack className="video-details">
-              <Link to={`/channel/${video?.uploaderUsername || video?.uploaderId}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+              <Link to={`/channel/${video?.uploaderId}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
                 <Avatar sx={{ bgcolor: '#c62828', width: 36, height: 36, fontSize: 16 }}>
                   {(video?.uploaderUsername || video?.title || '?').charAt(0).toUpperCase()}
                 </Avatar>

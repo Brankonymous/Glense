@@ -112,6 +112,8 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
+builder.Services.AddMemoryCache();
+
 // Health checks
 builder.Services.AddHealthChecks();
 
