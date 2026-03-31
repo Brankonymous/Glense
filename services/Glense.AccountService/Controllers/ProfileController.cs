@@ -23,7 +23,9 @@ namespace Glense.AccountService.Controllers
         private Guid GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return Guid.Parse(userIdClaim!);
+            if (!Guid.TryParse(userIdClaim, out var userId))
+                throw new UnauthorizedAccessException("Invalid or missing user identity claim");
+            return userId;
         }
 
         [HttpGet("search")]

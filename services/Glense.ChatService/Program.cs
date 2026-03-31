@@ -68,13 +68,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// DEV: permissive CORS policy for local development (adjust/remove for production)
+// Configure CORS — restrict to known frontend origins
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:5173", "http://localhost:50653", "http://localhost:50654", "http://localhost:3000"];
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("DevCors", policy => policy
+    options.AddPolicy("AllowFrontend", policy => policy
+        .WithOrigins(allowedOrigins)
         .AllowAnyMethod()
         .AllowAnyHeader()
-        .SetIsOriginAllowed(_ => true)
         .AllowCredentials());
 });
 
@@ -101,7 +104,9 @@ else
 // JWT settings
 var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "GlenseAccountService";
 var jwtAudience = builder.Configuration["JwtSettings:Audience"] ?? "GlenseApp";
-var jwtSecret = builder.Configuration["JwtSettings:SecretKey"] ?? "ChangeMeToA32CharSecret";
+var jwtSecret = builder.Configuration["JwtSettings:SecretKey"]
+    ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? throw new InvalidOperationException("JWT SecretKey not configured. Set JwtSettings:SecretKey or JWT_SECRET_KEY env var");
 
 // Authentication (JWT)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -166,7 +171,7 @@ app.Use(async (ctx, next) =>
 });
 
 // Enable dev CORS policy before auth so preflight succeeds
-app.UseCors("DevCors");
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -200,13 +205,9 @@ app.MapControllers();
 
 // Map SignalR hubs
 app.MapHub<Glense.ChatService.Hubs.ChatHub>("/hubs/chat");
-// Ensure relational DB schema exists when using Postgres (not in-memory)
+// Ensure database schema exists and seed demo data
 try
 {
-    var startupChatUseInMemory = (Environment.GetEnvironmentVariable("CHAT_USE_INMEMORY") ?? "false").ToLowerInvariant() == "true";
-    var startupChatConn = app.Configuration.GetConnectionString("DefaultConnection")
-                        ?? app.Configuration["ConnectionStrings:DefaultConnection"];
-
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetService<ChatDbContext>();
     if (db != null)

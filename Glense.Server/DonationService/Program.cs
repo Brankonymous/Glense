@@ -97,12 +97,15 @@ builder.Services.AddAuthorization();
 // Health check endpoint for container orchestration
 builder.Services.AddHealthChecks();
 
-// CORS policy - Allow frontend origins (both HTTP and HTTPS)
+// Configure CORS — restrict to known frontend origins
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:5173", "http://localhost:50653", "http://localhost:50654", "http://localhost:3000"];
+
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.SetIsOriginAllowed(_ => true) // Allow any origin in development
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -112,7 +115,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // CORS must be first middleware after exception handling
-app.UseCors();
+app.UseCors("AllowFrontend");
 
 // Swagger UI available at root path for easy API exploration
 if (app.Environment.IsDevelopment())
@@ -130,8 +133,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-// Auto-create database schema in development
-// In production, use proper migrations
+// Auto-create database schema on startup
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
