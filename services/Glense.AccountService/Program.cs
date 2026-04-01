@@ -198,3 +198,6 @@ app.MapGrpcService<AccountGrpcService>();
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "account", timestamp = DateTime.UtcNow }));
 
 app.Run();
+
+// Expose Program class for integration tests
+public partial class Program { }

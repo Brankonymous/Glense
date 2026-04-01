@@ -154,3 +154,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+// Expose Program class for integration tests
+public partial class Program { }

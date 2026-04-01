@@ -2,7 +2,7 @@
 
   <!-- Exclude Tests folder - it has its own project -->
   <PropertyGroup>
-    <DefaultItemExcludes>$(DefaultItemExcludes);Tests\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Tests\**;IntegrationTests\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <PropertyGroup>
