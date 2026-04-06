@@ -12,7 +12,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 
 // Load environment variables from a .env file if present in this directory or any parent directory
-try {
+try
+{
     // Search upward from current dir for a .env file and load the first one found
     var dir = Directory.GetCurrentDirectory();
     while (!string.IsNullOrEmpty(dir))
@@ -86,7 +87,7 @@ var chatConn = builder.Configuration.GetConnectionString("DefaultConnection")
                ?? builder.Configuration["ConnectionStrings:DefaultConnection"];
 var chatUseInMemory = (Environment.GetEnvironmentVariable("CHAT_USE_INMEMORY") ?? "false").ToLowerInvariant() == "true";
 // Debug output to help diagnose env/connection issues during local dev
-try { Console.WriteLine($"CHAT_USE_INMEMORY={chatUseInMemory}, DefaultConnection={(chatConn ?? "(null)")}"); } catch {}
+try { Console.WriteLine($"CHAT_USE_INMEMORY={chatUseInMemory}, DefaultConnection={(chatConn ?? "(null)")}"); } catch { }
 
 if (chatUseInMemory)
 {
@@ -165,9 +166,9 @@ app.UseRouting();
 // Simple request logging for local development
 app.Use(async (ctx, next) =>
 {
-    try { Console.WriteLine($"[{DateTime.UtcNow:O}] Incoming {ctx.Request.Method} {ctx.Request.Path} from {ctx.Connection.RemoteIpAddress}"); } catch {}
+    try { Console.WriteLine($"[{DateTime.UtcNow:O}] Incoming {ctx.Request.Method} {ctx.Request.Path} from {ctx.Connection.RemoteIpAddress}"); } catch { }
     await next();
-    try { Console.WriteLine($"[{DateTime.UtcNow:O}] Response {ctx.Response.StatusCode} for {ctx.Request.Method} {ctx.Request.Path}"); } catch {}
+    try { Console.WriteLine($"[{DateTime.UtcNow:O}] Response {ctx.Response.StatusCode} for {ctx.Request.Method} {ctx.Request.Path}"); } catch { }
 });
 
 // Enable dev CORS policy before auth so preflight succeeds
@@ -207,52 +208,52 @@ app.MapControllers();
 app.MapHub<Glense.ChatService.Hubs.ChatHub>("/hubs/chat");
 // Ensure database schema exists and seed demo data (skip in test environment)
 if (!app.Environment.IsEnvironment("Testing"))
-try
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetService<ChatDbContext>();
-    if (db != null)
+    try
     {
-        db.Database.EnsureCreated();
-
-        // Seed demo chats if empty
-        if (!db.Chats.Any())
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetService<ChatDbContext>();
+        if (db != null)
         {
-            var generalChat = new Glense.ChatService.Models.Chat
-            {
-                Id = Guid.NewGuid(),
-                Topic = "General",
-                CreatedAtUtc = DateTime.UtcNow.AddDays(-7)
-            };
-            var techChat = new Glense.ChatService.Models.Chat
-            {
-                Id = Guid.NewGuid(),
-                Topic = "Tech Talk",
-                CreatedAtUtc = DateTime.UtcNow.AddDays(-3)
-            };
-            var gamingChat = new Glense.ChatService.Models.Chat
-            {
-                Id = Guid.NewGuid(),
-                Topic = "Gaming",
-                CreatedAtUtc = DateTime.UtcNow.AddDays(-1)
-            };
-            db.Chats.AddRange(generalChat, techChat, gamingChat);
+            db.Database.EnsureCreated();
 
-            db.Messages.AddRange(
-                new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = generalChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Welcome to Glense!", CreatedAtUtc = DateTime.UtcNow.AddDays(-7) },
-                new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = generalChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Hey everyone, glad to be here", CreatedAtUtc = DateTime.UtcNow.AddDays(-6) },
-                new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = techChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Anyone tried .NET 8 yet?", CreatedAtUtc = DateTime.UtcNow.AddDays(-3) },
-                new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = techChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Yeah, the performance improvements are solid", CreatedAtUtc = DateTime.UtcNow.AddDays(-2) },
-                new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = gamingChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "What games are you all playing?", CreatedAtUtc = DateTime.UtcNow.AddDays(-1) }
-            );
-            db.SaveChanges();
+            // Seed demo chats if empty
+            if (!db.Chats.Any())
+            {
+                var generalChat = new Glense.ChatService.Models.Chat
+                {
+                    Id = Guid.NewGuid(),
+                    Topic = "General",
+                    CreatedAtUtc = DateTime.UtcNow.AddDays(-7)
+                };
+                var techChat = new Glense.ChatService.Models.Chat
+                {
+                    Id = Guid.NewGuid(),
+                    Topic = "Tech Talk",
+                    CreatedAtUtc = DateTime.UtcNow.AddDays(-3)
+                };
+                var gamingChat = new Glense.ChatService.Models.Chat
+                {
+                    Id = Guid.NewGuid(),
+                    Topic = "Gaming",
+                    CreatedAtUtc = DateTime.UtcNow.AddDays(-1)
+                };
+                db.Chats.AddRange(generalChat, techChat, gamingChat);
+
+                db.Messages.AddRange(
+                    new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = generalChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Welcome to Glense!", CreatedAtUtc = DateTime.UtcNow.AddDays(-7) },
+                    new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = generalChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Hey everyone, glad to be here", CreatedAtUtc = DateTime.UtcNow.AddDays(-6) },
+                    new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = techChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Anyone tried .NET 8 yet?", CreatedAtUtc = DateTime.UtcNow.AddDays(-3) },
+                    new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = techChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "Yeah, the performance improvements are solid", CreatedAtUtc = DateTime.UtcNow.AddDays(-2) },
+                    new Glense.ChatService.Models.Message { Id = Guid.NewGuid(), ChatId = gamingChat.Id, UserId = Guid.Empty, Sender = Glense.ChatService.Models.MessageSender.User, Content = "What games are you all playing?", CreatedAtUtc = DateTime.UtcNow.AddDays(-1) }
+                );
+                db.SaveChanges();
+            }
         }
     }
-}
-catch
-{
-    // no-op: don't crash the app if DB creation/check fails here
-}
+    catch
+    {
+        // no-op: don't crash the app if DB creation/check fails here
+    }
 
 app.Run();
 

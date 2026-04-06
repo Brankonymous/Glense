@@ -12,7 +12,8 @@ using Glense.AccountService.GrpcServices;
 using Glense.AccountService.Services;
 
 // Load environment variables from a .env file if present in this directory or any parent directory
-try {
+try
+{
     var dir = Directory.GetCurrentDirectory();
     while (!string.IsNullOrEmpty(dir))
     {

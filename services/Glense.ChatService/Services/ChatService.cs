@@ -17,7 +17,7 @@ public class ChatService : IChatService
     public async Task<PagedResponse<ChatDto>> GetChatsAsync(Guid? cursor, int pageSize, CancellationToken ct = default)
     {
         pageSize = Math.Clamp(pageSize, 1, 100);
-    IQueryable<Models.Chat> query = _db.Chats.AsNoTracking().OrderBy(c => c.CreatedAtUtc).ThenBy(c => c.Id);
+        IQueryable<Models.Chat> query = _db.Chats.AsNoTracking().OrderBy(c => c.CreatedAtUtc).ThenBy(c => c.Id);
         if (cursor is not null)
         {
             // cursor is last seen createdAt + id tie-breaker - but we only have id cursor here; simple keyset by createdAt via lookup
@@ -63,7 +63,7 @@ public class ChatService : IChatService
     public async Task<PagedResponse<MessageDto>> GetMessagesAsync(Guid chatId, Guid? cursor, int pageSize, CancellationToken ct = default)
     {
         pageSize = Math.Clamp(pageSize, 1, 100);
-    IQueryable<Models.Message> q = _db.Messages.AsNoTracking().Where(m => m.ChatId == chatId).OrderBy(m => m.CreatedAtUtc).ThenBy(m => m.Id);
+        IQueryable<Models.Message> q = _db.Messages.AsNoTracking().Where(m => m.ChatId == chatId).OrderBy(m => m.CreatedAtUtc).ThenBy(m => m.Id);
         if (cursor is not null)
         {
             var pivot = await _db.Messages.AsNoTracking().FirstOrDefaultAsync(m => m.Id == cursor.Value, ct);

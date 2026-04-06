@@ -7,7 +7,7 @@ namespace Glense.AccountService.DTOs
         [Required]
         public string UsernameOrEmail { get; set; } = string.Empty;
 
-        [Required] 
+        [Required]
         public string Password { get; set; } = string.Empty;
     }
 }

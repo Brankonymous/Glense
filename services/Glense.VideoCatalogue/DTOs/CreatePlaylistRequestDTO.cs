@@ -4,9 +4,9 @@ namespace Glense.VideoCatalogue.DTOs;
 
 public class CreatePlaylistRequestDTO
 {
-	[Required]
-	[MaxLength(255)]
-	public string Name { get; set; } = null!;
+    [Required]
+    [MaxLength(255)]
+    public string Name { get; set; } = null!;
 
-	public string? Description { get; set; }
+    public string? Description { get; set; }
 }
