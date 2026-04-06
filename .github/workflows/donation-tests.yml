@@ -25,4 +25,4 @@ jobs:
         run: dotnet build --no-restore
 
       - name: Test DonationService
-        run: dotnet test Glense.Server/DonationService/Tests/DonationService.Tests.csproj --no-build --verbosity normal
+        run: dotnet test tests/DonationService.IntegrationTests/DonationService.IntegrationTests.csproj --no-build --verbosity normal
