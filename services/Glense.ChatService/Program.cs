@@ -205,7 +205,8 @@ app.MapControllers();
 
 // Map SignalR hubs
 app.MapHub<Glense.ChatService.Hubs.ChatHub>("/hubs/chat");
-// Ensure database schema exists and seed demo data
+// Ensure database schema exists and seed demo data (skip in test environment)
+if (!app.Environment.IsEnvironment("Testing"))
 try
 {
     using var scope = app.Services.CreateScope();

@@ -20,7 +20,7 @@
 #>
 param(
     [string]$Filter = "",
-    [ValidateSet("Account", "Video", "Donation", "Chat", "DonationUnit", "")]
+    [ValidateSet("Account", "Video", "Donation", "Chat", "")]
     [string]$Project = ""
 )
 
@@ -29,11 +29,10 @@ $root = Split-Path -Parent $PSScriptRoot
 
 # All test projects in the solution
 $testProjects = @{
-    Account      = "services\Glense.AccountService\IntegrationTests\AccountService.IntegrationTests.csproj"
-    Video        = "services\Glense.VideoCatalogue\IntegrationTests\VideoCatalogue.IntegrationTests.csproj"
-    Donation     = "Glense.Server\DonationService\IntegrationTests\DonationService.IntegrationTests.csproj"
-    Chat         = "services\Glense.ChatService\IntegrationTests\ChatService.IntegrationTests.csproj"
-    DonationUnit = "Glense.Server\DonationService\Tests\DonationService.Tests.csproj"
+    Account      = "tests\AccountService.IntegrationTests\AccountService.IntegrationTests.csproj"
+    Video        = "tests\VideoCatalogue.IntegrationTests\VideoCatalogue.IntegrationTests.csproj"
+    Donation     = "tests\DonationService.IntegrationTests\DonationService.IntegrationTests.csproj"
+    Chat         = "tests\ChatService.IntegrationTests\ChatService.IntegrationTests.csproj"
 }
 
 # If a specific project was requested, filter to just that one
