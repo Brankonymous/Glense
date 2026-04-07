@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Glense.AccountService.Models
 {
-    [Table("notifications")] 
+    [Table("notifications")]
     public class Notification
     {
         [Key]

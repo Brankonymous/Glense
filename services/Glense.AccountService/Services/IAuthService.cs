@@ -7,7 +7,7 @@ namespace Glense.AccountService.Services
         Task<AuthResponseDto?> RegisterAsync(RegisterDto registerDto);
 
         Task<AuthResponseDto?> LoginAsync(LoginDto loginDto);
-        
+
         string GenerateJwtToken(Guid userId, string username, string email, string accountType);
     }
 }

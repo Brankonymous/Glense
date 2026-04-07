@@ -5,16 +5,16 @@ namespace Glense.VideoCatalogue.DTOs;
 
 public class UploadRequestDTO
 {
-	[Required]
-	public IFormFile File { get; set; } = null!;
+    [Required]
+    public IFormFile File { get; set; } = null!;
 
-	[MaxLength(255)]
-	public string? Title { get; set; }
+    [MaxLength(255)]
+    public string? Title { get; set; }
 
-	public string? Description { get; set; }
+    public string? Description { get; set; }
 
-	public IFormFile? Thumbnail { get; set; }
+    public IFormFile? Thumbnail { get; set; }
 
-	[MaxLength(50)]
-	public string? Category { get; set; }
+    [MaxLength(50)]
+    public string? Category { get; set; }
 }
