@@ -143,3 +143,24 @@ kubectl rollout restart deployment/<service-name>
 minikube stop        # pause the cluster
 minikube delete      # delete the cluster and all data
 ```
+
+### Troubleshooting
+
+**Postgres pods in CrashLoopBackOff**
+
+This happens when the cluster is restarted and the persistent volumes contain stale data. Fix by wiping the volumes and restarting:
+
+```bash
+kubectl delete pvc postgres-account-data postgres-video-data postgres-donation-data postgres-chat-data
+kubectl rollout restart deployment/postgres-account deployment/postgres-video deployment/postgres-donation deployment/postgres-chat
+```
+
+Wait ~15 seconds, then check `kubectl get pods` — all postgres pods should be `Running`.
+
+**port-forward stops working after a deployment restart**
+
+Kill the port-forward (`Ctrl+C`) and restart it:
+
+```bash
+kubectl port-forward service/gateway 5050:5050
+```
