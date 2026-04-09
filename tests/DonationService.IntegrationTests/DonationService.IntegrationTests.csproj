@@ -15,11 +15,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.8" />
+    <PackageReference Include="Moq" Version="4.20.70" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DonationService.csproj" />
+    <ProjectReference Include="..\..\Glense.Server\DonationService\DonationService.csproj" />
+    <ProjectReference Include="..\Glense.TestUtilities\Glense.TestUtilities.csproj" />
   </ItemGroup>
 
 </Project>

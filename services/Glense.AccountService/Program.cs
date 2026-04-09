@@ -12,7 +12,8 @@ using Glense.AccountService.GrpcServices;
 using Glense.AccountService.Services;
 
 // Load environment variables from a .env file if present in this directory or any parent directory
-try {
+try
+{
     var dir = Directory.GetCurrentDirectory();
     while (!string.IsNullOrEmpty(dir))
     {
@@ -198,3 +199,6 @@ app.MapGrpcService<AccountGrpcService>();
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "account", timestamp = DateTime.UtcNow }));
 
 app.Run();
+
+// Expose Program class for integration tests
+public partial class Program { }

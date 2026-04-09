@@ -121,7 +121,8 @@ namespace Glense.AccountService.Services
             };
         }
 
-        public string GenerateJwtToken(Guid userId, string username, string email, string accountType) {
+        public string GenerateJwtToken(Guid userId, string username, string email, string accountType)
+        {
 
             var jwtSettings = _configuration.GetSection("JwtSettings");
 

@@ -176,6 +176,25 @@ The platform supports searching across videos and channels from a single search 
 | Donation | http://localhost:5100 |
 | Chat | http://localhost:5004/swagger |
 
+## Testing
+
+Integration tests cover all four services (Account, Video Catalogue, Donation, Chat) using `WebApplicationFactory` with EF Core InMemory databases and mocked external dependencies (RabbitMQ, gRPC, HTTP clients). No Docker or real databases are needed to run them.
+
+```bash
+# Run all tests
+dotnet test
+
+# Run tests for a single service
+dotnet test tests/AccountService.IntegrationTests
+
+# Use the PowerShell runner for formatted output
+./scripts/run_integration_tests.ps1
+./scripts/run_integration_tests.ps1 -Project Account
+./scripts/run_integration_tests.ps1 -Filter "FullyQualifiedName~Auth"
+```
+
+Test projects live under `tests/` and share a common `Glense.TestUtilities` library for JWT token generation and service configuration helpers.
+
 ## Development
 
 ```bash

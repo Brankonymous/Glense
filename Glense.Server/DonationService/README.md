@@ -125,17 +125,3 @@ Notification failures are non-blocking — if the Account service is unavailable
 | `DONATION_DB_CONNECTION_STRING` | Neon PostgreSQL connection string | In-memory DB |
 | `ACCOUNT_SERVICE_URL` | Account service base URL | `http://localhost:5001` |
 
-## Testing
-
-Run tests from the DonationService directory:
-
-```bash
-cd Glense.Server/DonationService
-dotnet test Tests
-```
-
-Or from repository root:
-
-```bash
-dotnet test Glense.Server/DonationService/Tests
-```
