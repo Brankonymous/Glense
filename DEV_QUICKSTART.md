@@ -93,3 +93,53 @@ curl "http://localhost:5050/api/profile/search?q=keki"
 docker compose down          # stop containers
 docker compose down -v       # stop + wipe database volumes
 ```
+
+---
+
+## Kubernetes (local)
+
+### Prerequisites
+
+```bash
+brew install minikube kompose
+```
+
+Also requires Docker Desktop to be running.
+
+### Setup
+
+```bash
+# 1. Start the cluster and build all service images
+cd k8s
+./deploy.sh
+
+# 2. In a separate terminal, expose the gateway
+kubectl port-forward service/gateway 5050:5050
+
+# 3. Seed test data (from project root)
+cd ..
+./scripts/seed.sh
+```
+
+### Useful commands
+
+```bash
+kubectl get pods                          # check status of all pods
+kubectl logs deployment/account-service  # view logs for a service
+kubectl rollout restart deployment/gateway  # restart a deployment
+```
+
+### Rebuild after code changes
+
+```bash
+eval $(minikube docker-env)
+docker build -t <service-name> ./path/to/service
+kubectl rollout restart deployment/<service-name>
+```
+
+### Stop
+
+```bash
+minikube stop        # pause the cluster
+minikube delete      # delete the cluster and all data
+```

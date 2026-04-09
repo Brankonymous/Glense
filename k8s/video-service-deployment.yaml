@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o k8s/
+    kompose.version: 1.38.0 (HEAD)
+  labels:
+    io.kompose.service: video-service
+  name: video-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: video-service
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o k8s/
+        kompose.version: 1.38.0 (HEAD)
+      labels:
+        io.kompose.service: video-service
+    spec:
+      containers:
+        - env:
+            - name: ACCOUNT_GRPC_URL
+              value: http://account_service:5001
+            - name: ACCOUNT_SERVICE_URL
+              value: http://account_service:5000
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ConnectionStrings__VideoCatalogue
+              value: Host=postgres-video;Port=5432;Database=glense_video;Username=glense;Password=changeme
+            - name: INTERNAL_API_KEY
+              value: GlenseInternalServiceKey_ChangeMe_AtLeast32Chars!
+            - name: JwtSettings__Audience
+              value: GlenseApp
+            - name: JwtSettings__Issuer
+              value: GlenseAccountService
+            - name: JwtSettings__SecretKey
+              value: YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
+            - name: RabbitMQ__Host
+              value: rabbitmq
+            - name: RabbitMQ__Password
+              value: guest
+            - name: RabbitMQ__Username
+              value: guest
+          image: video-service
+          imagePullPolicy: Never
+          name: glense-video-service
+          ports:
+            - containerPort: 5002
+              protocol: TCP
+      restartPolicy: Always

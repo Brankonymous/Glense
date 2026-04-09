@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o k8s/
+    kompose.version: 1.38.0 (HEAD)
+  labels:
+    io.kompose.service: chat-service
+  name: chat-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: chat-service
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o k8s/
+        kompose.version: 1.38.0 (HEAD)
+      labels:
+        io.kompose.service: chat-service
+    spec:
+      containers:
+        - env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ASPNETCORE_URLS
+              value: http://+:5000
+            - name: ConnectionStrings__DefaultConnection
+              value: Host=postgres-chat;Port=5432;Database=glense_chat;Username=glense;Password=changeme
+            - name: JwtSettings__Audience
+              value: GlenseApp
+            - name: JwtSettings__Issuer
+              value: GlenseAccountService
+            - name: JwtSettings__SecretKey
+              value: YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
+          image: chat-service
+          imagePullPolicy: Never
+          name: glense-chat-service
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+      restartPolicy: Always

@@ -169,11 +169,17 @@ for vid in video_ids:
               f"VALUES ('{cid}', '{vid}', '{uids[ni]}', '{names[ni]}', '{comments_list[ci]}', {lc}, NOW() - interval '{hrs} hours');")
 PYEOF
 
-cat "$TMPFILE" | $CONTAINER_CMD exec -i "$PG_VIDEO" psql -U glense -d glense_video > /dev/null 2>&1
+# Try kubectl first (K8s), fall back to docker exec
+PG_VIDEO_POD=$(kubectl get pod -l io.kompose.service=postgres-video -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+if [ -n "$PG_VIDEO_POD" ]; then
+    cat "$TMPFILE" | kubectl exec -i "$PG_VIDEO_POD" -- psql -U glense -d glense_video > /dev/null 2>&1
+elif [ -n "$PG_VIDEO" ]; then
+    cat "$TMPFILE" | $CONTAINER_CMD exec -i "$PG_VIDEO" psql -U glense -d glense_video > /dev/null 2>&1
+fi
 if [ $? -eq 0 ]; then
     echo "  Inserted 8 videos with comments"
 else
-    echo "  ERROR: Failed to insert videos (is $PG_VIDEO running?)"
+    echo "  ERROR: Failed to insert videos (is postgres-video running?)"
 fi
 rm -f "$TMPFILE"
 

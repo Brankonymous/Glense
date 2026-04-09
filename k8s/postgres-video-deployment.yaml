@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o k8s/
+    kompose.version: 1.38.0 (HEAD)
+  labels:
+    io.kompose.service: postgres-video
+  name: postgres-video
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: postgres-video
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o k8s/
+        kompose.version: 1.38.0 (HEAD)
+      labels:
+        io.kompose.service: postgres-video
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: glense_video
+            - name: POSTGRES_PASSWORD
+              value: changeme
+            - name: POSTGRES_USER
+              value: glense
+          image: postgres:16-alpine
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready -U glense -d glense_video
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: glense-postgres-video
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-video-data
+      restartPolicy: Always
+      volumes:
+        - name: postgres-video-data
+          persistentVolumeClaim:
+            claimName: postgres-video-data

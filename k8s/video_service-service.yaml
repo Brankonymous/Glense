@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o k8s/
+    kompose.version: 1.38.0 (HEAD)
+  labels:
+    io.kompose.service: video-service
+  name: video-service
+spec:
+  ports:
+    - name: "5002"
+      port: 5002
+      targetPort: 5002
+  selector:
+    io.kompose.service: video-service
