@@ -108,17 +108,30 @@ Also requires Docker Desktop to be running.
 
 ### Setup
 
+**Mac/Linux** — run from the project root:
+```bash
+./start.sh
+```
+
+**Windows** — open PowerShell as Administrator and run:
+```powershell
+.\start.ps1
+```
+
+Both scripts will automatically install missing tools (minikube, kubectl, kompose), build all images, apply manifests, seed test data, and start the port-forward.
+
+> **Windows note:** `winget` is required (comes with Windows 11, or install [App Installer](https://apps.microsoft.com/detail/9NBLGGH4NNS1) on Windows 10). Git Bash or WSL is needed for the seed script.
+
+If you prefer to run steps manually:
 ```bash
 # 1. Start the cluster and build all service images
-cd k8s
-./deploy.sh
+cd k8s && ./deploy.sh
 
 # 2. In a separate terminal, expose the gateway
 kubectl port-forward service/gateway 5050:5050
 
 # 3. Seed test data (from project root)
-cd ..
-./scripts/seed.sh
+cd .. && ./scripts/seed.sh
 ```
 
 ### Useful commands
