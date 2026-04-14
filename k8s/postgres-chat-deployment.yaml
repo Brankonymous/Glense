@@ -34,6 +34,8 @@ spec:
           livenessProbe:
             exec:
               command:
+                - /bin/sh
+                - -c
                 - pg_isready -U glense -d glense_chat
             failureThreshold: 5
             periodSeconds: 10
