@@ -88,16 +88,29 @@ kubectl apply -f k8s/ --validate=false
 Log "Waiting for all pods to be ready (up to 3 minutes)..."
 kubectl wait --for=condition=ready pod --all --timeout=180s
 
-# ── 7. Seed data ─────────────────────────────────────────────────────────────
-
-Log "Seeding test data..."
-bash ./scripts/seed.sh
-
-# ── 8. Start port-forward ────────────────────────────────────────────────────
+# ── 7. Start port-forward ────────────────────────────────────────────────────
 
 Log "Starting port-forward for gateway on http://localhost:5050..."
 Start-Process -NoNewWindow kubectl -ArgumentList "port-forward service/gateway 5050:5050"
-Start-Sleep 2
+
+# Wait until the gateway is actually accepting connections before seeding
+Write-Host -NoNewline "  Waiting for gateway..."
+$ready = $false
+for ($i = 0; $i -lt 30; $i++) {
+    try {
+        $null = Invoke-WebRequest -Uri "http://localhost:5050" -TimeoutSec 1 -ErrorAction Stop
+        $ready = $true
+        break
+    } catch { }
+    Write-Host -NoNewline "."
+    Start-Sleep 1
+}
+Write-Host ""
+
+# ── 8. Seed data ─────────────────────────────────────────────────────────────
+
+Log "Seeding test data..."
+bash ./scripts/seed.sh
 
 # ── Done ─────────────────────────────────────────────────────────────────────
 

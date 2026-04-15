@@ -26,10 +26,23 @@ PG_VIDEO=${PG_VIDEO:-glense_postgres_video}
 # ── Clean all databases before seeding ──
 echo "=== Cleaning all databases ==="
 
+# Resolve a postgres pod name by K8s label, fall back to Docker container name
+pg_exec() {
+    local label=$1 container=$2 db=$3
+    shift 3
+    local pod
+    pod=$(kubectl get pod -l "io.kompose.service=$label" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+    if [ -n "$pod" ]; then
+        kubectl exec -i "$pod" -- psql -U glense -d "$db" "$@"
+    else
+        $CONTAINER_CMD exec -i "$container" psql -U glense -d "$db" "$@"
+    fi
+}
+
 clean_db() {
-    local container=$1 db=$2
-    echo "  Cleaning $db ($container)..."
-    $CONTAINER_CMD exec -i "$container" psql -U glense -d "$db" -c "
+    local label=$1 container=$2 db=$3
+    echo "  Cleaning $db ($label / $container)..."
+    pg_exec "$label" "$container" "$db" -c "
         DO \$\$
         DECLARE r RECORD;
         BEGIN
@@ -41,14 +54,14 @@ clean_db() {
     if [ $? -eq 0 ]; then
         echo "    Done"
     else
-        echo "    WARNING: Failed to clean $db (is $container running?)"
+        echo "    WARNING: Failed to clean $db (is $label / $container running?)"
     fi
 }
 
-clean_db "glense_postgres_account" "glense_account"
-clean_db "glense_postgres_video"   "glense_video"
-clean_db "glense_postgres_donation" "glense_donation"
-clean_db "glense_postgres_chat"    "glense_chat"
+clean_db "postgres-account"  "glense_postgres_account"  "glense_account"
+clean_db "postgres-video"    "glense_postgres_video"    "glense_video"
+clean_db "postgres-donation" "glense_postgres_donation" "glense_donation"
+clean_db "postgres-chat"     "glense_postgres_chat"     "glense_chat"
 
 echo ""
 echo "=== Seeding test users ==="
@@ -169,13 +182,7 @@ for vid in video_ids:
               f"VALUES ('{cid}', '{vid}', '{uids[ni]}', '{names[ni]}', '{comments_list[ci]}', {lc}, NOW() - interval '{hrs} hours');")
 PYEOF
 
-# Try kubectl first (K8s), fall back to docker exec
-PG_VIDEO_POD=$(kubectl get pod -l io.kompose.service=postgres-video -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
-if [ -n "$PG_VIDEO_POD" ]; then
-    cat "$TMPFILE" | kubectl exec -i "$PG_VIDEO_POD" -- psql -U glense -d glense_video > /dev/null 2>&1
-elif [ -n "$PG_VIDEO" ]; then
-    cat "$TMPFILE" | $CONTAINER_CMD exec -i "$PG_VIDEO" psql -U glense -d glense_video > /dev/null 2>&1
-fi
+cat "$TMPFILE" | pg_exec "postgres-video" "$PG_VIDEO" "glense_video" > /dev/null 2>&1
 if [ $? -eq 0 ]; then
     echo "  Inserted 8 videos with comments"
 else

@@ -103,17 +103,28 @@ kubectl apply -f k8s/ --validate=false
 log "Waiting for all pods to be ready (up to 3 minutes)..."
 kubectl wait --for=condition=ready pod --all --timeout=180s
 
-# ── 7. Seed data ────────────────────────────────────────────────────────────
-
-log "Seeding test data..."
-./scripts/seed.sh
-
-# ── 8. Start port-forward in background ─────────────────────────────────────
+# ── 7. Start port-forward in background ─────────────────────────────────────
 
 log "Starting port-forward for gateway on http://localhost:5050..."
 pkill -f "port-forward service/gateway" 2>/dev/null || true
 kubectl port-forward service/gateway 5050:5050 &
-sleep 2
+# Wait until the gateway is actually accepting connections before seeding
+echo -n "  Waiting for gateway..."
+for i in $(seq 1 30); do
+    if curl -s --max-time 1 http://localhost:5050/health > /dev/null 2>&1 || \
+       curl -s --max-time 1 http://localhost:5050 > /dev/null 2>&1; then
+        echo " ready"
+        break
+    fi
+    echo -n "."
+    sleep 1
+done
+echo ""
+
+# ── 8. Seed data ────────────────────────────────────────────────────────────
+
+log "Seeding test data..."
+./scripts/seed.sh
 
 # ── Done ────────────────────────────────────────────────────────────────────
 
