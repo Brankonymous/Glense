@@ -210,21 +210,6 @@ services:
       - glense_network
     restart: unless-stopped
 
-  # Frontend (existing React app)
-  frontend:
-    build:
-      context: ./glense.client
-      dockerfile: Dockerfile
-    container_name: glense_frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - VITE_API_URL=http://localhost:5050
-    networks:
-      - glense_network
-    depends_on:
-      - gateway
-
   # Chat Service
   chat_service:
     build:

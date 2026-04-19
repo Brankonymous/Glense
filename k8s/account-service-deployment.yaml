@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o k8s/
+    kompose.version: 1.38.0 (HEAD)
+  labels:
+    io.kompose.service: account-service
+  name: account-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: account-service
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o k8s/
+        kompose.version: 1.38.0 (HEAD)
+      labels:
+        io.kompose.service: account-service
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z postgres-account 5432; do echo "waiting for postgres-account"; sleep 2; done']
+        - name: wait-for-rabbitmq
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z rabbitmq 5672; do echo "waiting for rabbitmq"; sleep 2; done']
+      containers:
+        - env:
+            - name: ACCOUNT_GRPC_PORT
+              value: "5001"
+            - name: ACCOUNT_REST_PORT
+              value: "5000"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ConnectionStrings__DefaultConnection
+              value: Host=postgres-account;Port=5432;Database=glense_account;Username=glense;Password=changeme
+            - name: INTERNAL_API_KEY
+              value: GlenseInternalServiceKey_ChangeMe_AtLeast32Chars!
+            - name: JWT_AUDIENCE
+              value: GlenseApp
+            - name: JWT_ISSUER
+              value: GlenseAccountService
+            - name: JWT_SECRET_KEY
+              value: YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
+            - name: RabbitMQ__Host
+              value: rabbitmq
+            - name: RabbitMQ__Password
+              value: guest
+            - name: RabbitMQ__Username
+              value: guest
+          image: account-service
+          imagePullPolicy: Never
+          name: glense-account-service
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+            - containerPort: 5001
+              protocol: TCP
+      restartPolicy: Always

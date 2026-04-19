@@ -117,14 +117,12 @@ var app = builder.Build();
 // CORS must be first middleware after exception handling
 app.UseCors("AllowFrontend");
 
-// Swagger UI available at root path for easy API exploration
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Donation Microservice API v1");
-        c.RoutePrefix = string.Empty;
     });
 }
 

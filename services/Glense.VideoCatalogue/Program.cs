@@ -139,17 +139,26 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-// Ensure database schema exists
+// Ensure database schema exists — retry a few times, fail loudly if it never works
 using (var scope = app.Services.CreateScope())
 {
-    try
+    var db = scope.ServiceProvider.GetRequiredService<VideoCatalogueDbContext>();
+    var attempts = 0;
+    while (true)
     {
-        var db = scope.ServiceProvider.GetRequiredService<VideoCatalogueDbContext>();
-        db.Database.EnsureCreated();
-    }
-    catch
-    {
-        // ignore DB errors on startup
+        try
+        {
+            db.Database.EnsureCreated();
+            Console.WriteLine("[VideoCatalogue] Database schema ensured.");
+            break;
+        }
+        catch (Exception ex)
+        {
+            attempts++;
+            if (attempts >= 10) throw;
+            Console.WriteLine($"[VideoCatalogue] EnsureCreated attempt {attempts} failed: {ex.Message} — retrying in 3s");
+            System.Threading.Thread.Sleep(3000);
+        }
     }
 }
 

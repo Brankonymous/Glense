@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  schema.sql: "\nCREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";\n\nCREATE TABLE IF NOT EXISTS users (\n    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n    username VARCHAR(50) NOT NULL UNIQUE,\n    password_hash TEXT NOT NULL,\n    email VARCHAR(100) NOT NULL UNIQUE,\n    profile_picture_url TEXT,\n    account_type VARCHAR(50) NOT NULL DEFAULT 'user',\n    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    is_active BOOLEAN NOT NULL DEFAULT true, -- For soft deletes\n    is_verified BOOLEAN NOT NULL DEFAULT false  -- Email verification status\n);\n\nCREATE TABLE IF NOT EXISTS notifications (\n    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n    title VARCHAR(100) NOT NULL,  -- Short heading\n    message TEXT NOT NULL,  -- Detailed message\n    type VARCHAR(50) NOT NULL,  -- 'subscription', 'donation', 'comment', 'system'\n    is_read BOOLEAN NOT NULL DEFAULT false,\n    related_entity_id UUID,\n    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Users table indexes\nCREATE INDEX IF NOT EXISTS idx_users_username ON users(username);\nCREATE INDEX IF NOT EXISTS idx_users_email ON users(email);\nCREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);  \n\n-- Notifications table indexes\nCREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);\nCREATE INDEX IF NOT EXISTS idx_notifications_user_id_is_read ON notifications(user_id, is_read);\nCREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC);\n"
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    io.kompose.service: postgres-account
+  name: postgres-account-cm1
