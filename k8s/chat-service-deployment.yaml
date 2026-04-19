@@ -20,6 +20,10 @@ spec:
       labels:
         io.kompose.service: chat-service
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z postgres-chat 5432; do echo "waiting for postgres-chat"; sleep 2; done']
       containers:
         - env:
             - name: ASPNETCORE_ENVIRONMENT

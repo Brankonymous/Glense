@@ -20,12 +20,19 @@ spec:
       labels:
         io.kompose.service: video-service
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z postgres-video 5432; do echo "waiting for postgres-video"; sleep 2; done']
+        - name: wait-for-rabbitmq
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z rabbitmq 5672; do echo "waiting for rabbitmq"; sleep 2; done']
       containers:
         - env:
             - name: ACCOUNT_GRPC_URL
-              value: http://account_service:5001
+              value: http://account-service:5003
             - name: ACCOUNT_SERVICE_URL
-              value: http://account_service:5000
+              value: http://account-service:5001
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__VideoCatalogue

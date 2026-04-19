@@ -9,8 +9,8 @@ metadata:
   name: postgres-donation
 spec:
   ports:
-    - name: "5434"
-      port: 5434
+    - name: "postgres"
+      port: 5432
       targetPort: 5432
   selector:
     io.kompose.service: postgres-donation

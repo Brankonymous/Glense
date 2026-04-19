@@ -9,8 +9,8 @@ metadata:
   name: postgres-video
 spec:
   ports:
-    - name: "5433"
-      port: 5433
+    - name: "postgres"
+      port: 5432
       targetPort: 5432
   selector:
     io.kompose.service: postgres-video

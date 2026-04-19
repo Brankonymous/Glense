@@ -20,13 +20,20 @@ spec:
       labels:
         io.kompose.service: donation-service
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z postgres-donation 5432; do echo "waiting for postgres-donation"; sleep 2; done']
+        - name: wait-for-rabbitmq
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z rabbitmq 5672; do echo "waiting for rabbitmq"; sleep 2; done']
       containers:
         - env:
             - name: ACCOUNT_SERVICE_URL
-              value: http://account_service:5000
+              value: http://account-service:5001
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
-            - name: DONATION_DB_CONNECTION_STRING
+            - name: ConnectionStrings__DonationDb
               value: Host=postgres-donation;Port=5432;Database=glense_donation;Username=glense;Password=changeme
             - name: INTERNAL_API_KEY
               value: GlenseInternalServiceKey_ChangeMe_AtLeast32Chars!

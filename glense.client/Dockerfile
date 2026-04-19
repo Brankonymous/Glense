@@ -3,8 +3,11 @@ FROM node:18-alpine AS build
 
 WORKDIR /app
 
-# Set build-time environment variable
-ENV VITE_API_URL=http://gateway:5050
+# Set build-time environment variable.
+# The browser (not the container) makes API calls, so this must be an address the
+# browser can reach. In the K8s local-dev setup, the gateway is port-forwarded to
+# localhost:5050 — that's what the built JS bundle will call.
+ENV VITE_API_URL=http://localhost:5050
 
 # Copy package files
 COPY package*.json ./
