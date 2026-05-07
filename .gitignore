@@ -92,3 +92,13 @@ package-lock.json
 
 .env
 /tmp
+
+# Doxygen generated documentation
+docs/doxygen/
+docs/doxygen/**
+
+# Doxygen intermediate files
+docs/doxygen/xml/
+docs/doxygen/latex/
+docs/doxygen/sqlite3/
+docs/doxygen/*.db

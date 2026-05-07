@@ -1,194 +1,126 @@
-# Glense Account Microservice
+# Account Service
 
-This is the Account microservice for the Glense streaming platform. It handles user authentication, profile management, and notifications.
+Handles authentication, user profiles, and notifications for the Glense platform. Acts as the source of truth for user identities and serves a gRPC `AccountGrpc` endpoint that other services call to resolve usernames.
 
-## Features
+For the full REST request/response reference, see [ACCOUNT_API.md](ACCOUNT_API.md).
 
-- **Authentication**
-  - User registration with email and password
-  - Login with username or email
-  - JWT-based authentication
-  - Password hashing with BCrypt
+## Tech stack
 
-- **Profile Management**
-  - Get user profile
-  - Update profile information
-  - Soft delete account
+- .NET 8.0, ASP.NET Core
+- PostgreSQL 16 + Entity Framework Core
+- JWT bearer auth, BCrypt password hashing
+- gRPC server (HTTP/2 cleartext, secured by `INTERNAL_API_KEY`)
+- MassTransit + RabbitMQ (consumer)
 
-- **Notifications**
-  - Create notifications for users
-  - Get user notifications (with pagination)
-  - Mark notifications as read
-  - Get unread count
+## Database schema
 
-## Tech Stack
+| Table | Columns |
+|-------|---------|
+| `users` | `id` (UUID PK), `username` (unique), `email` (unique), `password_hash`, `profile_picture_url?`, `account_type` (`user`/`creator`/`admin`), `created_at`, `updated_at?`, `is_active`, `is_verified` |
+| `notifications` | `id` (UUID PK), `user_id` (FK → users), `title`, `message`, `type`, `is_read`, `related_entity_id?`, `created_at` |
 
-- .NET 8.0
-- PostgreSQL 16
-- Entity Framework Core
-- JWT Authentication
-- BCrypt for password hashing
-- Docker & Docker Compose
+EF Core context: [Data/AccountDbContext.cs](Data/AccountDbContext.cs).
 
-## Database Schema
+## REST endpoints
 
-### Users Table
-- `id` (UUID) - Primary key
-- `username` (VARCHAR(50)) - Unique
-- `password_hash` (TEXT)
-- `email` (VARCHAR(100)) - Unique
-- `profile_picture_url` (TEXT) - Nullable
-- `account_type` (VARCHAR(50)) - user, creator, admin
-- `created_at` (TIMESTAMP)
-- `updated_at` (TIMESTAMP) - Nullable
-- `is_active` (BOOLEAN)
-- `is_verified` (BOOLEAN)
+All endpoints are reachable through the gateway under `http://localhost:5050`. Direct port (no gateway) is `http://localhost:5001`.
 
-### Notifications Table
-- `id` (UUID) - Primary key
-- `user_id` (UUID) - Foreign key to users
-- `title` (VARCHAR(100))
-- `message` (TEXT)
-- `type` (VARCHAR(50))
-- `is_read` (BOOLEAN)
-- `related_entity_id` (UUID) - Nullable
-- `created_at` (TIMESTAMP)
+### Auth — [Controllers/AuthController.cs](Controllers/AuthController.cs)
 
-## API Endpoints
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| POST | `/api/auth/register` | — | Register a new user, returns JWT |
+| POST | `/api/auth/login` | — | Login by username or email, returns JWT |
 
-### Authentication
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login user
+### Profile — [Controllers/ProfileController.cs](Controllers/ProfileController.cs)
 
-### Profile
-- `GET /api/profile/search?q=&limit=20` - Search users by username or email
-- `GET /api/profile/me` - Get current user profile (requires auth)
-- `GET /api/profile/{userId}` - Get user by ID
-- `PUT /api/profile/me` - Update current user profile (requires auth)
-- `DELETE /api/profile/me` - Deactivate account (requires auth)
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| GET | `/api/profile/search?q=&limit=20` | — | Search users by username or email |
+| GET | `/api/profile/me` | JWT | Current user's profile |
+| GET | `/api/profile/{userId}` | — | Get user by id |
+| PUT | `/api/profile/me` | JWT | Update current profile |
+| DELETE | `/api/profile/me` | JWT | Soft-delete (deactivate) account |
 
-### Notifications
-- `GET /api/notification` - Get user notifications (requires auth)
-- `GET /api/notification/unread-count` - Get unread count (requires auth)
-- `PUT /api/notification/{id}/read` - Mark notification as read (requires auth)
-- `PUT /api/notification/read-all` - Mark all as read (requires auth)
+### Notifications — [Controllers/NotificationController.cs](Controllers/NotificationController.cs)
 
-### Internal (service-to-service, no auth required)
-- `POST /api/internal/notifications` - Create a notification (used by Donation service)
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| GET | `/api/notification?isRead&skip=0&take=20` | JWT | List user's notifications |
+| GET | `/api/notification/unread-count` | JWT | Unread counter |
+| PUT | `/api/notification/{id}/read` | JWT | Mark single notification read |
+| PUT | `/api/notification/read-all` | JWT | Mark all read |
+
+### Internal — [Controllers/InternalController.cs](Controllers/InternalController.cs)
+
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| POST | `/api/internal/notifications` | JWT | Create a notification (used by other services) |
 
 ### Health
-- `GET /health` - Service health check
 
-## Inter-Service Communication
+- `GET /health` — service health probe.
 
-The Account service communicates with the Donation service via HTTP calls:
+## gRPC API
 
-| Flow | Direction | Description |
-|------|-----------|-------------|
-| Wallet creation | Account → Donation | Automatically creates a wallet when a new user registers |
-| Recipient validation | Donation → Account | Donation service validates users via `GET /api/profile/{userId}` |
-| Notification | Donation → Account | Donation service creates notifications via `POST /api/internal/notifications` |
+Server: `Glense.AccountService.Protos.AccountGrpc` — defined in [Protos/account.proto](Protos/account.proto).
 
-Wallet creation failure during registration is non-blocking — the user is still registered successfully, and the wallet can be created later.
+| RPC | Purpose |
+|-----|---------|
+| `GetUsername(GetUsernameRequest)` | Resolve a single user id → username |
+| `GetUsernames(GetUsernamesRequest)` | Batch resolve user ids → usernames |
 
-## Running Locally
+All gRPC calls require the header `x-internal-api-key: <INTERNAL_API_KEY>`. Enforced by [Services/InternalApiKeyInterceptor.cs](Services/InternalApiKeyInterceptor.cs); calls without a valid key fail with `UNAUTHENTICATED`.
 
-### Prerequisites
-- .NET 8.0 SDK
-- PostgreSQL 16
-- Docker & Docker Compose (optional)
+## Events (MassTransit / RabbitMQ)
 
-### Option 1: Using Docker Compose
+### Published by Account Service
 
-```bash
-# From the root of the project
-docker-compose up account_service postgres_account
-```
+| Event | When | Payload |
+|-------|------|---------|
+| `UserRegisteredEvent` | After successful registration | `UserId`, `Username`, `Email` |
 
-The service will be available at `http://localhost:5001`
+Consumed by Donation service to auto-create the user's wallet.
 
-### Option 2: Run Manually
+### Consumed by Account Service
 
-1. **Setup PostgreSQL database**
-```bash
-# Connect to PostgreSQL
-psql -U postgres
+| Event | Source | Effect |
+|-------|--------|--------|
+| `DonationMadeEvent` | Donation service | Creates a "you received a donation" notification |
+| `UserSubscribedEvent` | Video service | Creates a "new subscriber" notification |
 
-# Run the schema
-\i services/Glense.AccountService/database/schema.sql
-```
+Event contracts live in [Messages/](Messages/).
 
-2. **Update connection string**
-Edit `appsettings.Development.json` with your PostgreSQL connection details.
+## Configuration
 
-3. **Run migrations**
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `ACCOUNT_REST_PORT` | `5000` | REST listener port (in-container) |
+| `ACCOUNT_GRPC_PORT` | `5001` | gRPC listener port (in-container) |
+| `ConnectionStrings__DefaultConnection` | — | Npgsql connection string |
+| `JWT_SECRET_KEY` | — | HMAC secret (≥32 chars) |
+| `JWT_ISSUER` / `JWT_AUDIENCE` | `GlenseAccountService` / `GlenseApp` | JWT validation params |
+| `INTERNAL_API_KEY` | — | Shared secret for service-to-service calls |
+| `RabbitMQ__Host` / `RabbitMQ__Username` / `RabbitMQ__Password` | `localhost` / `guest` / `guest` | Broker connection |
+
+## Running standalone
+
 ```bash
 cd services/Glense.AccountService
-dotnet ef database update
-```
-
-4. **Run the service**
-```bash
 dotnet run
 ```
 
-## Environment Variables
+Without a `ConnectionStrings__DefaultConnection`, the service falls back to an EF InMemory database (suitable for quick local testing). Swagger UI is at `http://localhost:5001/swagger`.
 
-Create a `.env` file based on `.env.example`:
+For full-stack setup, see [DEV_QUICKSTART.md](../../DEV_QUICKSTART.md).
 
-```env
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_DB=glense_account
-POSTGRES_USER=glense
-POSTGRES_PASSWORD=glense123
+## Inter-service dependencies
 
-JWT_SECRET_KEY=YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
-JWT_ISSUER=GlenseAccountService
-JWT_AUDIENCE=GlenseApp
-
-DONATION_SERVICE_URL=http://localhost:5100
-```
-
-## Testing with Swagger
-
-Once running, visit `http://localhost:5001/swagger` to test the API endpoints.
-
-## Example API Calls
-
-### Register
-```bash
-curl -X POST http://localhost:5001/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "johndoe",
-    "email": "john@example.com",
-    "password": "Password123!",
-    "confirmPassword": "Password123!",
-    "accountType": "user"
-  }'
-```
-
-### Login
-```bash
-curl -X POST http://localhost:5001/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "usernameOrEmail": "johndoe",
-    "password": "Password123!"
-  }'
-```
-
-### Get Profile (with JWT)
-```bash
-curl -X GET http://localhost:5001/api/profile/me \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-## Development Notes
-
-- All passwords are hashed using BCrypt before storage
-- JWT tokens expire after 7 days
-- UUIDs are used instead of integer IDs for better distribution in microservices
-- Soft deletes are implemented (accounts are deactivated, not deleted)
-- CORS is enabled for all origins in development
+| Direction | Protocol | Purpose |
+|-----------|----------|---------|
+| Donation → Account | HTTP `GET /api/profile/{id}` | Validate recipient before transfer |
+| Donation → Account | HTTP `POST /api/internal/notifications` | Donation notification fallback |
+| Video → Account | gRPC `GetUsernames` | Resolve uploader names for video listings |
+| Account ← Donation | RabbitMQ `DonationMadeEvent` | Notification trigger |
+| Account ← Video | RabbitMQ `UserSubscribedEvent` | Notification trigger |
+| Account → Donation | RabbitMQ `UserRegisteredEvent` | Trigger wallet creation |
