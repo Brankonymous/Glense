@@ -12,15 +12,20 @@
 # 1. Copy environment file
 cp .env.example .env
 
-# 2. Start infrastructure + services
-docker compose up --build -d
+# 2. Start infrastructure + services (preferred)
+./dev.sh                # auto-detects docker/podman, waits for health, seeds
+
+# Or, manually:
+# docker compose up --build -d
 
 # 3. Start frontend
 cd glense.client && npm install && npm run dev
 
-# 4. Seed test data
+# 4. Seed test data (skip if you used ./dev.sh)
 ./scripts/seed.sh
 ```
+
+For full setup (Podman, manual `dotnet run`, troubleshooting): [docs/SETUP.md](docs/SETUP.md).
 
 ## Test users
 
@@ -80,12 +85,7 @@ curl "http://localhost:5050/api/profile/search?q=keki"
 
 ## Swagger docs
 
-| Service | URL |
-|---------|-----|
-| Account | http://localhost:5001/swagger |
-| Video Catalogue | http://localhost:5002/swagger |
-| Donation | http://localhost:5100 |
-| Chat | http://localhost:5004/swagger |
+See [docs/SETUP.md → Swagger](docs/SETUP.md#swagger).
 
 ## Stop
 

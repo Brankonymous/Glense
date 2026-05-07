@@ -2,6 +2,17 @@
 
 A microservice-based video streaming platform built with .NET 8, React, and PostgreSQL.
 
+## Documentation map
+
+- Quickest path to a running stack: [DEV_QUICKSTART.md](DEV_QUICKSTART.md)
+- Full setup, ports, troubleshooting: [docs/SETUP.md](docs/SETUP.md)
+- Architecture deep dive (diagrams, data ownership, auth): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Per-service API reference: [docs/api/](docs/api/)
+- End-to-end flows with sequence diagrams: [docs/flows/](docs/flows/)
+- Every env var: [docs/CONFIGURATION.md](docs/CONFIGURATION.md)
+- Testing: [docs/TESTING.md](docs/TESTING.md) · Contributing: [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
+- Frontend: [glense.client/README.md](glense.client/README.md)
+
 ## Architecture
 
 ```
