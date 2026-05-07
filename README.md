@@ -144,6 +144,25 @@ curl -X POST http://localhost:5050/api/auth/login \
 
 Creates 3 users (password: `Password123!`): `keki`, `irena`, `branko` -- each with $500 wallets.
 
+### Doxygen docs
+
+- **HTML output:** [docs/doxygen/html/index.html](docs/doxygen/html/index.html)
+- **Config:** [Doxyfile](Doxyfile)
+- **Helper script:** [scripts/generate_docs.ps1](scripts/generate_docs.ps1)
+
+To (re)generate the API docs locally (requires Doxygen installed):
+
+```bash
+# From the repo root
+doxygen Doxyfile
+
+# On Windows PowerShell, then open the generated HTML:
+doxygen Doxyfile
+Start-Process docs\\doxygen\\html\\index.html
+```
+
+Regenerate after changing public APIs, comment blocks, or the `Doxyfile`. If you switch branches and the `Doxyfile` or source changed, rerun the command so the HTML matches the checked-out code.
+
 ### Other commands
 
 ```bash
