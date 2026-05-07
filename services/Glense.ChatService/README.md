@@ -1,44 +1,42 @@
-# Chat Microservice
+# Chat Service
 
-Real-time chat service for the Glense platform with SignalR support.
+Real-time chat: REST CRUD for chats and messages plus a SignalR hub for live broadcast.
 
-## API Endpoints
+## Tech stack
 
-### Chats
-- `GET /api/chats?cursor=<uuid>&pageSize=50` - List chats (cursor pagination)
-- `POST /api/chats` - Create a chat room
-- `GET /api/chats/{chatId}` - Get chat by ID
-- `DELETE /api/chats/{chatId}` - Delete chat
+ASP.NET Core 8 · EF Core (Npgsql, in-memory fallback) · SignalR · JWT · Swagger.
 
-### Messages
-- `GET /api/chats/{chatId}/messages?cursor=<uuid>&pageSize=50` - List messages
-- `POST /api/chats/{chatId}/messages` - Send a message (userId + username from JWT)
-- `GET /api/messages/{messageId}` - Get message by ID
-- `DELETE /api/messages/{messageId}` - Delete message
-
-### Health
-- `GET /health` - Service health check
-
-### WebSocket
-- `/hubs/chat` - SignalR hub for real-time messaging
-
-## Running Locally
+## Run
 
 ```bash
+./dev.sh                     # full stack
+# or
 cd services/Glense.ChatService
-dotnet run
+dotnet run                   # http://localhost:5004
 ```
 
-Or via Docker Compose from the repo root:
-```bash
-docker compose up chat_service postgres_chat
-```
+Swagger: http://localhost:5004/swagger.  
+SignalR hub: `ws://localhost:5004/hubs/chat` (or via gateway at `/hubs/chat`).
+
+## Endpoints (summary)
+
+- Chats: `GET /api/chats`, `POST /api/chats`, `GET /api/chats/{id}`, `DELETE /api/chats/{id}`
+- Messages: `GET|POST /api/chats/{chatId}/messages`, `GET|DELETE /api/messages/{id}`
+- SignalR: `JoinChat`, `LeaveChat`, `SendMessageToChat` (client→server); `ReceiveMessage` (server→client)
+- `GET /health`
+
+Full reference: [../../docs/api/chat.md](../../docs/api/chat.md). Real-time flow: [../../docs/flows/07-chat-realtime.md](../../docs/flows/07-chat-realtime.md).
+
+## Inter-service
+
+None at runtime. JWTs are validated locally with the shared `JWT_SECRET_KEY`.
 
 ## Configuration
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `ConnectionStrings__DefaultConnection` | PostgreSQL connection string | In-memory DB |
-| `JwtSettings__SecretKey` | JWT secret (must match Account service) | — |
-| `JwtSettings__Issuer` | JWT issuer | `GlenseAccountService` |
-| `JwtSettings__Audience` | JWT audience | `GlenseApp` |
+See [../../docs/CONFIGURATION.md](../../docs/CONFIGURATION.md). Key per-service vars: `CHAT_USE_INMEMORY` (force EF in-memory), `ConnectionStrings__DefaultConnection`, `JwtSettings__*`.
+
+On first run the service seeds three demo chats (`General`, `Tech Talk`, `Gaming`) with placeholder messages — skipped under `ASPNETCORE_ENVIRONMENT=Testing`.
+
+## Tests
+
+[../../tests/ChatService.IntegrationTests/](../../tests/ChatService.IntegrationTests).

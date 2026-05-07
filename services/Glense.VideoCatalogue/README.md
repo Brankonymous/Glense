@@ -1,74 +1,50 @@
-# Video Catalogue Microservice
+# Video Catalogue Service
 
-Manages video metadata, comments, playlists, subscriptions, and likes for the Glense platform.
+Videos, comments, subscriptions, likes, and playlists.
 
-## API Endpoints
+## Tech stack
 
-### Videos
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/videos` | List all videos (includes uploader username) |
-| GET | `/api/videos/{id}` | Get video by ID |
-| POST | `/api/videos/upload` | Upload video (multipart/form-data) |
-| GET | `/api/videos/{id}/stream` | Stream video (supports range requests) |
+ASP.NET Core 8 · EF Core (Npgsql) · MassTransit/RabbitMQ · gRPC client · Swagger · 500 MB upload limit.
 
-### Comments
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/videos/{videoId}/comments` | Get comments for a video |
-| POST | `/api/videos/{videoId}/comments` | Post a comment |
-| DELETE | `/api/videos/{videoId}/comments/{commentId}` | Delete a comment |
-
-### Subscriptions & Likes
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/subscriptions` | Subscribe to a creator |
-| DELETE | `/api/subscriptions` | Unsubscribe |
-| POST | `/api/videolikes` | Like/dislike a video |
-
-### Playlists
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/playlists` | Create playlist |
-| GET | `/api/playlists` | List playlists |
-| GET | `/api/playlists/{id}` | Get playlist |
-| POST | `/api/playlistvideos` | Add video to playlist |
-| DELETE | `/api/playlistvideos` | Remove video from playlist |
-| GET | `/api/playlistvideos/{playlistId}` | List videos in playlist |
-
-### Health
-- `GET /health` - Service health check
-
-## Inter-Service Communication
-
-The Video Catalogue service calls the Account service to resolve uploader usernames:
-
-| Flow | Direction | Description |
-|------|-----------|-------------|
-| Video listing | Video → Account | Resolves uploader usernames via `GET /api/profile/{userId}` |
-
-If the Account service is unavailable, videos are still returned — the `uploaderUsername` field will be `null`.
-
-## Running Locally
+## Run
 
 ```bash
+./dev.sh                     # full stack
+# or
 cd services/Glense.VideoCatalogue
-dotnet run
+dotnet run                   # http://localhost:5002
 ```
 
-Or via Docker Compose:
-```bash
-docker compose up video_service postgres_video
-```
+Swagger: http://localhost:5002/swagger.
+
+## Endpoints (summary)
+
+- Videos: list, search, get, upload (multipart, ≤500 MB), stream (HTTP range), thumbnail, view-increment, category update
+- Comments: list/post/like/delete on `/api/videos/{id}/comments`
+- Subscriptions: subscribe/unsubscribe (`/api/subscriptions`)
+- Likes: get/post (`/api/videolikes`)
+- Playlists: create/list/get + add/remove videos
+- `GET /health`
+
+Full reference: [../../docs/api/video-catalogue.md](../../docs/api/video-catalogue.md).
+
+## Inter-service
+
+| Direction | Mechanism | Purpose |
+|-----------|-----------|---------|
+| → Account | gRPC `AccountGrpc.GetUsername(s)` | Resolve uploader usernames |
+| → RabbitMQ | publish `UserSubscribedEvent` | Notify channel owner via Account |
+
+Outbound gRPC injects `INTERNAL_API_KEY` via [`InternalApiKeyClientInterceptor`](GrpcClients).
 
 ## Configuration
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `ConnectionStrings__VideoCatalogue` | PostgreSQL connection string | In-memory DB |
-| `ACCOUNT_SERVICE_URL` | Account service base URL | `http://localhost:5001` |
-| `VideoStorage__BasePath` | Local file storage path | `Videos` |
+See [../../docs/CONFIGURATION.md](../../docs/CONFIGURATION.md). Key per-service vars: `ACCOUNT_GRPC_URL`, `VideoStorage:BasePath` (default `Videos/`).
 
-## Seeding
+## Storage
 
-Test videos and comments are seeded by `./scripts/seed.sh`. The script inserts videos with real user IDs as uploaders.
+Files live on disk under `VideoStorage:BasePath`. In containers, mount a volume to persist uploads.
+
+## Tests
+
+[../../tests/VideoCatalogue.IntegrationTests/](../../tests/VideoCatalogue.IntegrationTests).
