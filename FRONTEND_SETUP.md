@@ -1,60 +1,64 @@
-# Frontend 
+# Frontend Setup
 
-# Frontend Integration with Account Microservice
+The Glense frontend is a React + Vite SPA that talks to the backend **through the API Gateway** (`http://localhost:5050`). It does not call individual microservices directly.
 
-The frontend is now connected to the Account microservice. Here's how to run everything:
+For an in-depth tour of the frontend project, see [glense.client/README.md](glense.client/README.md).
 
-## Running the Application
+## Prerequisites
 
-### 1. Start the Account Microservice (Backend)
+- Node.js v22+
+- The backend stack running (gateway reachable on `http://localhost:5050`). See [DEV_QUICKSTART.md](DEV_QUICKSTART.md).
 
-```bash
-# From the project root
-docker-compose up account_service postgres_account
-```
-
-### 2. Start the Frontend (Development)
+## Run the frontend (standalone dev)
 
 ```bash
-# In a new terminal, from the project root
 cd glense.client
-npm install  
+npm install
 npm run dev
 ```
 
-The frontend will be available at http://localhost:50653 (or the port shown in terminal)
+Vite serves the app at `http://localhost:5173` by default.
 
+When the full stack is started via `python3 scripts/start.py` (Kubernetes mode), the frontend is port-forwarded to `http://localhost:3000` instead.
 
-## Testing the Integration
+## Environment variables
 
-1. Start both backend and frontend as described above
-2. Click "Sign-in" in the navbar
-3. Try registering a new user:
-   - Username: `testuser`
-   - Email: `test@example.com`
-   - Password: `password123`
-4. You should be logged in automatically after registration
-5. Try logging out via the profile menu (account icon)
-6. Try logging in again with the same credentials
+The frontend reads its configuration from Vite environment variables. Defaults are sensible for local development.
 
-## Environment Configuration
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `VITE_API_URL` | `http://localhost:5050` | Base URL for all REST and SignalR calls (always the gateway) |
 
-The frontend API URL can be configured via environment variable:
-- Default: `http://localhost:5001`
-- Custom: Set `VITE_ACCOUNT_API_URL` in a `.env` file
+To override, create `glense.client/.env.local`:
 
-Example `.env` file:
 ```env
-VITE_ACCOUNT_API_URL=http://localhost:5001
+VITE_API_URL=http://localhost:5050
 ```
 
-## Token Storage
+## How API calls work
 
-JWT tokens are stored in `localStorage`:
-- Token key: `glense_auth_token`
-- User data key: `glense_user`
+All HTTP calls go through [glense.client/src/services/apiClient.js](glense.client/src/services/apiClient.js), which:
 
-Tokens are automatically:
-- Saved on successful login/register
-- Sent with all API requests via Authorization header
-- Cleared on logout or 401 Unauthorized responses
+1. Prefixes every request with `VITE_API_URL`.
+2. Reads the JWT from `localStorage` (`glense_auth_token`) and attaches it as `Authorization: Bearer <token>`.
+3. Sends `Content-Type: application/json` by default.
+
+Endpoint paths are centralized in [glense.client/src/config/api.js](glense.client/src/config/api.js).
+
+## Token storage
+
+JWTs and the user object are persisted in `localStorage`:
+
+| Key | Contents |
+|-----|----------|
+| `glense_auth_token` | JWT returned by `/api/auth/login` or `/api/auth/register` |
+| `glense_user` | Serialized user DTO (id, username, email, accountType, …) |
+
+`AuthContext` (under [glense.client/src/context](glense.client/src/context)) reads these on app load and exposes `login`, `logout`, and `user` to the component tree.
+
+## Smoke test
+
+1. Start the backend (see [DEV_QUICKSTART.md](DEV_QUICKSTART.md)).
+2. `cd glense.client && npm run dev`.
+3. Open the dev URL, click **Sign in**, register a user, and confirm you land logged-in.
+4. Open browser dev tools → Application → Local Storage to verify `glense_auth_token` was written.

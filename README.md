@@ -2,6 +2,24 @@
 
 A microservice-based video streaming platform built with .NET 8, React, and PostgreSQL.
 
+## Documentation map
+
+| Doc | What it covers |
+|-----|----------------|
+| [DEV_QUICKSTART.md](DEV_QUICKSTART.md) | Local setup (Kubernetes + Docker Compose), iteration loop, troubleshooting |
+| [FRONTEND_SETUP.md](FRONTEND_SETUP.md) | Frontend dev workflow, env vars, gateway integration |
+| [docs/architecture.md](docs/architecture.md) | High-level overview, responsibilities, data ownership |
+| [docs/flows.md](docs/flows.md) | End-to-end sequence diagrams (registration, donation, video listing, chat) |
+| [docs/api-reference.md](docs/api-reference.md) | All public endpoints across services with deep links |
+| [docs/deployment.md](docs/deployment.md) | Docker Compose vs Kubernetes, env vars per service |
+| [docs/testing.md](docs/testing.md) | Test layout and how to run integration tests |
+| [glense.client/README.md](glense.client/README.md) | Frontend project structure, scripts, services layer |
+| [services/Glense.AccountService/README.md](services/Glense.AccountService/README.md) | Account service internals |
+| [services/Glense.AccountService/ACCOUNT_API.md](services/Glense.AccountService/ACCOUNT_API.md) | Account REST API reference |
+| [services/Glense.VideoCatalogue/README.md](services/Glense.VideoCatalogue/README.md) | Video Catalogue service internals |
+| [Glense.Server/DonationService/README.md](Glense.Server/DonationService/README.md) | Donation service internals |
+| [services/Glense.ChatService/README.md](services/Glense.ChatService/README.md) | Chat service + SignalR hub |
+
 ## Architecture
 
 ```
